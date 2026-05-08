@@ -71,6 +71,31 @@ To install the built plugin into MuseScore 4:
 3. Open MuseScore 4 → Plugin Manager → enable "Hello World"
 4. Plugins menu → Hello World
 
+## CI / リリース設定
+
+### 必要なリポジトリシークレット
+
+| シークレット名 | 用途 | 設定方法 |
+|---|---|---|
+| `RELEASE_PAT` | リリース用 Personal Access Token | 後述 |
+| `NPM_TOKEN` | npm へのパッケージ公開 | npm の Access Tokens ページで `Automation` タイプのトークンを生成し設定する |
+
+### `RELEASE_PAT` が必要な理由
+
+GitHub Actions のデフォルトトークン (`GITHUB_TOKEN`) で作成したコミットや PR は、セキュリティ上の制約により **他のワークフローをトリガーしない** 仕様になっています。
+
+リリースフロー (`release.yml`) では [changesets/action](https://github.com/changesets/action) が "Version Packages" PR を自動作成しますが、この PR 上で `release-dry-run.yml` が走るためには PAT 経由のチェックアウトが必要です。
+
+### `RELEASE_PAT` の設定手順
+
+1. GitHub の **Settings → Developer settings → Personal access tokens → Fine-grained tokens** でトークンを生成する
+2. 対象リポジトリを選択し、以下の権限を付与する
+   - **Contents**: Read and write
+   - **Pull requests**: Read and write
+3. 生成したトークンを リポジトリの **Settings → Secrets and variables → Actions** に `RELEASE_PAT` という名前で登録する
+
+---
+
 ## Updating to a newer MuseScore release
 
 Edit `packages/types-generator/config.json`, bump `ref` to the desired tag (e.g. `v4.7.0`), then:
