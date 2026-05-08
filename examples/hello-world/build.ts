@@ -8,9 +8,10 @@ const distDir = resolve(here, "dist");
 
 await mkdir(distDir, { recursive: true });
 
-// Bundle the TS entry into a single file. We expose every export through
-// a tiny footer that re-binds them at top-level so that QML's `import "x.js" as Logic`
-// surfaces them as `Logic.run`, `Logic.<otherExport>` etc.
+// TS のエントリポイントを 1 ファイルにバンドルする。各エクスポートは、トップレベルに
+// 再バインドする小さなフッタを介して公開する。これにより QML 側の
+// `import "x.js" as Logic` が `Logic.run` や `Logic.<その他のエクスポート>` を
+// 認識できるようになる。
 const exportNames = ["run"];
 
 await build({
@@ -29,4 +30,4 @@ await build({
 
 await copyFile(resolve(here, "plugin.qml"), resolve(distDir, "plugin.qml"));
 
-console.log("built dist/plugin.qml + dist/logic.js");
+console.log("dist/plugin.qml と dist/logic.js をビルドしました");

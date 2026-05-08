@@ -27,7 +27,7 @@ export async function fetchHeaders(opts: FetchOptions): Promise<FetchedHeader[]>
       const url = `https://raw.githubusercontent.com/${opts.repository}/${opts.ref}/${path}`;
       const res = await fetch(url);
       if (!res.ok) {
-        throw new Error(`Failed to fetch ${url}: HTTP ${res.status}`);
+        throw new Error(`${url} の取得に失敗しました: HTTP ${res.status}`);
       }
       source = await res.text();
       await mkdir(dirname(cachePath), { recursive: true });
@@ -51,7 +51,7 @@ export async function resolveCommitSha(opts: ResolveShaOptions): Promise<string>
     const cached = (await readFile(cachePath, "utf8")).trim();
     if (/^[0-9a-f]{40}$/i.test(cached)) return cached;
   } catch {
-    // fall through
+    // キャッシュ読み込みに失敗した場合はそのまま下の処理に進む
   }
 
   const url = `https://api.github.com/repos/${opts.repository}/commits/${opts.ref}`;
@@ -65,12 +65,12 @@ export async function resolveCommitSha(opts: ResolveShaOptions): Promise<string>
   const res = await fetch(url, { headers });
   if (!res.ok) {
     throw new Error(
-      `Failed to resolve commit SHA for ${opts.repository}@${opts.ref}: HTTP ${res.status}. Set GITHUB_TOKEN to avoid rate limits.`,
+      `${opts.repository}@${opts.ref} のコミット SHA を解決できませんでした: HTTP ${res.status}。レート制限を回避するには GITHUB_TOKEN を設定してください。`,
     );
   }
   const body = (await res.json()) as { sha?: string };
   if (!body.sha) {
-    throw new Error(`GitHub API returned no sha for ${opts.repository}@${opts.ref}`);
+    throw new Error(`GitHub API が ${opts.repository}@${opts.ref} の sha を返しませんでした`);
   }
 
   await mkdir(dirname(cachePath), { recursive: true });

@@ -1,75 +1,75 @@
 # musescore-plugin-sdk
 
-TypeScript SDK for authoring MuseScore 4 plugins.
+MuseScore 4 プラグインを TypeScript で書くための SDK です。
 
-A MuseScore plugin is a `.qml` file (QML + embedded JavaScript). This SDK lets you write the JavaScript half in TypeScript with full type information generated directly from the official MuseScore C++ headers.
+MuseScore のプラグインは `.qml` ファイル（QML + 埋め込み JavaScript）で構成されます。本 SDK は、その JavaScript 部分を TypeScript で記述できるようにし、公式の MuseScore C++ ヘッダから直接生成された型情報を提供します。
 
-## Packages
+## パッケージ一覧
 
-| Package | Purpose | Publish |
+| パッケージ | 役割 | 公開 |
 |---|---|---|
-| `@kjfsm/musescore-plugin-sdk-types` | TypeScript type definitions for the MuseScore 4 Plugin API. | ✅ |
-| `@kjfsm/musescore-plugin-sdk-types-generator` | Internal: regenerates `@kjfsm/musescore-plugin-sdk-types` from `musescore/MuseScore` C++ headers. | ❌ |
+| `@kjfsm/musescore-plugin-sdk-types` | MuseScore 4 Plugin API の TypeScript 型定義 | ✅ |
+| `@kjfsm/musescore-plugin-sdk-types-generator` | 内部用：`musescore/MuseScore` の C++ ヘッダから `@kjfsm/musescore-plugin-sdk-types` を再生成 | ❌ |
 
-## Repository layout
+## リポジトリ構成
 
 ```
 packages/
-  types/                 # @kjfsm/musescore-plugin-sdk-types — published type defs
-  types-generator/       # internal generator script
+  types/                 # @kjfsm/musescore-plugin-sdk-types — 公開する型定義
+  types-generator/       # 内部用ジェネレータスクリプト
 examples/
-  hello-world/           # TS plugin + hand-written QML, built via esbuild
+  hello-world/           # TS プラグイン + 手書き QML を esbuild でビルド
 ```
 
-## Workflow
+## ワークフロー
 
-Install:
+インストール:
 
 ```sh
 pnpm install
 ```
 
-Regenerate the types from the latest MuseScore source pinned in `packages/types-generator/config.json`:
+`packages/types-generator/config.json` で固定された MuseScore のバージョンに基づき、型定義を再生成:
 
 ```sh
 pnpm generate:types
 ```
 
-Build everything (types package, example plugin):
+すべてビルド（types パッケージとサンプルプラグイン）:
 
 ```sh
 pnpm build
 ```
 
-Other tasks:
+その他のタスク:
 
 ```sh
-pnpm test         # vitest across all packages
-pnpm typecheck    # tsc --noEmit across all packages
+pnpm test         # 全パッケージで vitest を実行
+pnpm typecheck    # 全パッケージで tsc --noEmit を実行
 pnpm lint         # biome check
 pnpm format       # biome format --write
 ```
 
-## Authoring a plugin
+## プラグインの作成
 
-See `examples/hello-world/` for the canonical layout:
+リファレンスとなる構成は `examples/hello-world/` を参照してください。
 
 ```
 my-plugin/
-├── plugin.qml          # hand-written, declares MuseScore { ... onRun: { Logic.run(curScore) } }
-├── src/logic.ts        # TypeScript with `import type { Score } from "@kjfsm/musescore-plugin-sdk-types"`
-├── musescore.config.ts # PluginManifest (informational; QML is the source of truth)
-└── build.ts            # esbuild script: bundles src/logic.ts → dist/logic.js, copies plugin.qml
+├── plugin.qml          # 手書き。MuseScore { ... onRun: { Logic.run(curScore) } } を宣言
+├── src/logic.ts        # `import type { Score } from "@kjfsm/musescore-plugin-sdk-types"` を使う TypeScript
+├── musescore.config.ts # PluginManifest（参考情報。実体は QML が真）
+└── build.ts            # esbuild スクリプト：src/logic.ts → dist/logic.js をバンドルし、plugin.qml をコピー
 ```
 
-The QML side imports the compiled JS via `import "logic.js" as Logic` and calls `Logic.run(curScore)` from `onRun`.
+QML 側はビルド済みの JS を `import "logic.js" as Logic` で読み込み、`onRun` から `Logic.run(curScore)` を呼び出します。
 
-To install the built plugin into MuseScore 4:
+ビルド済みプラグインを MuseScore 4 にインストールする手順:
 
 1. `pnpm --filter ./examples/hello-world build`
-2. Copy `examples/hello-world/dist/` to `~/Documents/MuseScore4/Plugins/hello-world/`
-3. Open MuseScore 4 → Plugin Manager → enable "Hello World"
-4. Plugins menu → Hello World
+2. `examples/hello-world/dist/` を `~/Documents/MuseScore4/Plugins/hello-world/` にコピー
+3. MuseScore 4 を起動 → プラグインマネージャ → "Hello World" を有効化
+4. プラグインメニュー → Hello World を実行
 
 ## CI / リリース設定
 
@@ -96,13 +96,13 @@ GitHub Actions のデフォルトトークン (`GITHUB_TOKEN`) で作成した�
 
 ---
 
-## Updating to a newer MuseScore release
+## MuseScore の新しいリリースに追従する
 
-Edit `packages/types-generator/config.json`, bump `ref` to the desired tag (e.g. `v4.7.0`), then:
+`packages/types-generator/config.json` を編集し、`ref` を対象タグ（例: `v4.7.0`）に更新したうえで、以下を実行します。
 
 ```sh
 pnpm generate:types
 pnpm typecheck
 ```
 
-Commit the regenerated `packages/types/src/generated/` files alongside the config bump.
+再生成された `packages/types/src/generated/` の差分を、`config.json` の更新と一緒にコミットしてください。
