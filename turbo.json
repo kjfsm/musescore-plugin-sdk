@@ -17,6 +17,14 @@
     "lint": {
       "outputs": []
     },
+    "publint": {
+      "dependsOn": ["build"],
+      "outputs": []
+    },
+    "attw": {
+      "dependsOn": ["build"],
+      "outputs": []
+    },
     "clean": {
       "cache": false
     }

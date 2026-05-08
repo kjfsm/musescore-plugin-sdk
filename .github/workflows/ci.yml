@@ -41,6 +41,12 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: publint
+        run: pnpm publint
+
+      - name: attw
+        run: pnpm attw
+
   generated-types-drift:
     name: generated types drift check
     runs-on: ubuntu-latest
@@ -62,7 +68,10 @@ jobs:
 
       - name: Regenerate types from upstream
         run: pnpm generate:types
+        env:
+          # Authenticated requests dodge the 60 req/hr unauthenticated limit
+          # when resolving the commit SHA for the pinned MuseScore tag.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Fail if generated output drifted
-        # _meta.ts records a fresh timestamp on each run; only check the API surface.
-        run: git diff --exit-code -- 'packages/types/src/generated/*.ts' ':!packages/types/src/generated/_meta.ts'
+        run: git diff --exit-code -- packages/types/src/generated

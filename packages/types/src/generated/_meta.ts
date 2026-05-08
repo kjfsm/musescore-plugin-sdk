@@ -3,5 +3,4 @@ export const generatedFrom = {
   repository: "musescore/MuseScore",
   tag: "v4.6.0",
   commitSha: "7829779de078c8845e49994680dc7799df1280cf",
-  generatedAt: "2026-05-08T12:05:58.446Z",
 } as const;

@@ -4,7 +4,7 @@
   "description": "TypeScript type definitions for the MuseScore 4 Plugin API.",
   "license": "MIT",
   "type": "module",
-  "files": ["dist", "README.md"],
+  "files": ["dist", "README.md", "LICENSE"],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -24,6 +24,8 @@
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --passWithNoTests",
+    "publint": "publint",
+    "attw": "attw --pack --profile esm-only",
     "clean": "rm -rf dist .turbo *.tsbuildinfo"
   },
   "devDependencies": {
