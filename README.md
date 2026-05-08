@@ -8,14 +8,14 @@ A MuseScore plugin is a `.qml` file (QML + embedded JavaScript). This SDK lets y
 
 | Package | Purpose | Publish |
 |---|---|---|
-| `@musescore-sdk/types` | TypeScript type definitions for the MuseScore 4 Plugin API. | ✅ |
-| `@musescore-sdk/types-generator` | Internal: regenerates `@musescore-sdk/types` from `musescore/MuseScore` C++ headers. | ❌ |
+| `@kjfsm/musescore-plugin-sdk-types` | TypeScript type definitions for the MuseScore 4 Plugin API. | ✅ |
+| `@kjfsm/musescore-plugin-sdk-types-generator` | Internal: regenerates `@kjfsm/musescore-plugin-sdk-types` from `musescore/MuseScore` C++ headers. | ❌ |
 
 ## Repository layout
 
 ```
 packages/
-  types/                 # @musescore-sdk/types — published type defs
+  types/                 # @kjfsm/musescore-plugin-sdk-types — published type defs
   types-generator/       # internal generator script
 examples/
   hello-world/           # TS plugin + hand-written QML, built via esbuild
@@ -57,7 +57,7 @@ See `examples/hello-world/` for the canonical layout:
 ```
 my-plugin/
 ├── plugin.qml          # hand-written, declares MuseScore { ... onRun: { Logic.run(curScore) } }
-├── src/logic.ts        # TypeScript with `import type { Score } from "@musescore-sdk/types"`
+├── src/logic.ts        # TypeScript with `import type { Score } from "@kjfsm/musescore-plugin-sdk-types"`
 ├── musescore.config.ts # PluginManifest (informational; QML is the source of truth)
 └── build.ts            # esbuild script: bundles src/logic.ts → dist/logic.js, copies plugin.qml
 ```

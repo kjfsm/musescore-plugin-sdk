@@ -41,7 +41,7 @@ importers:
 
   examples/hello-world:
     dependencies:
-      '@musescore-sdk/types':
+      '@kjfsm/musescore-plugin-sdk-types':
         specifier: workspace:*
         version: link:../../packages/types
     devDependencies:

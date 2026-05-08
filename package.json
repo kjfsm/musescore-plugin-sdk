@@ -13,7 +13,7 @@
     "attw": "turbo run attw --filter=\"./packages/*\"",
     "lint": "biome check .",
     "format": "biome format --write .",
-    "generate:types": "pnpm --filter @musescore-sdk/types-generator generate",
+    "generate:types": "pnpm --filter @kjfsm/musescore-plugin-sdk-types-generator generate",
     "clean": "turbo run clean",
     "changeset": "changeset",
     "version": "changeset version",
