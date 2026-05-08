@@ -1,0 +1,1 @@
+# musescore-plugin-sdk
