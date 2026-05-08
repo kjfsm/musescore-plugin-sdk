@@ -69,7 +69,7 @@ export function parseHeader(source: string): ParseResult {
     classRe.lastIndex = bodyEnd + 1;
   }
 
-  // Free-standing enums (outside class bodies, e.g. enums.h)
+  // クラスの外側にある自立した enum（例: enums.h）
   const enumRe = /\benum(?:\s+class)?\s+(\w+)\s*(?::\s*\w+)?\s*\{/g;
   while (true) {
     const m = enumRe.exec(stripped);
@@ -166,8 +166,8 @@ function extractInvokableMethods(body: string): MethodDecl[] {
   return out;
 }
 
-// Find the byte index that ends a member declaration starting at `from`,
-// whichever comes first at depth 0: `;` or `{` (inline body).
+// `from` から始まるメンバ宣言の終端のバイトインデックスを返す。
+// 深さ 0 のところで最初に現れた `;` か `{`（インライン定義）のいずれか。
 function findDeclarationEnd(s: string, from: number): number {
   let depth = 0;
   for (let i = from; i < s.length; i++) {

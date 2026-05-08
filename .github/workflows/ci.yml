@@ -69,8 +69,8 @@ jobs:
       - name: Regenerate types from upstream
         run: pnpm generate:types
         env:
-          # Authenticated requests dodge the 60 req/hr unauthenticated limit
-          # when resolving the commit SHA for the pinned MuseScore tag.
+          # 固定された MuseScore タグのコミット SHA を解決する際、未認証の場合に課される
+          # 60 リクエスト/時のレート制限を回避するために認証付きでリクエストする。
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Fail if generated output drifted

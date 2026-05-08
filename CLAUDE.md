@@ -1,36 +1,36 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+このファイルは、本リポジトリでコードを扱う際に Claude Code（claude.ai/code）が参照するためのガイドです。
 
-## Repository purpose
+## リポジトリの目的
 
-TypeScript SDK for authoring MuseScore 4 plugins. A MuseScore plugin is a `.qml` file (QML + embedded JavaScript); this repo lets you write the JS half in TypeScript with type definitions generated directly from the official MuseScore C++ headers.
+MuseScore 4 プラグインを TypeScript で書くための SDK。MuseScore プラグインは `.qml` ファイル（QML + 埋め込み JavaScript）であり、本リポジトリではその JS 部分を TypeScript で記述できるようにし、公式の MuseScore C++ ヘッダから直接生成された型定義を提供する。
 
-## Workspace layout
+## ワークスペース構成
 
-pnpm monorepo (`pnpm-workspace.yaml` includes `packages/*` and `examples/*`), orchestrated by turbo:
+pnpm モノレポ（`pnpm-workspace.yaml` には `packages/*` と `examples/*` を含む）で、turbo によりオーケストレートされる。
 
-- `packages/types/` — `@kjfsm/musescore-plugin-sdk-types` (published). Hand-written entry points (`src/index.ts`, `src/manifest.ts`, `src/globals.ts`) plus `src/generated/` produced by the generator.
-- `packages/types-generator/` — internal, **not published**. Reads `config.json` (pinned MuseScore tag + header list), fetches headers from `raw.githubusercontent.com`, parses with regex, emits TS into `packages/types/src/generated/`.
-- `examples/hello-world/` — canonical plugin layout. Bundled with esbuild as IIFE so QML's `import "logic.js" as Logic` can call exported functions like `Logic.run(...)`.
+- `packages/types/` — `@kjfsm/musescore-plugin-sdk-types`（公開）。手書きのエントリポイント（`src/index.ts`、`src/manifest.ts`、`src/globals.ts`）と、ジェネレータが生成する `src/generated/` から構成される。
+- `packages/types-generator/` — 内部用、**未公開**。`config.json`（固定する MuseScore タグ + ヘッダ一覧）を読み込み、`raw.githubusercontent.com` からヘッダを取得、正規表現でパースして TS を `packages/types/src/generated/` に出力する。
+- `examples/hello-world/` — プラグインの正規レイアウト。esbuild で IIFE としてバンドルし、QML の `import "logic.js" as Logic` から `Logic.run(...)` のような形でエクスポート関数を呼び出せるようにしている。
 
-## Common commands
+## よく使うコマンド
 
-Run from the repo root:
+リポジトリのルートから実行する。
 
 ```sh
 pnpm install
 pnpm build          # turbo run build
-pnpm test           # turbo run test (vitest in each package)
-pnpm typecheck      # turbo run typecheck (tsc --noEmit)
+pnpm test           # turbo run test（各パッケージで vitest を実行）
+pnpm typecheck      # turbo run typecheck（tsc --noEmit）
 pnpm lint           # biome check .
 pnpm format         # biome format --write .
 pnpm publint        # turbo run publint --filter="./packages/*"
 pnpm attw           # turbo run attw   --filter="./packages/*"
-pnpm generate:types # regenerate types/src/generated/ from upstream MuseScore
+pnpm generate:types # 上流の MuseScore から types/src/generated/ を再生成
 ```
 
-Single-package operations use `pnpm --filter`:
+単一パッケージに対する操作は `pnpm --filter` を用いる:
 
 ```sh
 pnpm --filter @kjfsm/musescore-plugin-sdk-types build
@@ -38,52 +38,52 @@ pnpm --filter @kjfsm/musescore-plugin-sdk-hello-world build
 pnpm --filter @kjfsm/musescore-plugin-sdk-types-generator test
 ```
 
-Run a single test file or single test (vitest) in a workspace package:
+ワークスペース内のパッケージで vitest の特定ファイルやテストを単独実行する例:
 
 ```sh
 pnpm --filter @kjfsm/musescore-plugin-sdk-types-generator exec vitest run tests/parse.test.ts
 pnpm --filter @kjfsm/musescore-plugin-sdk-types-generator exec vitest run -t "extracts classes"
 ```
 
-## Type generator architecture
+## 型ジェネレータのアーキテクチャ
 
-The generator turns MuseScore's C++ Plugin API headers into TS interfaces. Pipeline (see `packages/types-generator/src/`):
+ジェネレータは MuseScore の C++ Plugin API ヘッダを TS インターフェイスに変換する。パイプラインは以下の通り（`packages/types-generator/src/` 参照）:
 
-1. `fetch.ts` — `resolveCommitSha` pins `ref` (e.g. `v4.6.0`) to a 40-char SHA via the GitHub API; `fetchHeaders` downloads each header listed in `config.json`. Both cache under `packages/types-generator/.cache/<ref>/...` so reruns are offline. Set `GITHUB_TOKEN` (or `GH_TOKEN`) to dodge the 60 req/hr unauthenticated GitHub API limit.
-2. `parse.ts` — regex-based parser (no tree-sitter dependency despite the package description). Strips comments/strings, then finds `class Foo : public Bar { ... }` blocks and extracts `Q_PROPERTY(...)`, `Q_INVOKABLE` methods, and inline / free-standing enums.
-3. `map-types.ts` — maps C++ types to TS: `qreal/int/...` → `number`, `QString` → `string`, `bool` → `boolean`, `QList<T>` / `QVector<T>` → `T[]`, `QMap<K,V>` → `Record<K,V>`, pointers → `T | null`, `QVariant`/`QJSValue` → `unknown`. Strips namespaces like `mu::engraving::apiv1::`.
-4. `emit.ts` — produces `plugin-api.ts` and `enums.ts`. Dedupes classes (when the same class appears in multiple headers, properties/methods are merged), threads inheritance via `extends BaseClass`, handles property/method name collisions with `Omit<...>`. Auxiliary unmapped Qt types (e.g. `QPointF`) are aliased inline. Enums emit as `as const` objects + union types (apiv1 surfaces them as ints).
-5. `index.ts` `generate(...)` orchestrates and writes `_meta.ts` with `{repository, tag, commitSha}`. **No timestamp is recorded** — output must be a pure function of `(repository, ref, headers)` so the CI drift check is stable.
+1. `fetch.ts` — `resolveCommitSha` が GitHub API を介して `ref`（例: `v4.6.0`）を 40 文字の SHA に固定する。`fetchHeaders` は `config.json` に列挙された各ヘッダをダウンロードする。両者ともに `packages/types-generator/.cache/<ref>/...` 以下にキャッシュされるため、再実行はオフラインでも可能。GitHub API の未認証時のレート制限（60 リクエスト/時）を回避するため、`GITHUB_TOKEN`（または `GH_TOKEN`）を設定しておくこと。
+2. `parse.ts` — 正規表現ベースのパーサ（パッケージ description には tree-sitter とあるが、依存はしていない）。コメントと文字列を取り除いたうえで、`class Foo : public Bar { ... }` ブロックを見つけ、`Q_PROPERTY(...)`、`Q_INVOKABLE` メソッド、インラインおよびトップレベルの enum を抽出する。
+3. `map-types.ts` — C++ の型を TS にマッピング: `qreal/int/...` → `number`、`QString` → `string`、`bool` → `boolean`、`QList<T>` / `QVector<T>` → `T[]`、`QMap<K,V>` → `Record<K,V>`、ポインタ → `T | null`、`QVariant`/`QJSValue` → `unknown`。`mu::engraving::apiv1::` のような名前空間は剥がす。
+4. `emit.ts` — `plugin-api.ts` と `enums.ts` を生成する。同じクラスが複数のヘッダに登場する場合はクラスを統合（プロパティ・メソッドをマージ）し、`extends BaseClass` で継承を表現、プロパティとメソッドの名前衝突は `Omit<...>` で解消する。マッピング不能な Qt 型（例: `QPointF`）はインラインでエイリアス化する。enum は `as const` オブジェクト + ユニオン型として出力する（apiv1 では int として現れるため）。
+5. `index.ts` の `generate(...)` がパイプライン全体を統括し、`{repository, tag, commitSha}` を含む `_meta.ts` を書き出す。**タイムスタンプは記録しない** — 出力は `(repository, ref, headers)` の純粋関数でなければならない。CI のドリフトチェックを安定させるための設計。
 
-The CI job `generated-types-drift` runs `pnpm generate:types` and `git diff --exit-code -- packages/types/src/generated`; do not hand-edit files under `packages/types/src/generated/` — bump `config.json` or change generator code, then regenerate and commit the result.
+CI のジョブ `generated-types-drift` は `pnpm generate:types` を実行し、`git diff --exit-code -- packages/types/src/generated` で差分を検査する。`packages/types/src/generated/` 配下のファイルは手で編集しないこと — `config.json` を更新するか、ジェネレータのコードを変更してから再生成し、その結果をコミットする。
 
-To bump the MuseScore version: edit `packages/types-generator/config.json` (`ref` field), then `pnpm generate:types && pnpm typecheck`, and commit `config.json` + `packages/types/src/generated/` together.
+MuseScore のバージョンを上げる手順: `packages/types-generator/config.json` の `ref` を編集し、`pnpm generate:types && pnpm typecheck` を実行、`config.json` と `packages/types/src/generated/` の変更を一緒にコミットする。
 
-## Plugin example architecture
+## プラグインのサンプル構成
 
-`examples/hello-world/` is the reference layout consumers should mirror:
+`examples/hello-world/` は、SDK の利用者が踏襲すべきリファレンスレイアウト:
 
-- `plugin.qml` is hand-written and is the source of truth MuseScore loads. It declares the `MuseScore { ... }` block (menuPath, title, version, `onRun`) and does `import "logic.js" as Logic`.
-- `src/logic.ts` imports types via `import type { Score } from "@kjfsm/musescore-plugin-sdk-types"` and exports plain functions.
-- `musescore.config.ts` exports a `PluginManifest` for tooling; **the QML `MuseScore { }` block is what actually drives MuseScore at runtime**, so keep them in sync manually.
-- `build.ts` (esbuild) bundles `src/logic.ts` to a single IIFE assigned to `globalName: "__musescorePlugin"`, then appends a footer that re-exports each name at top level (`var run = __musescorePlugin.run;`). This is the bridge that lets QML's `import "logic.js" as Logic` see `Logic.run`. **Every TS export you want to call from QML must be added to the `exportNames` array in `build.ts`** — esbuild's IIFE format alone does not expose them to QML.
-- `target: "es2017"`, `platform: "neutral"`. QML's JS engine is roughly that level — avoid features that need Node/browser APIs.
-- Globals like `curScore` and `Qt.quit()` are declared in `@kjfsm/musescore-plugin-sdk-types/globals` (see `packages/types/src/globals.ts`).
+- `plugin.qml` は手書きで、MuseScore が読み込む真の入り口。`MuseScore { ... }` ブロック（menuPath、title、version、`onRun`）を宣言し、`import "logic.js" as Logic` を行う。
+- `src/logic.ts` は `import type { Score } from "@kjfsm/musescore-plugin-sdk-types"` で型を取り込み、純粋な関数をエクスポートする。
+- `musescore.config.ts` はツーリング向けに `PluginManifest` をエクスポートする。**ただし、実行時に MuseScore を駆動するのは QML 側の `MuseScore { }` ブロック** なので、両者は手作業で同期させる必要がある。
+- `build.ts`（esbuild）は `src/logic.ts` を IIFE 形式でひとつのファイルにバンドルし、`globalName: "__musescorePlugin"` に代入する。続けて、各エクスポート名をトップレベルに再公開するフッタ（`var run = __musescorePlugin.run;`）を追加する。これが、QML の `import "logic.js" as Logic` から `Logic.run` を見えるようにするためのブリッジになっている。**QML から呼び出したい TS のエクスポートはすべて、`build.ts` の `exportNames` 配列に追加する必要がある** — esbuild の IIFE 形式だけでは QML から見えない。
+- `target: "es2017"`、`platform: "neutral"`。QML の JS エンジンはおおよそこの水準なので、Node やブラウザの API を必要とする機能は避ける。
+- `curScore` や `Qt.quit()` のようなグローバルは `@kjfsm/musescore-plugin-sdk-types/globals` で宣言されている（`packages/types/src/globals.ts` を参照）。
 
-To install a built plugin: `pnpm --filter ./examples/hello-world build`, copy `dist/` to `~/Documents/MuseScore4/Plugins/<name>/`, enable in MuseScore 4's Plugin Manager.
+ビルド済みプラグインのインストール手順: `pnpm --filter ./examples/hello-world build` を実行 → `dist/` を `~/Documents/MuseScore4/Plugins/<name>/` にコピー → MuseScore 4 のプラグインマネージャで有効化。
 
-## Conventions
+## コーディング規約
 
-- TypeScript strict mode plus `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes` (`tsconfig.base.json`). Index access returns `T | undefined`; account for it.
-- ESM-only output (`"type": "module"`, `module: "ESNext"`, `moduleResolution: "Bundler"`). Imports use `.js` extensions even from `.ts` sources.
-- Biome formats with 2-space indent, double quotes, semicolons, trailing commas, 100-col lines. `**/*.qml` and `packages/types/src/generated/**` are excluded from formatting/linting.
-- Turbo task graph: `build`, `typecheck`, `test` all `dependsOn: ["^build"]`, so changing `packages/types` forces dependents to rebuild before running.
+- TypeScript は strict モードに加え `noUncheckedIndexedAccess` と `exactOptionalPropertyTypes` を有効化（`tsconfig.base.json`）。インデックスアクセスは `T | undefined` を返すので考慮する。
+- 出力は ESM のみ（`"type": "module"`、`module: "ESNext"`、`moduleResolution: "Bundler"`）。`.ts` ソースからの import でも拡張子は `.js` を用いる。
+- フォーマットは Biome（インデント 2 スペース、ダブルクォート、セミコロン、末尾カンマ、行幅 100）。`**/*.qml` と `packages/types/src/generated/**` はフォーマット・Lint の対象外。
+- Turbo のタスクグラフ: `build`、`typecheck`、`test` はいずれも `dependsOn: ["^build"]`。そのため `packages/types` を変更すると、依存先は事前にリビルドされたうえで実行される。
 
-## Releases
+## リリース
 
-Changesets-driven publish via `.github/workflows/release.yml`:
+`changesets` ベースの publish を `.github/workflows/release.yml` で行う:
 
-- Add a changeset with `pnpm changeset` when changing a published package (`packages/types`). The example workspace is `private: true` and is not published.
-- On merge to `main`, `changesets/action` opens or updates a "Version Packages" PR, then publishes to npm with provenance (`NPM_CONFIG_PROVENANCE=true`, `permissions.id-token: write`).
-- The release workflow uses `RELEASE_PAT` (not the default `GITHUB_TOKEN`) so the PR it opens triggers `release-dry-run.yml`, which runs `pnpm publish --dry-run` on the `changeset-release/*` branch to catch version-collision / npm auth / provenance issues before the real publish.
-- Required repo secrets: `RELEASE_PAT` (fine-grained PAT, Contents: RW + Pull requests: RW) and `NPM_TOKEN` (npm Automation token).
+- 公開対象パッケージ（`packages/types`）に変更を加えたら、`pnpm changeset` で changeset を追加する。サンプルワークスペースは `private: true` のため公開されない。
+- `main` にマージされると、`changesets/action` が "Version Packages" PR を作成・更新し、provenance 付き（`NPM_CONFIG_PROVENANCE=true`、`permissions.id-token: write`）で npm に公開する。
+- リリースワークフローではデフォルトの `GITHUB_TOKEN` ではなく `RELEASE_PAT` を使用する。これにより、ワークフローが作る PR が `release-dry-run.yml` をトリガーし、`changeset-release/*` ブランチで `pnpm publish --dry-run` を走らせて、本番 publish 前にバージョン衝突・npm 認証・provenance の問題を検出できる。
+- 必須のリポジトリシークレット: `RELEASE_PAT`（fine-grained PAT、Contents: RW + Pull requests: RW）と `NPM_TOKEN`（npm Automation トークン）。
