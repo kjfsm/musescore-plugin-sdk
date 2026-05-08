@@ -1,29 +1,45 @@
 # Changesets
 
-This folder is configured by [changesets](https://github.com/changesets/changesets).
+このディレクトリは [changesets](https://github.com/changesets/changesets) で管理しています。
 
-## Adding a changeset
+## changeset の追加
 
-When you make a change that should ship in a release, add a changeset:
+リリースに含めたい変更を作ったら、changeset を追加してください。
 
 ```sh
 pnpm changeset
 ```
 
-Pick the affected packages, choose `patch` / `minor` / `major`, and write a short
-summary. The CLI writes a markdown file under `.changeset/` — commit it together
-with your change.
+対象パッケージを選び、`patch` / `minor` / `major` を指定し、要約を書きます。
+生成された `.changeset/*.md` を変更と一緒にコミットします。
 
-Private packages (`@musescore-sdk/types-generator`, `@musescore-sdk-examples/*`)
-are skipped automatically.
+private パッケージ(`@musescore-sdk/types-generator`、`@musescore-sdk-examples/*`)は
+publish 対象から自動的に除外されます。
 
-## Releasing
+## リリースフロー
 
-The `Release` GitHub Action consumes the pending changesets:
+GitHub Actions の `Release` / `Release Dry Run` の二層構成で運用します。
 
-- On `main`, it opens / updates a `Version Packages` PR that bumps versions and
-  writes `CHANGELOG.md` entries (`changeset version`).
-- When that PR is merged, the same workflow runs `changeset publish`, which
-  publishes the affected public packages to npm and creates GitHub releases.
+1. **`Release` ワークフロー**(`.github/workflows/release.yml`)
+   `main` への push をトリガに `changesets/action@v1` が動き、未消化の changeset があれば
+   `Version Packages` という PR を自動作成します。これがリリース対象のバージョン bump と
+   `CHANGELOG.md` 更新を含みます。
 
-`NPM_TOKEN` must be configured as a repository secret.
+2. **`Release Dry Run` ワークフロー**(`.github/workflows/release-dry-run.yml`)
+   `changeset-release/<base>` ブランチからの PR に対して `pnpm -r publish --dry-run` を
+   実行し、バージョン衝突 / npm 認証 / provenance OIDC 署名の可否 / tarball の dist 同梱を
+   merge 前に検証します。
+
+3. `Version Packages` PR を merge すると、再度 `Release` が走り `changeset publish` で
+   npm に公開されます。npm provenance(`NPM_CONFIG_PROVENANCE=true`)を有効にしているので、
+   GitHub Actions の OIDC によるサプライチェーン署名が付きます。
+
+## 必要な repository secret
+
+| Secret 名 | 用途 |
+| --- | --- |
+| `NPM_TOKEN` | `changeset publish` での npm 認証。`Automation` トークン推奨 |
+| `RELEASE_PAT` | デフォルトの `GITHUB_TOKEN` で作成された PR は他ワークフロー(= `Release Dry Run`)を起動しない仕様の回避策。`contents: write` / `pull-requests: write` を持つ PAT を登録 |
+
+`RELEASE_PAT` を設定しないと、`Version Packages` PR 上で dry-run が走らずリリースの事前検証が
+スキップされます。
