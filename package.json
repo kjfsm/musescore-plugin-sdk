@@ -12,14 +12,19 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "generate:types": "pnpm --filter @musescore-sdk/types-generator generate",
-    "clean": "turbo run clean"
+    "clean": "turbo run clean",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "pnpm build && changeset publish"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
+    "@changesets/changelog-github": "^0.7.0",
+    "@changesets/cli": "^2.31.0",
     "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
     "turbo": "^2.3.0",
     "typescript": "^5.7.0",
-    "tsx": "^4.19.2",
     "vitest": "^2.1.6"
   },
   "pnpm": {
