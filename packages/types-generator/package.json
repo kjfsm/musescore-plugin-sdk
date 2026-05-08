@@ -1,8 +1,8 @@
 {
-  "name": "@musescore-sdk/types-generator",
+  "name": "@kjfsm/types-generator",
   "version": "0.0.1",
   "private": true,
-  "description": "Generate @musescore-sdk/types from the MuseScore C++ headers using tree-sitter-cpp.",
+  "description": "Generate @kjfsm/types from the MuseScore C++ headers using tree-sitter-cpp.",
   "type": "module",
   "scripts": {
     "generate": "tsx scripts/generate.ts",

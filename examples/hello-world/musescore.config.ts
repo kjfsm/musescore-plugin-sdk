@@ -1,4 +1,4 @@
-import type { PluginManifest } from "@musescore-sdk/types";
+import type { PluginManifest } from "@kjfsm/types";
 
 const manifest: PluginManifest = {
   menuPath: "Plugins.Hello World",

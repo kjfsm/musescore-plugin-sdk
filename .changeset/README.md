@@ -13,7 +13,7 @@ pnpm changeset
 対象パッケージを選び、`patch` / `minor` / `major` を指定し、要約を書きます。
 生成された `.changeset/*.md` を変更と一緒にコミットします。
 
-private パッケージ(`@musescore-sdk/types-generator`、`@musescore-sdk-examples/*`)は
+private パッケージ(`@kjfsm/types-generator`、`@kjfsm/hello-world` 等の examples)は
 publish 対象から自動的に除外されます。
 
 ## リリースフロー
