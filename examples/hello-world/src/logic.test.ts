@@ -1,3 +1,4 @@
+import type { Score } from "@kjfsm/musescore-plugin-sdk-types";
 import { describe, expect, it, vi } from "vitest";
 import { run } from "./logic.js";
 
@@ -7,6 +8,22 @@ describe("hello-world plugin", () => {
     run(null);
     expect(log).toHaveBeenCalledWith("hello from typescript");
     expect(log).toHaveBeenCalledWith("no score is open");
+    log.mockRestore();
+  });
+
+  it("logs metadata, selection state, and counts for an empty score", () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    const score = {
+      firstMeasure: null,
+      ntracks: 0,
+      selection: null,
+      metaTag: () => "",
+    } as unknown as Score;
+    run(score);
+    expect(log).toHaveBeenCalledWith("hello from typescript");
+    expect(log).toHaveBeenCalledWith("title: (untitled)");
+    expect(log).toHaveBeenCalledWith("no range selection");
+    expect(log).toHaveBeenCalledWith("measures: 0, notes: 0");
     log.mockRestore();
   });
 });

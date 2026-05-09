@@ -1,5 +1,5 @@
 {
-  "name": "@kjfsm/musescore-plugin-sdk-hello-world",
+  "name": "@kjfsm/musescore-plugin-sdk-list-todos",
   "version": "0.0.1",
   "private": true,
   "type": "module",
