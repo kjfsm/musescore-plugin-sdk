@@ -17,6 +17,11 @@
       "import": "./dist/globals.js"
     }
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kjfsm/musescore-plugin-sdk",
+    "directory": "packages/types"
+  },
   "publishConfig": {
     "access": "public"
   },
