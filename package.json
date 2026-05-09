@@ -17,7 +17,14 @@
     "clean": "turbo run clean",
     "changeset": "changeset",
     "version": "changeset version",
-    "release": "changeset publish"
+    "release": "changeset publish",
+    "prepare": "simple-git-hooks"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm exec lint-staged"
+  },
+  "lint-staged": {
+    "*": "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",
@@ -25,13 +32,15 @@
     "@changesets/changelog-github": "^0.7.0",
     "@changesets/cli": "^2.31.0",
     "@types/node": "^22.10.0",
+    "lint-staged": "^15.5.2",
     "publint": "^0.3.20",
+    "simple-git-hooks": "^2.13.1",
     "tsx": "^4.19.2",
     "turbo": "^2.3.0",
     "typescript": "^5.7.0",
     "vitest": "^2.1.6"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["@biomejs/biome", "esbuild"]
+    "onlyBuiltDependencies": ["@biomejs/biome", "esbuild", "simple-git-hooks"]
   }
 }
