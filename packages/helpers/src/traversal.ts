@@ -11,8 +11,8 @@ import { isChord, isNote } from "./predicates.js";
 
 export interface IterateScopeOptions {
   /**
-   * - `"auto"` (default): use the range selection if one exists, otherwise the
-   *   whole score.
+   * - `"auto"` (default): if a range selection exists use it; if individual
+   *   elements are selected use those; otherwise traverse the whole score.
    * - `"selection"`: use the current selection. Yields nothing when no
    *   selection exists.
    * - `"all"`: always traverse the whole score, ignoring any selection.
@@ -24,7 +24,11 @@ type IterationMode = "all" | "range" | "elements" | "empty";
 
 function resolveMode(scope: "auto" | "selection" | "all", sel: Selection | null): IterationMode {
   if (scope === "all") return "all";
-  if (scope === "auto") return sel?.isRange ? "range" : "all";
+  if (scope === "auto") {
+    if (sel?.isRange) return "range";
+    if (sel && sel.elements.length > 0) return "elements";
+    return "all";
+  }
   if (sel?.isRange) return "range";
   if (sel && sel.elements.length > 0) return "elements";
   return "empty";

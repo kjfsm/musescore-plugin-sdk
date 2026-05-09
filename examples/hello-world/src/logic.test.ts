@@ -11,17 +11,19 @@ describe("hello-world plugin", () => {
     log.mockRestore();
   });
 
-  it("logs the note count and 'no range selection' for an empty score", () => {
+  it("logs metadata, selection state, and counts for an empty score", () => {
     const log = vi.spyOn(console, "log").mockImplementation(() => {});
     const score = {
       firstMeasure: null,
       ntracks: 0,
       selection: null,
+      metaTag: () => "",
     } as unknown as Score;
     run(score);
     expect(log).toHaveBeenCalledWith("hello from typescript");
+    expect(log).toHaveBeenCalledWith("title: (untitled)");
     expect(log).toHaveBeenCalledWith("no range selection");
-    expect(log).toHaveBeenCalledWith("note count: 0");
+    expect(log).toHaveBeenCalledWith("measures: 0, notes: 0");
     log.mockRestore();
   });
 });

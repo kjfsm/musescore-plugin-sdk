@@ -193,13 +193,25 @@ describe("iterateChords / iterateNotes (scope: all)", () => {
 });
 
 describe("iterateChords / iterateNotes (scope: auto)", () => {
-  it("walks the whole score when there is no range selection", () => {
+  it("walks the whole score when there is no selection", () => {
     const c1 = chord([note("n1")]);
     const { score } = buildScore(
       [{ no: 0, segments: [{ tick: 0, segmentType: 1, elements: [c1] }] }],
       1,
     );
     expect(Array.from(iterateChords(score))).toEqual([c1]);
+  });
+
+  it("uses the element selection when present (non-range)", () => {
+    const c1 = chord([note("n1")]);
+    const n1 = note("n1");
+    const selection = {
+      isRange: false,
+      elements: [c1, n1],
+    } as unknown as Selection;
+    const { score } = buildScore([], 0, selection);
+    expect(Array.from(iterateChords(score))).toEqual([c1]);
+    expect(Array.from(iterateNotes(score))).toEqual([n1]);
   });
 
   it("uses the range selection when present", () => {
