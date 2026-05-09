@@ -41,10 +41,6 @@
     "vitest": "^2.1.6"
   },
   "pnpm": {
-    "onlyBuiltDependencies": [
-      "@biomejs/biome",
-      "esbuild",
-      "simple-git-hooks"
-    ]
+    "onlyBuiltDependencies": ["@biomejs/biome", "esbuild", "simple-git-hooks"]
   }
 }
