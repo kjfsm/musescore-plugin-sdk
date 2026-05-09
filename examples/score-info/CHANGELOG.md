@@ -1,5 +1,12 @@
 # @kjfsm/musescore-plugin-sdk-score-info
 
+## 0.0.3
+
+### Patch Changes
+
+- Updated dependencies [[`362721b`](https://github.com/kjfsm/musescore-plugin-sdk/commit/362721b019c269fbde096dc9be1cbdb3852ded61)]:
+  - @kjfsm/musescore-plugin-sdk-helpers@0.1.0
+
 ## 0.0.2
 
 ### Patch Changes
