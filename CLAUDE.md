@@ -21,6 +21,7 @@ MuseScore 4 プラグインを TypeScript で書くための SDK。MuseScore プ
 pnpm モノレポ（`pnpm-workspace.yaml` には `packages/*` と `examples/*` を含む）で、turbo によりオーケストレートされる。
 
 - `packages/types/` — `@kjfsm/musescore-plugin-sdk-types`（公開）。手書きのエントリポイント（`src/index.ts`、`src/manifest.ts`、`src/globals.ts`）と、ジェネレータが生成する `src/generated/` から構成される。
+- `packages/helpers/` — `@kjfsm/musescore-plugin-sdk-helpers`（公開）。Score 走査・選択範囲の取得・ナビゲーション・`startCmd`/`endCmd` ラッパなど、プラグイン開発で頻出するランタイムヘルパを提供する。`@kjfsm/musescore-plugin-sdk-types` をピア依存として要求する。
 - `packages/types-generator/` — 内部用、**未公開**。`config.json`（固定する MuseScore タグ + ヘッダ一覧）を読み込み、`raw.githubusercontent.com` からヘッダを取得、正規表現でパースして TS を `packages/types/src/generated/` に出力する。
 - `examples/hello-world/` — プラグインの正規レイアウト。esbuild で IIFE としてバンドルし、QML の `import "logic.js" as Logic` から `Logic.run(...)` のような形でエクスポート関数を呼び出せるようにしている。
 
