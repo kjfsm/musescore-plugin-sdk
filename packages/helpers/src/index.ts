@@ -1,3 +1,4 @@
+export { getAnnotationStaffIdx, getAnnotationText } from "./annotations.js";
 export { withCmd } from "./cmd.js";
 export { getMetaTag } from "./metaTag.js";
 export {
@@ -13,11 +14,14 @@ export {
   getSelectionRange,
   hasRangeSelection,
 } from "./selection.js";
+export { staffVoiceToTrack, trackToStaffIdx } from "./tracks.js";
 export {
   type IterateScopeOptions,
   iterateAnnotations,
   iterateChords,
   iterateMeasures,
+  iterateMeasureSegments,
   iterateNotes,
   iterateSegments,
+  iterateStaves,
 } from "./traversal.js";

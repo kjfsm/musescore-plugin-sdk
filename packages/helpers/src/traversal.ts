@@ -9,6 +9,25 @@ import type {
 } from "@kjfsm/musescore-plugin-sdk-types";
 import { isChord, isNote } from "./predicates.js";
 
+export function* iterateMeasureSegments(
+  measure: Measure,
+  segmentTypes?: number,
+): Generator<Segment> {
+  let seg: Segment | null = measure.firstSegment;
+  while (seg) {
+    if (segmentTypes === undefined || (seg.segmentType & segmentTypes) !== 0) {
+      yield seg;
+    }
+    seg = seg.nextInMeasure;
+  }
+}
+
+export function* iterateStaves(score: Score): Generator<number> {
+  for (let staffIdx = 0; staffIdx < score.nstaves; staffIdx++) {
+    yield staffIdx;
+  }
+}
+
 export interface IterateScopeOptions {
   /**
    * - `"auto"` (default): if a range selection exists use it; if individual

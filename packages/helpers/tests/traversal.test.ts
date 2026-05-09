@@ -11,9 +11,11 @@ import { describe, expect, it } from "vitest";
 import {
   iterateAnnotations,
   iterateChords,
+  iterateMeasureSegments,
   iterateMeasures,
   iterateNotes,
   iterateSegments,
+  iterateStaves,
 } from "../src/traversal.js";
 
 interface SegSpec {
@@ -84,6 +86,82 @@ function note(label: string): Note {
 function annotation(label: string): EngravingItem {
   return { name: "StaffText", label } as unknown as EngravingItem;
 }
+
+describe("iterateMeasureSegments", () => {
+  it("yields all segments within a single measure", () => {
+    const { allMeasures, allSegments } = buildScore(
+      [
+        {
+          no: 0,
+          segments: [
+            { tick: 0, segmentType: 1, elements: [] },
+            { tick: 480, segmentType: 1, elements: [] },
+          ],
+        },
+      ],
+      0,
+    );
+    const m = allMeasures[0] as Measure;
+    expect(Array.from(iterateMeasureSegments(m))).toEqual(allSegments);
+  });
+
+  it("does not cross into the next measure", () => {
+    const { allMeasures } = buildScore(
+      [
+        {
+          no: 0,
+          segments: [{ tick: 0, segmentType: 1, elements: [] }],
+        },
+        {
+          no: 1,
+          segments: [{ tick: 960, segmentType: 1, elements: [] }],
+        },
+      ],
+      0,
+    );
+    const m0 = allMeasures[0] as Measure;
+    const segs = Array.from(iterateMeasureSegments(m0));
+    expect(segs).toHaveLength(1);
+    expect(segs[0]?.tick).toBe(0);
+  });
+
+  it("yields nothing for a measure with no segments", () => {
+    const { allMeasures } = buildScore([{ no: 0, segments: [] }], 0);
+    expect(Array.from(iterateMeasureSegments(allMeasures[0] as Measure))).toEqual([]);
+  });
+
+  it("filters by segmentType bitmask", () => {
+    const { allMeasures } = buildScore(
+      [
+        {
+          no: 0,
+          segments: [
+            { tick: 0, segmentType: 0b0001, elements: [] },
+            { tick: 480, segmentType: 0b0010, elements: [] },
+            { tick: 960, segmentType: 0b0100, elements: [] },
+          ],
+        },
+      ],
+      0,
+    );
+    const ticks = Array.from(iterateMeasureSegments(allMeasures[0] as Measure, 0b0011)).map(
+      (s) => s.tick,
+    );
+    expect(ticks).toEqual([0, 480]);
+  });
+});
+
+describe("iterateStaves", () => {
+  it("yields staffIdx 0..nstaves-1", () => {
+    const score = { firstMeasure: null, nstaves: 3 } as unknown as Score;
+    expect(Array.from(iterateStaves(score))).toEqual([0, 1, 2]);
+  });
+
+  it("yields nothing when nstaves is 0", () => {
+    const score = { firstMeasure: null, nstaves: 0 } as unknown as Score;
+    expect(Array.from(iterateStaves(score))).toEqual([]);
+  });
+});
 
 describe("iterateMeasures", () => {
   it("yields all measures linked via nextMeasure", () => {
