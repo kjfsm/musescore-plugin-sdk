@@ -32,7 +32,7 @@
     "@changesets/changelog-github": "^0.7.0",
     "@changesets/cli": "^2.31.0",
     "@types/node": "^22.10.0",
-    "lint-staged": "^17.0.3",
+    "lint-staged": "^15.5.2",
     "publint": "^0.3.20",
     "simple-git-hooks": "^2.13.1",
     "tsx": "^4.19.2",
