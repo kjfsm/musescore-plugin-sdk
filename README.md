@@ -9,6 +9,7 @@ MuseScore のプラグインは `.qml` ファイル（QML + 埋め込み JavaScr
 | パッケージ | 役割 | 公開 |
 |---|---|---|
 | `@kjfsm/musescore-plugin-sdk-types` | MuseScore 4 Plugin API の TypeScript 型定義 | ✅ |
+| `@kjfsm/musescore-plugin-sdk-helpers` | Score 走査・選択範囲・ナビゲーションなどのランタイムヘルパ | ✅ |
 | `@kjfsm/musescore-plugin-sdk-types-generator` | 内部用：`musescore/MuseScore` の C++ ヘッダから `@kjfsm/musescore-plugin-sdk-types` を再生成 | ❌ |
 
 ## リポジトリ構成
@@ -16,6 +17,7 @@ MuseScore のプラグインは `.qml` ファイル（QML + 埋め込み JavaScr
 ```
 packages/
   types/                 # @kjfsm/musescore-plugin-sdk-types — 公開する型定義
+  helpers/               # @kjfsm/musescore-plugin-sdk-helpers — 公開するランタイムヘルパ
   types-generator/       # 内部用ジェネレータスクリプト
 examples/
   hello-world/           # TS プラグイン + 手書き QML を esbuild でビルド
