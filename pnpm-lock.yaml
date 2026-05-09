@@ -41,6 +41,9 @@ importers:
 
   examples/hello-world:
     dependencies:
+      '@kjfsm/musescore-plugin-sdk-helpers':
+        specifier: workspace:*
+        version: link:../../packages/helpers
       '@kjfsm/musescore-plugin-sdk-types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -54,6 +57,18 @@ importers:
       tsx:
         specifier: ^4.19.2
         version: 4.21.0
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.6
+        version: 2.1.9(@types/node@22.19.18)
+
+  packages/helpers:
+    devDependencies:
+      '@kjfsm/musescore-plugin-sdk-types':
+        specifier: workspace:*
+        version: link:../types
       typescript:
         specifier: ^5.7.0
         version: 5.9.3

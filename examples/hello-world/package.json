@@ -10,6 +10,7 @@
     "clean": "rm -rf dist .turbo *.tsbuildinfo"
   },
   "dependencies": {
+    "@kjfsm/musescore-plugin-sdk-helpers": "workspace:*",
     "@kjfsm/musescore-plugin-sdk-types": "workspace:*"
   },
   "devDependencies": {
