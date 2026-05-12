@@ -11,8 +11,6 @@ import type { Chord, Note, Score } from "@kjfsm/musescore-plugin-sdk-types";
 // Note.pitch is available at runtime but absent from generated types
 type NoteWithPitch = Note & { readonly pitch: number };
 
-export { getNoteTypeName as noteTypeName };
-
 const PITCH_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"] as const;
 
 export function midiToName(pitch: number): string {
