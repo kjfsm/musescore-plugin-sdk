@@ -1,7 +1,11 @@
 import {
+  getAnnotationText,
   getNoteTypeName,
+  getTempoBpm,
   isChord,
   isRest,
+  isTempo,
+  isTimeSig,
   iterateMeasureSegments,
   iterateMeasures,
 } from "@kjfsm/musescore-plugin-sdk-helpers";
@@ -34,13 +38,27 @@ export interface VoiceInfo {
   elements: StructureElement[];
 }
 
+export interface AnnotationInfo {
+  type: string;
+  text: string;
+  tick: number;
+}
+
+export interface TempoChangeInfo {
+  bpm: number;
+  tick: number;
+}
+
 export interface StaveInfo {
   staffIdx: number;
   voices: VoiceInfo[];
+  annotations?: AnnotationInfo[];
 }
 
 export interface MeasureInfo {
   measure: number;
+  timeSig: string;
+  tempoChanges?: TempoChangeInfo[];
   staves: StaveInfo[];
 }
 
@@ -53,6 +71,7 @@ export interface PartInfo {
 
 export interface ScoreMeta {
   title: string;
+  subtitle: string;
   composer: string;
   lyricist: string;
   nstaves: number;
@@ -74,6 +93,7 @@ export function buildStructure(score: Score | null): string {
 
   const meta: ScoreMeta = {
     title: score.title || score.metaTag("workTitle") || "(untitled)",
+    subtitle: score.metaTag("subtitle") || "",
     composer: score.composer || score.metaTag("composer") || "",
     lyricist: score.lyricist || score.metaTag("lyricist") || "",
     nstaves: score.nstaves,
@@ -91,9 +111,42 @@ export function buildStructure(score: Score | null): string {
 
   const measures: MeasureInfo[] = [];
   let measureIdx = 0;
+  let currentTimeSig = "";
 
   for (const measure of iterateMeasures(score)) {
     measureIdx++;
+
+    // ── Single pass: collect timeSig, tempo changes, and per-staff annotations ──
+    let newTimeSig = "";
+    const tempoChanges: TempoChangeInfo[] = [];
+    const staffAnnotationMap = new Map<number, AnnotationInfo[]>();
+
+    for (const seg of iterateMeasureSegments(measure)) {
+      // TimeSig element sits at track 0 in a TimeSig-type segment
+      const el0 = seg.elementAt(0);
+      if (isTimeSig(el0)) {
+        newTimeSig = fractionStr(el0.timesigNominal);
+      }
+
+      // Annotations: TempoText, Dynamic, StaffText, PlayTechAnnotation, etc.
+      for (const ann of seg.annotations) {
+        if (isTempo(ann)) {
+          tempoChanges.push({ bpm: getTempoBpm(ann), tick: seg.tick });
+        } else {
+          const text = getAnnotationText(ann);
+          if (text) {
+            const si = ann.staffIdx >= 0 ? ann.staffIdx : 0;
+            const arr = staffAnnotationMap.get(si) ?? [];
+            arr.push({ type: ann.name, text, tick: seg.tick });
+            staffAnnotationMap.set(si, arr);
+          }
+        }
+      }
+    }
+
+    if (newTimeSig) currentTimeSig = newTimeSig;
+
+    // ── Collect notes / rests per staff / voice ──
     const staves: StaveInfo[] = [];
 
     for (let staffIdx = 0; staffIdx < score.nstaves; staffIdx++) {
@@ -129,15 +182,25 @@ export function buildStructure(score: Score | null): string {
         }
       }
 
-      if (voiceMap.size > 0) {
+      const annotations = staffAnnotationMap.get(staffIdx);
+      if (voiceMap.size > 0 || (annotations !== undefined && annotations.length > 0)) {
         const voices = [...voiceMap.entries()]
           .sort(([a], [b]) => a - b)
           .map(([voice, elements]) => ({ voice, elements }));
-        staves.push({ staffIdx, voices });
+        staves.push({
+          staffIdx,
+          voices,
+          ...(annotations !== undefined && annotations.length > 0 && { annotations }),
+        });
       }
     }
 
-    measures.push({ measure: measureIdx, staves });
+    measures.push({
+      measure: measureIdx,
+      timeSig: currentTimeSig,
+      ...(tempoChanges.length > 0 && { tempoChanges }),
+      staves,
+    });
   }
 
   const structure: ScoreStructure = { score: meta, parts, measures };

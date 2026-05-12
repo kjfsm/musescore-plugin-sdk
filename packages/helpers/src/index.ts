@@ -26,3 +26,15 @@ export {
   iterateStaves,
 } from "./traversal.js";
 export { getNoteTypeName, isGraceNote, isGraceNoteAfter, isGraceNoteBefore } from "./note-type.js";
+export {
+  type TempoElement,
+  type TimeSigElement,
+  getTempoBpm,
+  isDynamic,
+  isPlayTechAnnotation,
+  isRehearsalMark,
+  isStaffText,
+  isSystemText,
+  isTempo,
+  isTimeSig,
+} from "./element-types.js";

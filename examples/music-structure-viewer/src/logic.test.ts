@@ -37,12 +37,13 @@ describe("buildStructure", () => {
 
     const result = buildStructure(score);
     const parsed = JSON.parse(result) as {
-      score: { title: string; nstaves: number };
+      score: { title: string; subtitle: string; nstaves: number };
       parts: unknown[];
       measures: unknown[];
     };
 
     expect(parsed.score.title).toBe("Test Score");
+    expect(parsed.score.subtitle).toBe("");
     expect(parsed.score.nstaves).toBe(1);
     expect(parsed.parts).toEqual([]);
     expect(parsed.measures).toEqual([]);
