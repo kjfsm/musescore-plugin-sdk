@@ -1,6 +1,25 @@
 import type { Score } from "@kjfsm/musescore-plugin-sdk-types";
 import { describe, expect, it } from "vitest";
-import { buildStructure, midiToName } from "./logic.js";
+import { buildStructure, midiToName, noteTypeName } from "./logic.js";
+
+describe("noteTypeName", () => {
+  it("maps known NoteType values to MuseScore 4 enum names", () => {
+    expect(noteTypeName(0)).toBe("NORMAL");
+    expect(noteTypeName(1)).toBe("ACCIACCATURA");
+    expect(noteTypeName(2)).toBe("APPOGGIATURA");
+    expect(noteTypeName(4)).toBe("GRACE4");
+    expect(noteTypeName(8)).toBe("GRACE16");
+    expect(noteTypeName(16)).toBe("GRACE32");
+    expect(noteTypeName(32)).toBe("GRACE8_AFTER");
+    expect(noteTypeName(64)).toBe("GRACE16_AFTER");
+    expect(noteTypeName(128)).toBe("GRACE32_AFTER");
+    expect(noteTypeName(255)).toBe("INVALID");
+  });
+
+  it("falls back to the numeric string for unknown values", () => {
+    expect(noteTypeName(99)).toBe("99");
+  });
+});
 
 describe("midiToName", () => {
   it("converts standard pitches", () => {

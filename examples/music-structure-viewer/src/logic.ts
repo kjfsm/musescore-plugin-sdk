@@ -9,6 +9,24 @@ import type { Chord, Note, Score } from "@kjfsm/musescore-plugin-sdk-types";
 // Note.pitch is available at runtime but absent from generated types
 type NoteWithPitch = Note & { readonly pitch: number };
 
+// MuseScore 4 NoteType enum (engraving/types/types.h)
+const NOTE_TYPE_NAME: Record<number, string> = {
+  0: "NORMAL",
+  1: "ACCIACCATURA",
+  2: "APPOGGIATURA",
+  4: "GRACE4",
+  8: "GRACE16",
+  16: "GRACE32",
+  32: "GRACE8_AFTER",
+  64: "GRACE16_AFTER",
+  128: "GRACE32_AFTER",
+  255: "INVALID",
+};
+
+export function noteTypeName(value: number): string {
+  return NOTE_TYPE_NAME[value] ?? String(value);
+}
+
 const PITCH_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"] as const;
 
 export function midiToName(pitch: number): string {
@@ -24,6 +42,7 @@ export interface StructureElement {
   type: "Chord" | "Rest";
   dur: string;
   notes?: string[];
+  noteType?: string;
 }
 
 export interface VoiceInfo {
@@ -106,10 +125,12 @@ export function buildStructure(score: Score | null): string {
 
           if (isChord(el)) {
             const chord = el as Chord;
+            const nt = noteTypeName(chord.noteType);
             entry = {
               type: "Chord",
               dur: fractionStr(chord.duration),
               notes: chord.notes.map((n) => midiToName((n as NoteWithPitch).pitch)),
+              ...(nt !== "NORMAL" && { noteType: nt }),
             };
           } else if (isRest(el)) {
             entry = { type: "Rest", dur: fractionStr(el.duration) };
