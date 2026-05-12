@@ -1,5 +1,9 @@
 import {
   getAnnotationText,
+  getClefTypeAt,
+  getKeySigAt,
+  getMeasureEndBarlineType,
+  getMeasureRepeatInfo,
   getMeasureTimeSig,
   getNoteTypeName,
   getTempoBpm,
@@ -12,10 +16,7 @@ import {
   parseDynamicText,
 } from "@kjfsm/musescore-plugin-sdk-helpers";
 import { NoteType } from "@kjfsm/musescore-plugin-sdk-types";
-import type { Chord, Note, Score } from "@kjfsm/musescore-plugin-sdk-types";
-
-// Note.pitch is available at runtime but absent from generated types
-type NoteWithPitch = Note & { readonly pitch: number };
+import type { Chord, Score } from "@kjfsm/musescore-plugin-sdk-types";
 
 const PITCH_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"] as const;
 
@@ -24,8 +25,19 @@ export function midiToName(pitch: number): string {
   return `${PITCH_NAMES[pitch % 12] ?? "?"}${octave}`;
 }
 
-function fractionStr(frac: { str: string } | null | undefined): string {
-  return frac?.str ?? "?";
+// BarLineType numeric values from MuseScore BarLineType enum
+const BARLINE_NAMES: Record<number, string> = {
+  1: "Normal",
+  2: "Double",
+  4: "StartRepeat",
+  8: "EndRepeat",
+  16: "Dashed",
+  32: "Final",
+  64: "EndStartRepeat",
+};
+
+export function barlineTypeName(type: number): string {
+  return BARLINE_NAMES[type] ?? `Unknown(${type})`;
 }
 
 export interface StructureElement {
@@ -51,17 +63,33 @@ export interface TempoChangeInfo {
   tick: number;
 }
 
+export interface ClefChange {
+  tick: number;
+  type: number;
+}
+
 export interface StaveInfo {
   staffIdx: number;
   voices: VoiceInfo[];
   annotations?: AnnotationInfo[];
+  clefChanges?: ClefChange[];
 }
 
 export interface MeasureInfo {
   measure: number;
   timeSig: string;
+  barline: string;
   tempoChanges?: TempoChangeInfo[];
+  keySig?: number;
+  repeatCount?: number;
+  irregular?: boolean;
   staves: StaveInfo[];
+}
+
+export interface BracketGroup {
+  firstStaff: number;
+  lastStaff: number;
+  type: number;
 }
 
 export interface PartInfo {
@@ -80,12 +108,18 @@ export interface ScoreMeta {
   nmeasures: number;
   ntracks: number;
   durationSec: number;
+  keySig: number;
 }
 
 export interface ScoreStructure {
   score: ScoreMeta;
   parts: PartInfo[];
+  bracketGroups: BracketGroup[];
   measures: MeasureInfo[];
+}
+
+function fractionStr(frac: { str: string } | null | undefined): string {
+  return frac?.str ?? "?";
 }
 
 export function buildStructure(score: Score | null): string {
@@ -102,6 +136,7 @@ export function buildStructure(score: Score | null): string {
     nmeasures: score.nmeasures,
     ntracks: score.ntracks,
     durationSec: score.duration,
+    keySig: score.keysig,
   };
 
   const parts: PartInfo[] = score.parts.map((p) => ({
@@ -111,38 +146,83 @@ export function buildStructure(score: Score | null): string {
     nstaves: p.staves.length,
   }));
 
+  // Collect bracket groups: bracket info lives on EngravingItem elements in staff.brackets
+  const bracketGroups: BracketGroup[] = [];
+  for (let si = 0; si < (score.staves?.length ?? 0); si++) {
+    const staff = score.staves[si];
+    if (!staff) continue;
+    for (const bracket of staff.brackets) {
+      if (bracket.bracketSpan > 0) {
+        bracketGroups.push({
+          firstStaff: si,
+          lastStaff: si + bracket.bracketSpan - 1,
+          type: bracket.systemBracket,
+        });
+      }
+    }
+  }
+
   const measures: MeasureInfo[] = [];
   let measureIdx = 0;
+  let lastKeySig: number | undefined = undefined;
 
   for (const measure of iterateMeasures(score)) {
     measureIdx++;
 
-    // timesigNominal is an API_PROPERTY on Measure (not captured by types-generator)
     const timeSig = getMeasureTimeSig(measure);
+    const repeatInfo = getMeasureRepeatInfo(measure);
+    const endBarlineType = getMeasureEndBarlineType(measure);
+    const barline = endBarlineType >= 0 ? barlineTypeName(endBarlineType) : "Normal";
 
-    // ── Single pass: collect tempo changes and per-staff annotations ──
     const tempoChanges: TempoChangeInfo[] = [];
     const staffAnnotationMap = new Map<number, AnnotationInfo[]>();
+    const staffClefChanges = new Map<number, ClefChange[]>();
+    let measureKeySig: number | undefined = undefined;
 
     for (const seg of iterateMeasureSegments(measure)) {
-      // Annotations: TempoText, Dynamic, StaffText, PlayTechAnnotation, etc.
+      // Annotations: TempoText, Dynamic, StaffText, etc.
       for (const ann of seg.annotations) {
-        if (isTempo(ann)) {
+        // Use name check instead of isTempo() type predicate to avoid 'never' narrowing
+        // (isTempo: EngravingItem → el is EngravingItem makes the else branch unreachable).
+        if (ann.name === "Tempo" || ann.name === "TempoText") {
           tempoChanges.push({ bpm: getTempoBpm(ann), tick: seg.tick });
-        } else {
-          const raw = getAnnotationText(ann);
-          const text = isDynamic(ann) ? parseDynamicText(raw) : raw;
-          if (text) {
-            const si = ann.staffIdx >= 0 ? ann.staffIdx : 0;
-            const arr = staffAnnotationMap.get(si) ?? [];
-            arr.push({ type: ann.name, text, tick: seg.tick });
-            staffAnnotationMap.set(si, arr);
-          }
+          continue;
+        }
+        const raw = getAnnotationText(ann);
+        const text = isDynamic(ann) ? parseDynamicText(raw) : raw;
+        if (text) {
+          const si = ann.staffIdx >= 0 ? ann.staffIdx : 0;
+          const arr = staffAnnotationMap.get(si) ?? [];
+          arr.push({ type: ann.name, text, tick: seg.tick });
+          staffAnnotationMap.set(si, arr);
+        }
+      }
+
+      // KeySig changes (track staff 0 for simplicity; key changes are score-wide)
+      if (measureKeySig === undefined) {
+        const ks = getKeySigAt(seg, 0);
+        if (ks !== null) measureKeySig = ks;
+      }
+
+      // Clef changes per staff
+      for (let staffIdx = 0; staffIdx < score.nstaves; staffIdx++) {
+        const clefType = getClefTypeAt(seg, staffIdx);
+        if (clefType !== null) {
+          const arr = staffClefChanges.get(staffIdx) ?? [];
+          arr.push({ tick: seg.tick, type: clefType });
+          staffClefChanges.set(staffIdx, arr);
         }
       }
     }
 
-    // ── Collect notes / rests per staff / voice ──
+    // Emit keySig only when it changes
+    let keySigEntry: number | undefined;
+    if (measureKeySig !== undefined && measureKeySig !== lastKeySig) {
+      keySigEntry = measureKeySig;
+      lastKeySig = measureKeySig;
+    }
+
+    // Collect notes / rests per staff / voice
     const staves: StaveInfo[] = [];
 
     for (let staffIdx = 0; staffIdx < score.nstaves; staffIdx++) {
@@ -161,7 +241,7 @@ export function buildStructure(score: Score | null): string {
             entry = {
               type: "Chord",
               dur: fractionStr(chord.duration),
-              notes: chord.notes.map((n) => midiToName((n as NoteWithPitch).pitch)),
+              notes: chord.notes.map((n) => midiToName(n.pitch)),
               ...(chord.noteType !== NoteType.NORMAL && {
                 noteType: getNoteTypeName(chord.noteType),
               }),
@@ -179,7 +259,12 @@ export function buildStructure(score: Score | null): string {
       }
 
       const annotations = staffAnnotationMap.get(staffIdx);
-      if (voiceMap.size > 0 || (annotations !== undefined && annotations.length > 0)) {
+      const clefChanges = staffClefChanges.get(staffIdx);
+      if (
+        voiceMap.size > 0 ||
+        (annotations !== undefined && annotations.length > 0) ||
+        (clefChanges !== undefined && clefChanges.length > 0)
+      ) {
         const voices = [...voiceMap.entries()]
           .sort(([a], [b]) => a - b)
           .map(([voice, elements]) => ({ voice, elements }));
@@ -187,6 +272,7 @@ export function buildStructure(score: Score | null): string {
           staffIdx,
           voices,
           ...(annotations !== undefined && annotations.length > 0 && { annotations }),
+          ...(clefChanges !== undefined && clefChanges.length > 0 && { clefChanges }),
         });
       }
     }
@@ -194,12 +280,16 @@ export function buildStructure(score: Score | null): string {
     measures.push({
       measure: measureIdx,
       timeSig,
+      barline,
       ...(tempoChanges.length > 0 && { tempoChanges }),
+      ...(keySigEntry !== undefined && { keySig: keySigEntry }),
+      ...(repeatInfo.repeatCount > 1 && { repeatCount: repeatInfo.repeatCount }),
+      ...(measure.irregular && { irregular: true }),
       staves,
     });
   }
 
-  const structure: ScoreStructure = { score: meta, parts, measures };
+  const structure: ScoreStructure = { score: meta, parts, bracketGroups, measures };
   return JSON.stringify(structure, null, 2);
 }
 

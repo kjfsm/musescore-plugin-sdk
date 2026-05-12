@@ -4,6 +4,48 @@ export interface PropertyDecl {
   readOnly: boolean;
 }
 
+// API_PROPERTY(name, KEY) / API_PROPERTY_READ_ONLY(name, KEY) で明示的な型がない場合の
+// QVariant ペイロードの既知の具体型マッピング。
+const KNOWN_VARIANT_PROP_TYPES: Readonly<Record<string, string>> = {
+  timesigNominal: "FractionWrapper*",
+  timesigActual: "FractionWrapper*",
+  timesig: "FractionWrapper*",
+  timesigStretch: "FractionWrapper*",
+  tempo: "qreal",
+  barlineType: "int",
+  barlineSpan: "bool",
+  barlineSpanFrom: "int",
+  barlineSpanTo: "int",
+  dynamicType: "int",
+  concertClefType: "int",
+  transposingClefType: "int",
+  concertKey: "int",
+  actualKey: "int",
+  repeatCount: "int",
+  velocity: "int",
+  userVelocity: "int",
+  repeatStart: "bool",
+  repeatEnd: "bool",
+  repeatJump: "bool",
+  irregular: "bool",
+  breakMmr: "bool",
+  staffBarlineSpan: "int",
+  staffBarlineSpanFrom: "int",
+  staffBarlineSpanTo: "int",
+  staffInvisible: "bool",
+  measureNumberMode: "int",
+  noOffset: "int",
+  userStretch: "qreal",
+  bracketSpan: "int",
+  bracketColumn: "int",
+  systemBracket: "int",
+  numberType: "int",
+  bracketType: "int",
+  actualNotes: "int",
+  normalNotes: "int",
+  staffMove: "int",
+};
+
 export interface MethodParam {
   name: string;
   cppType: string;
@@ -131,6 +173,8 @@ function findMatchingBrace(s: string, openIdx: number): number {
 
 function extractQProperties(body: string): PropertyDecl[] {
   const out: PropertyDecl[] = [];
+
+  // 標準の Q_PROPERTY(type name READ getter [WRITE setter] ...)
   for (const m of body.matchAll(/\bQ_PROPERTY\s*\(([\s\S]*?)\)/g)) {
     const inner = m[1] ?? "";
     const tokens = tokenizePropertyArgs(inner);
@@ -147,6 +191,39 @@ function extractQProperties(body: string): PropertyDecl[] {
     const writeIdx = tokens.indexOf("WRITE");
     out.push({ name, cppType, readOnly: writeIdx < 0 });
   }
+
+  // API_PROPERTY_READ_ONLY_T(type, name, KEY) — _T 版を先にマッチさせる
+  for (const m of body.matchAll(
+    /\bAPI_PROPERTY_READ_ONLY_T\s*\(\s*([\w:*]+)\s*,\s*(\w+)\s*,\s*\w+\s*\)/g,
+  )) {
+    const cppType = (m[1] ?? "").trim();
+    const name = (m[2] ?? "").trim();
+    if (name && cppType) out.push({ name, cppType, readOnly: true });
+  }
+
+  // API_PROPERTY_T(type, name, KEY)
+  for (const m of body.matchAll(/\bAPI_PROPERTY_T\s*\(\s*([\w:*]+)\s*,\s*(\w+)\s*,\s*\w+\s*\)/g)) {
+    const cppType = (m[1] ?? "").trim();
+    const name = (m[2] ?? "").trim();
+    if (name && cppType) out.push({ name, cppType, readOnly: false });
+  }
+
+  // API_PROPERTY_READ_ONLY(name, KEY) — 型なし版は KNOWN_VARIANT_PROP_TYPES で解決
+  for (const m of body.matchAll(/\bAPI_PROPERTY_READ_ONLY\s*\(\s*(\w+)\s*,\s*\w+\s*\)/g)) {
+    const name = (m[1] ?? "").trim();
+    if (!name) continue;
+    const cppType = KNOWN_VARIANT_PROP_TYPES[name] ?? "QVariant";
+    out.push({ name, cppType, readOnly: true });
+  }
+
+  // API_PROPERTY(name, KEY) — 型なし版
+  for (const m of body.matchAll(/\bAPI_PROPERTY\s*\(\s*(\w+)\s*,\s*\w+\s*\)/g)) {
+    const name = (m[1] ?? "").trim();
+    if (!name) continue;
+    const cppType = KNOWN_VARIANT_PROP_TYPES[name] ?? "QVariant";
+    out.push({ name, cppType, readOnly: false });
+  }
+
   return out;
 }
 

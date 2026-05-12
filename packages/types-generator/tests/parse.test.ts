@@ -44,6 +44,56 @@ describe("parseHeader / emit", () => {
     expect(out.enums).toContain("  User: 1,");
   });
 
+  it("parses API_PROPERTY macros and resolves known QVariant types", async () => {
+    const source = await readFile(join(here, "fixtures/api-property.h"), "utf8");
+    const result = parseHeader(source);
+
+    const measure = result.classes.find((c) => c.name === "Measure");
+    expect(measure).toBeDefined();
+    expect(measure?.baseClass).toBe("EngravingItem");
+
+    const propNames = measure?.properties.map((p) => p.name).sort() ?? [];
+    expect(propNames).toEqual(
+      [
+        "actualKey",
+        "irregular",
+        "repeatCount",
+        "timesigActual",
+        "timesigNominal",
+        "userStretch",
+      ].sort(),
+    );
+
+    const timesigNominal = measure?.properties.find((p) => p.name === "timesigNominal");
+    expect(timesigNominal?.cppType).toBe("FractionWrapper*");
+    expect(timesigNominal?.readOnly).toBe(true);
+
+    const irregular = measure?.properties.find((p) => p.name === "irregular");
+    expect(irregular?.cppType).toBe("bool");
+    expect(irregular?.readOnly).toBe(false);
+
+    // API_PROPERTY without explicit type → KNOWN_VARIANT_PROP_TYPES lookup
+    const repeatCount = measure?.properties.find((p) => p.name === "repeatCount");
+    expect(repeatCount?.cppType).toBe("int");
+    expect(repeatCount?.readOnly).toBe(false);
+
+    // API_PROPERTY_READ_ONLY without explicit type → KNOWN_VARIANT_PROP_TYPES lookup
+    const actualKey = measure?.properties.find((p) => p.name === "actualKey");
+    expect(actualKey?.cppType).toBe("int");
+    expect(actualKey?.readOnly).toBe(true);
+
+    const userStretch = measure?.properties.find((p) => p.name === "userStretch");
+    expect(userStretch?.cppType).toBe("qreal");
+    expect(userStretch?.readOnly).toBe(false);
+
+    const out = emit({ perFile: [{ path: "api-property.h", result }] });
+    expect(out.pluginApi).toContain("readonly timesigNominal: FractionWrapper | null;");
+    expect(out.pluginApi).toContain("irregular: boolean;");
+    expect(out.pluginApi).toContain("repeatCount: number;");
+    expect(out.pluginApi).toContain("readonly actualKey: number;");
+    expect(out.pluginApi).toContain("userStretch: number;");
+  });
+
   it("extracts classes, properties and Q_INVOKABLE methods from a fixture header", async () => {
     const source = await readFile(join(here, "fixtures/note.h"), "utf8");
     const result = parseHeader(source);

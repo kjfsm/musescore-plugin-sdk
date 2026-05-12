@@ -1,4 +1,10 @@
-import type { EngravingItem, Measure, Score, Segment } from "@kjfsm/musescore-plugin-sdk-types";
+import type {
+  EngravingItem,
+  Measure,
+  Score,
+  ScoreElement,
+  Segment,
+} from "@kjfsm/musescore-plugin-sdk-types";
 import { iterateMeasures } from "./traversal.js";
 
 /**
@@ -32,13 +38,9 @@ export function findSegmentByTick(score: Score, tick: number): Segment | null {
  * `staffIdx` defaults to `0` to match `Score.showElementInScore`'s required
  * argument.
  */
-export function jumpToElement(
-  score: Score,
-  element: EngravingItem | null,
-  staffIdx?: number,
-): void {
+export function jumpToElement(score: Score, element: ScoreElement | null, staffIdx?: number): void {
   if (!element) return;
-  score.showElementInScore(element, staffIdx ?? 0);
+  score.showElementInScore(element as EngravingItem, staffIdx ?? 0);
 }
 
 /**

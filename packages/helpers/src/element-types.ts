@@ -1,28 +1,69 @@
 import type {
   EngravingItem,
-  FractionWrapper,
   Measure,
   ScoreElement,
+  Segment,
 } from "@kjfsm/musescore-plugin-sdk-types";
-
-// Runtime-only properties absent from generated types
-export type TempoElement = EngravingItem & { readonly tempo: number };
-export type TimeSigElement = EngravingItem & {
-  readonly timesigNominal: FractionWrapper;
-  readonly timesigActual: FractionWrapper;
-};
-
-// Measure.timesigNominal / timesigActual are API_PROPERTY macros not captured by types-generator
-type MeasureRuntime = Measure & {
-  readonly timesigNominal: { str: string } | null;
-  readonly timesigActual: { str: string } | null;
-};
 
 /** Returns the written time signature for the measure, e.g. "4/4". Empty string if unavailable. */
 export function getMeasureTimeSig(measure: Measure): string {
-  const m = measure as unknown as MeasureRuntime;
-  const frac = m.timesigNominal ?? m.timesigActual;
-  return typeof frac?.str === "string" ? frac.str : "";
+  const frac = measure.timesigNominal ?? measure.timesigActual;
+  return frac?.str ?? "";
+}
+
+/** Iterates measure segments to find the last BarLine element's barlineType. Returns -1 if none found. */
+export function getMeasureEndBarlineType(measure: Measure): number {
+  let last = -1;
+  for (const seg of measure.segments) {
+    const el = seg.elementAt(0);
+    if (el && el.name === "BarLine") {
+      last = el.barlineType;
+    }
+  }
+  return last;
+}
+
+export interface MeasureRepeatInfo {
+  repeatStart: boolean;
+  repeatEnd: boolean;
+  repeatCount: number;
+}
+
+/** Returns repeat barline and volta count information for the measure. */
+export function getMeasureRepeatInfo(measure: Measure): MeasureRepeatInfo {
+  return {
+    repeatStart: measure.repeatStart,
+    repeatEnd: measure.repeatEnd,
+    repeatCount: measure.repeatCount,
+  };
+}
+
+/**
+ * Reads the `actualKey` (concert key, in fifths) from a KeySig element at the given segment
+ * for the given staff index. Returns null if no KeySig element is present at that track.
+ */
+export function getKeySigAt(segment: Segment, staffIdx: number): number | null {
+  for (let voice = 0; voice < 4; voice++) {
+    const el = segment.elementAt(staffIdx * 4 + voice);
+    if (el && el.name === "KeySig") {
+      return el.actualKey;
+    }
+  }
+  return null;
+}
+
+/**
+ * Reads the `concertClefType` from a Clef element at the given segment for the given staff index.
+ * Returns null if no Clef element is present at that track.
+ */
+export function getClefTypeAt(segment: Segment, staffIdx: number): number | null {
+  for (let voice = 0; voice < 4; voice++) {
+    const el = segment.elementAt(staffIdx * 4 + voice);
+    if (el && el.name === "Clef") {
+      return el.concertClefType;
+    }
+  }
+  return null;
 }
 
 // SMuFL symbol name → dynamic abbreviation
@@ -58,8 +99,7 @@ export function parseDynamicText(raw: string): string {
   return tokens.map((t) => SMUFL_DYNAMIC[t] ?? t).join("");
 }
 
-export function isTempo(el: ScoreElement | null | undefined): el is TempoElement {
-  // MuseScore 4 plugin API exposes TempoText elements as name "Tempo"
+export function isTempo(el: ScoreElement | null | undefined): el is EngravingItem {
   return el?.name === "Tempo" || el?.name === "TempoText";
 }
 
@@ -67,8 +107,20 @@ export function isDynamic(el: ScoreElement | null | undefined): el is EngravingI
   return el?.name === "Dynamic";
 }
 
-export function isTimeSig(el: ScoreElement | null | undefined): el is TimeSigElement {
+export function isTimeSig(el: ScoreElement | null | undefined): el is EngravingItem {
   return el?.name === "TimeSig";
+}
+
+export function isBarLine(el: ScoreElement | null | undefined): el is EngravingItem {
+  return el?.name === "BarLine";
+}
+
+export function isKeySig(el: ScoreElement | null | undefined): el is EngravingItem {
+  return el?.name === "KeySig";
+}
+
+export function isClef(el: ScoreElement | null | undefined): el is EngravingItem {
+  return el?.name === "Clef";
 }
 
 export function isStaffText(el: ScoreElement | null | undefined): el is EngravingItem {
@@ -88,6 +140,6 @@ export function isRehearsalMark(el: ScoreElement | null | undefined): el is Engr
 }
 
 /** Converts TempoText.tempo (beats per second) to BPM. */
-export function getTempoBpm(el: TempoElement): number {
+export function getTempoBpm(el: EngravingItem): number {
   return Math.round(el.tempo * 60);
 }
