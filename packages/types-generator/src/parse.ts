@@ -70,7 +70,8 @@ export function parseHeader(source: string): ParseResult {
   }
 
   // クラスの外側にある自立した enum（例: enums.h）
-  const enumRe = /\benum(?:\s+class)?\s+(\w+)\s*(?::\s*\w+)?\s*\{/g;
+  // `(?::\s*[\w\s]+?)?` で `: unsigned char` のような複数単語の基底型にも対応する。
+  const enumRe = /\benum(?:\s+class)?\s+(\w+)\s*(?::\s*[\w\s]+?)?\s*\{/g;
   while (true) {
     const m = enumRe.exec(stripped);
     if (m === null) break;
@@ -191,7 +192,7 @@ function parseMethodSignature(sig: string): MethodDecl | null {
 
 function extractInlineEnums(body: string): EnumDecl[] {
   const out: EnumDecl[] = [];
-  const re = /\benum(?:\s+class)?\s+(\w+)\s*(?::\s*\w+)?\s*\{/g;
+  const re = /\benum(?:\s+class)?\s+(\w+)\s*(?::\s*[\w\s]+?)?\s*\{/g;
   while (true) {
     const m = re.exec(body);
     if (m === null) break;

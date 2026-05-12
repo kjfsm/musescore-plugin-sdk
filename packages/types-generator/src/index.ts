@@ -8,6 +8,8 @@ export interface GenerateOptions {
   repository: string;
   ref: string;
   headers: string[];
+  /** enum 定義のみを取り出すヘッダ群。クラス定義は無視する。 */
+  enumHeaders?: string[];
   cacheDir: string;
   outDir: string;
 }
@@ -40,7 +42,19 @@ export async function generate(opts: GenerateOptions): Promise<GenerateResult> {
     result: parseHeader(f.source),
   }));
 
-  const out = emit({ perFile });
+  const enumFetched = await fetchHeaders({
+    repository: opts.repository,
+    ref: opts.ref,
+    headers: opts.enumHeaders ?? [],
+    cacheDir: opts.cacheDir,
+  });
+
+  const enumOnlyFiles = enumFetched.map((f) => ({
+    path: f.path,
+    result: parseHeader(f.source),
+  }));
+
+  const out = emit({ perFile, enumOnlyFiles });
 
   await mkdir(opts.outDir, { recursive: true });
   await writeFile(join(opts.outDir, "plugin-api.ts"), out.pluginApi, "utf8");
