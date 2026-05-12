@@ -30,6 +30,7 @@ export {
   type TempoElement,
   type TimeSigElement,
   getTempoBpm,
+  getMeasureTimeSig,
   isDynamic,
   isPlayTechAnnotation,
   isRehearsalMark,
@@ -37,4 +38,5 @@ export {
   isSystemText,
   isTempo,
   isTimeSig,
+  parseDynamicText,
 } from "./element-types.js";

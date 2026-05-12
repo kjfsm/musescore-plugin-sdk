@@ -1,13 +1,15 @@
 import {
   getAnnotationText,
+  getMeasureTimeSig,
   getNoteTypeName,
   getTempoBpm,
   isChord,
+  isDynamic,
   isRest,
   isTempo,
-  isTimeSig,
   iterateMeasureSegments,
   iterateMeasures,
+  parseDynamicText,
 } from "@kjfsm/musescore-plugin-sdk-helpers";
 import { NoteType } from "@kjfsm/musescore-plugin-sdk-types";
 import type { Chord, Note, Score } from "@kjfsm/musescore-plugin-sdk-types";
@@ -111,29 +113,25 @@ export function buildStructure(score: Score | null): string {
 
   const measures: MeasureInfo[] = [];
   let measureIdx = 0;
-  let currentTimeSig = "";
 
   for (const measure of iterateMeasures(score)) {
     measureIdx++;
 
-    // ── Single pass: collect timeSig, tempo changes, and per-staff annotations ──
-    let newTimeSig = "";
+    // timesigNominal is an API_PROPERTY on Measure (not captured by types-generator)
+    const timeSig = getMeasureTimeSig(measure);
+
+    // ── Single pass: collect tempo changes and per-staff annotations ──
     const tempoChanges: TempoChangeInfo[] = [];
     const staffAnnotationMap = new Map<number, AnnotationInfo[]>();
 
     for (const seg of iterateMeasureSegments(measure)) {
-      // TimeSig element sits at track 0 in a TimeSig-type segment
-      const el0 = seg.elementAt(0);
-      if (isTimeSig(el0)) {
-        newTimeSig = fractionStr(el0.timesigNominal);
-      }
-
       // Annotations: TempoText, Dynamic, StaffText, PlayTechAnnotation, etc.
       for (const ann of seg.annotations) {
         if (isTempo(ann)) {
           tempoChanges.push({ bpm: getTempoBpm(ann), tick: seg.tick });
         } else {
-          const text = getAnnotationText(ann);
+          const raw = getAnnotationText(ann);
+          const text = isDynamic(ann) ? parseDynamicText(raw) : raw;
           if (text) {
             const si = ann.staffIdx >= 0 ? ann.staffIdx : 0;
             const arr = staffAnnotationMap.get(si) ?? [];
@@ -143,8 +141,6 @@ export function buildStructure(score: Score | null): string {
         }
       }
     }
-
-    if (newTimeSig) currentTimeSig = newTimeSig;
 
     // ── Collect notes / rests per staff / voice ──
     const staves: StaveInfo[] = [];
@@ -197,7 +193,7 @@ export function buildStructure(score: Score | null): string {
 
     measures.push({
       measure: measureIdx,
-      timeSig: currentTimeSig,
+      timeSig,
       ...(tempoChanges.length > 0 && { tempoChanges }),
       staves,
     });
