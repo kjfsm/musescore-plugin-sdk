@@ -14,5 +14,6 @@
     "src/engraving/api/v1/playevent.h",
     "src/engraving/api/v1/style.h",
     "src/engraving/api/v1/apistructs.h"
-  ]
+  ],
+  "enumHeaders": ["src/engraving/dom/chord.h", "src/engraving/dom/accidental.h"]
 }

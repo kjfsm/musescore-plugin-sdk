@@ -2,7 +2,7 @@
 // 再生成するにはリポジトリのルートで `pnpm generate:types` を実行する。
 
 
-import type { InputStateMode, Ownership, RewindMode } from "./enums.js";
+import type { AccidentalBracket, AccidentalType, InputStateMode, NoteType, Ownership, PlayEventType, RewindMode } from "./enums.js";
 
 export interface ScoreElement {
   readonly type: number;
@@ -481,11 +481,8 @@ export interface IntervalWrapper {
 }
 
 // Plugin API から参照されているがモデル化されていない補助型。
-export type AccidentalType = number;
 export type IntervalStep = number;
 export type IntervalType = number;
-export type NoteType = number;
-export type PlayEventType = number;
 export type QPointF = { x: number; y: number };
 export type QRectF = { x: number; y: number; width: number; height: number };
 

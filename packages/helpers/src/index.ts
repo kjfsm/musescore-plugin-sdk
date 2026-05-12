@@ -25,3 +25,18 @@ export {
   iterateSegments,
   iterateStaves,
 } from "./traversal.js";
+export { getNoteTypeName, isGraceNote, isGraceNoteAfter, isGraceNoteBefore } from "./note-type.js";
+export {
+  type TempoElement,
+  type TimeSigElement,
+  getTempoBpm,
+  getMeasureTimeSig,
+  isDynamic,
+  isPlayTechAnnotation,
+  isRehearsalMark,
+  isStaffText,
+  isSystemText,
+  isTempo,
+  isTimeSig,
+  parseDynamicText,
+} from "./element-types.js";

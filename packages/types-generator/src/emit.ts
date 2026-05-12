@@ -3,6 +3,8 @@ import type { ClassDecl, EnumDecl, ParseResult } from "./parse.js";
 
 export interface EmitInput {
   perFile: { path: string; result: ParseResult }[];
+  /** enum 定義専用ヘッダ。クラス定義は無視してトップレベル enum と class-inline enum のみ収集する。 */
+  enumOnlyFiles?: { path: string; result: ParseResult }[];
 }
 
 export interface EmitOutput {
@@ -39,6 +41,14 @@ export function emit(input: EmitInput): EmitOutput {
 
   for (const f of input.perFile) {
     for (const cls of f.result.classes) allClasses.push(cls);
+    for (const en of f.result.enums) allEnums.push(en);
+    for (const cls of f.result.classes) {
+      for (const en of cls.enums) allEnums.push(en);
+    }
+  }
+
+  // enumOnlyFiles: クラス定義は捨て、enum 定義だけを収集する。
+  for (const f of input.enumOnlyFiles ?? []) {
     for (const en of f.result.enums) allEnums.push(en);
     for (const cls of f.result.classes) {
       for (const en of cls.enums) allEnums.push(en);

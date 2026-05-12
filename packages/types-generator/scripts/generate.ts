@@ -11,6 +11,7 @@ interface Config {
   repository: string;
   ref: string;
   headers: string[];
+  enumHeaders?: string[];
 }
 
 const configPath = join(pkgRoot, "config.json");
@@ -24,6 +25,7 @@ const result = await generate({
   repository: config.repository,
   ref: config.ref,
   headers: config.headers,
+  ...(config.enumHeaders !== undefined && { enumHeaders: config.enumHeaders }),
   outDir,
   cacheDir,
 });
