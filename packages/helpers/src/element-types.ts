@@ -7,6 +7,7 @@ import type {
   ScoreElement,
   Segment,
 } from "@kjfsm/musescore-plugin-sdk-types";
+import { ElementType as ET } from "@kjfsm/musescore-plugin-sdk-types";
 
 /** Returns the written time signature for the measure, e.g. "4/4". Empty string if unavailable. */
 export function getMeasureTimeSig(measure: Measure): string {
@@ -102,45 +103,57 @@ export function parseDynamicText(raw: string): string {
   return tokens.map((t) => SMUFL_DYNAMIC[t] ?? t).join("");
 }
 
-export function isTempo(el: ScoreElement | null | undefined): el is EngravingItem {
-  return el?.name === "Tempo" || el?.name === "TempoText";
+// --- Element-type predicates ---
+
+// ElementType values that have named predicates.
+// Adding a value here forces a corresponding entry in ELEMENT_TYPE_NAMES (Record enforces completeness).
+type PredicateElementType =
+  | typeof ET.DYNAMIC
+  | typeof ET.EXPRESSION
+  | typeof ET.TEMPO_TEXT
+  | typeof ET.STAFF_TEXT
+  | typeof ET.SYSTEM_TEXT
+  | typeof ET.REHEARSAL_MARK
+  | typeof ET.PLAYTECH_ANNOTATION
+  | typeof ET.BAR_LINE
+  | typeof ET.KEYSIG
+  | typeof ET.TIMESIG
+  | typeof ET.CLEF;
+
+// Single source of truth: ElementType value → element name(s).
+// satisfies Record<...> ensures every PredicateElementType has an entry.
+const ELEMENT_TYPE_NAMES = {
+  [ET.DYNAMIC]: "Dynamic",
+  [ET.EXPRESSION]: "Expression",
+  [ET.TEMPO_TEXT]: ["Tempo", "TempoText"] as const,
+  [ET.STAFF_TEXT]: "StaffText",
+  [ET.SYSTEM_TEXT]: "SystemText",
+  [ET.REHEARSAL_MARK]: "RehearsalMark",
+  [ET.PLAYTECH_ANNOTATION]: "PlayTechAnnotation",
+  [ET.BAR_LINE]: "BarLine",
+  [ET.KEYSIG]: "KeySig",
+  [ET.TIMESIG]: "TimeSig",
+  [ET.CLEF]: "Clef",
+} satisfies Record<PredicateElementType, string | readonly string[]>;
+
+// Generates a type-guard predicate from a name or name list.
+function makeIs(names: string | readonly string[]) {
+  return (el: ScoreElement | null | undefined): el is EngravingItem =>
+    el != null &&
+    (Array.isArray(names) ? (names as readonly string[]).includes(el.name) : el.name === names);
 }
 
-export function isDynamic(el: ScoreElement | null | undefined): el is EngravingItem {
-  return el?.name === "Dynamic";
-}
-
-export function isTimeSig(el: ScoreElement | null | undefined): el is EngravingItem {
-  return el?.name === "TimeSig";
-}
-
-export function isBarLine(el: ScoreElement | null | undefined): el is EngravingItem {
-  return el?.name === "BarLine";
-}
-
-export function isKeySig(el: ScoreElement | null | undefined): el is EngravingItem {
-  return el?.name === "KeySig";
-}
-
-export function isClef(el: ScoreElement | null | undefined): el is EngravingItem {
-  return el?.name === "Clef";
-}
-
-export function isStaffText(el: ScoreElement | null | undefined): el is EngravingItem {
-  return el?.name === "StaffText";
-}
-
-export function isPlayTechAnnotation(el: ScoreElement | null | undefined): el is EngravingItem {
-  return el?.name === "PlayTechAnnotation";
-}
-
-export function isSystemText(el: ScoreElement | null | undefined): el is EngravingItem {
-  return el?.name === "SystemText";
-}
-
-export function isRehearsalMark(el: ScoreElement | null | undefined): el is EngravingItem {
-  return el?.name === "RehearsalMark";
-}
+export const isDynamic = makeIs(ELEMENT_TYPE_NAMES[ET.DYNAMIC]);
+export const isExpression = makeIs(ELEMENT_TYPE_NAMES[ET.EXPRESSION]);
+export const isTempo = makeIs(ELEMENT_TYPE_NAMES[ET.TEMPO_TEXT]);
+export const isStaffText = makeIs(ELEMENT_TYPE_NAMES[ET.STAFF_TEXT]);
+export const isSystemText = makeIs(ELEMENT_TYPE_NAMES[ET.SYSTEM_TEXT]);
+export const isRehearsalMark = makeIs(ELEMENT_TYPE_NAMES[ET.REHEARSAL_MARK]);
+export const isPlayTechAnnotation = makeIs(ELEMENT_TYPE_NAMES[ET.PLAYTECH_ANNOTATION]);
+export const isBarLine = makeIs(ELEMENT_TYPE_NAMES[ET.BAR_LINE]);
+export const isKeySig = makeIs(ELEMENT_TYPE_NAMES[ET.KEYSIG]);
+export const isTimeSig = makeIs(ELEMENT_TYPE_NAMES[ET.TIMESIG]);
+export const isClef = makeIs(ELEMENT_TYPE_NAMES[ET.CLEF]);
 
 /** Converts TempoText.tempo (beats per second) to BPM. */
 export function getTempoBpm(el: EngravingItem): number {

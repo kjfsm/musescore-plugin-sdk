@@ -37,6 +37,7 @@ export {
   isBarLine,
   isClef,
   isDynamic,
+  isExpression,
   isKeySig,
   isPlayTechAnnotation,
   isRehearsalMark,
@@ -46,3 +47,4 @@ export {
   isTimeSig,
   parseDynamicText,
 } from "./element-types.js";
+export { type BarlineKind, classifyBarlineKind } from "./barline.js";
