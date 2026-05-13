@@ -164,7 +164,7 @@ export function buildStructure(score: Score | null): string {
     const timeSig = getMeasureTimeSig(measure);
     const repeatInfo = getMeasureRepeatInfo(measure);
     const endBarlineType = getMeasureEndBarlineType(measure);
-    const barline = endBarlineType !== -1 ? barlineTypeName(endBarlineType) : "Normal";
+    const barline = endBarlineType != null ? barlineTypeName(endBarlineType) : "Normal";
 
     const tempoChanges: TempoChangeInfo[] = [];
     const staffAnnotationMap = new Map<number, AnnotationInfo[]>();

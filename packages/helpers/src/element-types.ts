@@ -8,6 +8,7 @@ import type {
   Segment,
 } from "@kjfsm/musescore-plugin-sdk-types";
 import { ElementType as ET } from "@kjfsm/musescore-plugin-sdk-types";
+import { VOICES_PER_STAFF } from "./tracks.js";
 
 /** Returns the written time signature for the measure, e.g. "4/4". Empty string if unavailable. */
 export function getMeasureTimeSig(measure: Measure): string {
@@ -15,9 +16,9 @@ export function getMeasureTimeSig(measure: Measure): string {
   return frac?.str ?? "";
 }
 
-/** Iterates measure segments to find the last BarLine element's barlineType. Returns -1 if none found. */
-export function getMeasureEndBarlineType(measure: Measure): BarLineType | -1 {
-  let result: BarLineType | -1 = -1;
+/** Iterates measure segments to find the last BarLine element's barlineType. Returns null if none found. */
+export function getMeasureEndBarlineType(measure: Measure): BarLineType | null {
+  let result: BarLineType | null = null;
   for (const seg of measure.segments) {
     const el = seg.elementAt(0);
     if (el && el.name === "BarLine") {
@@ -47,7 +48,7 @@ export function getMeasureRepeatInfo(measure: Measure): MeasureRepeatInfo {
  * for the given staff index. Returns null if no KeySig element is present at that track.
  */
 export function getKeySigAt(segment: Segment, staffIdx: number): Key | null {
-  for (let voice = 0; voice < 4; voice++) {
+  for (let voice = 0; voice < VOICES_PER_STAFF; voice++) {
     const el = segment.elementAt(staffIdx * 4 + voice);
     if (el && el.name === "KeySig") {
       return el.actualKey;
@@ -61,7 +62,7 @@ export function getKeySigAt(segment: Segment, staffIdx: number): Key | null {
  * Returns null if no Clef element is present at that track.
  */
 export function getClefTypeAt(segment: Segment, staffIdx: number): ClefType | null {
-  for (let voice = 0; voice < 4; voice++) {
+  for (let voice = 0; voice < VOICES_PER_STAFF; voice++) {
     const el = segment.elementAt(staffIdx * 4 + voice);
     if (el && el.name === "Clef") {
       return el.concertClefType;

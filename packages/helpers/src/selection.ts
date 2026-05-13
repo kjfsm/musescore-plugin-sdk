@@ -1,4 +1,5 @@
 import type { EngravingItem, Score } from "@kjfsm/musescore-plugin-sdk-types";
+import { VOICES_PER_STAFF } from "./tracks.js";
 
 export interface SelectionRange {
   startTick: number;
@@ -31,7 +32,7 @@ export function getSelectionRange(score: Score): SelectionRange | null {
   return {
     startTick,
     endTick,
-    startTrack: sel.startStaff * 4,
-    endTrack: sel.endStaff * 4,
+    startTrack: sel.startStaff * VOICES_PER_STAFF,
+    endTrack: sel.endStaff * VOICES_PER_STAFF,
   };
 }
