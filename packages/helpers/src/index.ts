@@ -14,7 +14,7 @@ export {
   getSelectionRange,
   hasRangeSelection,
 } from "./selection.js";
-export { staffVoiceToTrack, trackToStaffIdx } from "./tracks.js";
+export { VOICES_PER_STAFF, staffVoiceToTrack, trackToStaffIdx } from "./tracks.js";
 export {
   type IterateScopeOptions,
   iterateAnnotations,
@@ -37,6 +37,7 @@ export {
   isBarLine,
   isClef,
   isDynamic,
+  isExpression,
   isKeySig,
   isPlayTechAnnotation,
   isRehearsalMark,
@@ -46,3 +47,4 @@ export {
   isTimeSig,
   parseDynamicText,
 } from "./element-types.js";
+export { type BarlineKind, classifyBarlineKind } from "./barline.js";

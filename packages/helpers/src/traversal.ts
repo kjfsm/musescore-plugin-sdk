@@ -8,6 +8,7 @@ import type {
   Selection,
 } from "@kjfsm/musescore-plugin-sdk-types";
 import { isChord, isNote } from "./predicates.js";
+import { VOICES_PER_STAFF } from "./tracks.js";
 
 export function* iterateMeasureSegments(
   measure: Measure,
@@ -40,17 +41,27 @@ export interface IterateScopeOptions {
 }
 
 type IterationMode = "all" | "range" | "elements" | "empty";
+type Scope = "auto" | "selection" | "all";
 
-function resolveMode(scope: "auto" | "selection" | "all", sel: Selection | null): IterationMode {
-  if (scope === "all") return "all";
-  if (scope === "auto") {
-    if (sel?.isRange) return "range";
-    if (sel && sel.elements.length > 0) return "elements";
-    return "all";
+function assertNever(x: never): never {
+  throw new Error(`Unhandled scope: ${x}`);
+}
+
+function resolveMode(scope: Scope, sel: Selection | null): IterationMode {
+  switch (scope) {
+    case "all":
+      return "all";
+    case "auto":
+      if (sel?.isRange) return "range";
+      if (sel && sel.elements.length > 0) return "elements";
+      return "all";
+    case "selection":
+      if (sel?.isRange) return "range";
+      if (sel && sel.elements.length > 0) return "elements";
+      return "empty";
+    default:
+      return assertNever(scope);
   }
-  if (sel?.isRange) return "range";
-  if (sel && sel.elements.length > 0) return "elements";
-  return "empty";
 }
 
 export function* iterateMeasures(score: Score): Generator<Measure> {
@@ -94,8 +105,8 @@ function* iterateChordsAll(score: Score): Generator<Chord> {
 function* iterateChordsInRange(sel: Selection): Generator<Chord> {
   const startTick = sel.startSegment?.tick ?? 0;
   const endTick = sel.endSegment?.tick ?? Number.MAX_SAFE_INTEGER;
-  const startTrack = sel.startStaff * 4;
-  const endTrack = sel.endStaff * 4;
+  const startTrack = sel.startStaff * VOICES_PER_STAFF;
+  const endTrack = sel.endStaff * VOICES_PER_STAFF;
   let seg: Segment | null = sel.startSegment;
   while (seg && seg.tick < endTick && seg.tick >= startTick) {
     for (let track = startTrack; track < endTrack; track++) {

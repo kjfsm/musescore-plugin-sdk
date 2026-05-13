@@ -1,6 +1,15 @@
 import { NoteType } from "@kjfsm/musescore-plugin-sdk-types";
 import type { Chord } from "@kjfsm/musescore-plugin-sdk-types";
 
+const GRACE_BEFORE_MASK =
+  NoteType.ACCIACCATURA |
+  NoteType.APPOGGIATURA |
+  NoteType.GRACE4 |
+  NoteType.GRACE16 |
+  NoteType.GRACE32;
+
+const GRACE_AFTER_MASK = NoteType.GRACE8_AFTER | NoteType.GRACE16_AFTER | NoteType.GRACE32_AFTER;
+
 // NoteType の数値 → 名前の逆引きテーブル（Object.fromEntries は ES2019 のため for-of で構築）
 const NOTE_TYPE_REVERSE: Partial<Record<NoteType, string>> = {};
 for (const [k, v] of Object.entries(NoteType)) {
@@ -14,19 +23,12 @@ export function getNoteTypeName(noteType: NoteType): string {
 
 /** 拍の前に付くグレースノート（アッチャカトゥーラ・アポジャトゥーラ・GRACE4/16/32）かどうか。 */
 export function isGraceNoteBefore(chord: Chord): boolean {
-  const mask =
-    NoteType.ACCIACCATURA |
-    NoteType.APPOGGIATURA |
-    NoteType.GRACE4 |
-    NoteType.GRACE16 |
-    NoteType.GRACE32;
-  return (chord.noteType & mask) !== 0;
+  return (chord.noteType & GRACE_BEFORE_MASK) !== 0;
 }
 
 /** 拍の後に付くグレースノート（GRACE8/16/32_AFTER）かどうか。 */
 export function isGraceNoteAfter(chord: Chord): boolean {
-  const mask = NoteType.GRACE8_AFTER | NoteType.GRACE16_AFTER | NoteType.GRACE32_AFTER;
-  return (chord.noteType & mask) !== 0;
+  return (chord.noteType & GRACE_AFTER_MASK) !== 0;
 }
 
 /** NORMAL 以外のノートタイプ（前後どちらかのグレースノート）かどうか。 */

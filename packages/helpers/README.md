@@ -110,6 +110,7 @@ import {
 | --- | --- |
 | `isTempo(el)` | `"Tempo"` または `"TempoText"` |
 | `isDynamic(el)` | `"Dynamic"` |
+| `isExpression(el)` | `"Expression"` |
 | `isTimeSig(el)` | `"TimeSig"` |
 | `isBarLine(el)` | `"BarLine"` |
 | `isKeySig(el)` | `"KeySig"` |
@@ -124,12 +125,37 @@ import {
 | 関数 | シグネチャ | 説明 |
 | --- | --- | --- |
 | `getMeasureTimeSig` | `(measure) → string` | 小節の拍子記号を `"4/4"` 形式で返す。取得不可なら空文字 |
-| `getMeasureEndBarlineType` | `(measure) → BarLineType \| -1` | 小節末尾の BarLine の種類。存在しなければ `-1` |
+| `getMeasureEndBarlineType` | `(measure) → BarLineType \| null` | 小節末尾の BarLine の種類。存在しなければ `null` |
 | `getMeasureRepeatInfo` | `(measure) → MeasureRepeatInfo` | `{ repeatStart, repeatEnd, repeatCount }` を返す |
 | `getKeySigAt` | `(segment, staffIdx) → Key \| null` | 指定セグメント・スタッフの KeySig から `actualKey`（五度圏値）を読む |
 | `getClefTypeAt` | `(segment, staffIdx) → ClefType \| null` | 指定セグメント・スタッフの Clef から `concertClefType` を読む |
 | `getTempoBpm` | `(el) → number` | `TempoText.tempo`（拍/秒）を BPM に変換する |
 | `parseDynamicText` | `(raw) → string` | SMuFL シンボル名の連結文字列（例: `"dynamicMezzodynamicPiano"`）を `"mp"` 等の略記に変換する |
+
+---
+
+### barline — 小節線の分類
+
+```ts
+import { classifyBarlineKind } from "@kjfsm/musescore-plugin-sdk-helpers";
+import type { BarlineKind } from "@kjfsm/musescore-plugin-sdk-helpers";
+```
+
+| 関数 / 型 | シグネチャ | 説明 |
+| --- | --- | --- |
+| `classifyBarlineKind` | `(type: BarLineType) → BarlineKind` | `BarLineType` を意味的なカテゴリに分類する |
+| `BarlineKind` | `"final" \| "double" \| "repeat" \| "other"` | 分類結果の型 |
+
+`BarLineType` の各値に対する分類:
+
+| `BarLineType` | `BarlineKind` |
+| --- | --- |
+| `END`, `REVERSE_END` | `"final"` |
+| `DOUBLE` | `"double"` |
+| `START_REPEAT`, `END_REPEAT`, `END_START_REPEAT` | `"repeat"` |
+| `NORMAL`, `BROKEN`, `DOTTED`, `HEAVY`, `DOUBLE_HEAVY` | `"other"` |
+
+`BarLineType` に新しい値が追加された場合、TypeScript がコンパイルエラーを出す exhaustive switch で実装されている。
 
 ---
 
@@ -193,15 +219,17 @@ import {
 
 ```ts
 import {
+  VOICES_PER_STAFF,
   trackToStaffIdx,
   staffVoiceToTrack,
 } from "@kjfsm/musescore-plugin-sdk-helpers";
 ```
 
-| 関数 | シグネチャ | 説明 |
+| 関数 / 定数 | シグネチャ | 説明 |
 | --- | --- | --- |
-| `trackToStaffIdx` | `(track) → number` | `Math.floor(track / 4)` |
-| `staffVoiceToTrack` | `(staffIdx, voice) → number` | `staffIdx * 4 + voice` |
+| `VOICES_PER_STAFF` | `4` | MuseScore の 1 スタッフあたりのボイス数 |
+| `trackToStaffIdx` | `(track) → number` | `Math.floor(track / VOICES_PER_STAFF)` |
+| `staffVoiceToTrack` | `(staffIdx, voice) → number` | `staffIdx * VOICES_PER_STAFF + voice` |
 
 ---
 
