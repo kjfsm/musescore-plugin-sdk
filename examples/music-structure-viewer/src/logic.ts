@@ -15,8 +15,8 @@ import {
   iterateMeasures,
   parseDynamicText,
 } from "@kjfsm/musescore-plugin-sdk-helpers";
-import { NoteType } from "@kjfsm/musescore-plugin-sdk-types";
-import type { Chord, Score } from "@kjfsm/musescore-plugin-sdk-types";
+import { BarLineType, NoteType } from "@kjfsm/musescore-plugin-sdk-types";
+import type { BracketType, Chord, ClefType, Key, Score } from "@kjfsm/musescore-plugin-sdk-types";
 
 const PITCH_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"] as const;
 
@@ -25,19 +25,11 @@ export function midiToName(pitch: number): string {
   return `${PITCH_NAMES[pitch % 12] ?? "?"}${octave}`;
 }
 
-// BarLineType numeric values from MuseScore BarLineType enum
-const BARLINE_NAMES: Record<number, string> = {
-  1: "Normal",
-  2: "Double",
-  4: "StartRepeat",
-  8: "EndRepeat",
-  16: "Dashed",
-  32: "Final",
-  64: "EndStartRepeat",
-};
-
-export function barlineTypeName(type: number): string {
-  return BARLINE_NAMES[type] ?? `Unknown(${type})`;
+export function barlineTypeName(type: BarLineType): string {
+  for (const [key, val] of Object.entries(BarLineType)) {
+    if (val === type) return key;
+  }
+  return `Unknown(${type})`;
 }
 
 export interface StructureElement {
@@ -65,7 +57,7 @@ export interface TempoChangeInfo {
 
 export interface ClefChange {
   tick: number;
-  type: number;
+  type: ClefType;
 }
 
 export interface StaveInfo {
@@ -80,7 +72,7 @@ export interface MeasureInfo {
   timeSig: string;
   barline: string;
   tempoChanges?: TempoChangeInfo[];
-  keySig?: number;
+  keySig?: Key;
   repeatCount?: number;
   irregular?: boolean;
   staves: StaveInfo[];
@@ -89,7 +81,7 @@ export interface MeasureInfo {
 export interface BracketGroup {
   firstStaff: number;
   lastStaff: number;
-  type: number;
+  type: BracketType;
 }
 
 export interface PartInfo {
@@ -108,7 +100,7 @@ export interface ScoreMeta {
   nmeasures: number;
   ntracks: number;
   durationSec: number;
-  keySig: number;
+  keySig: Key;
 }
 
 export interface ScoreStructure {
@@ -164,7 +156,7 @@ export function buildStructure(score: Score | null): string {
 
   const measures: MeasureInfo[] = [];
   let measureIdx = 0;
-  let lastKeySig: number | undefined = undefined;
+  let lastKeySig: Key | undefined = undefined;
 
   for (const measure of iterateMeasures(score)) {
     measureIdx++;
@@ -172,12 +164,12 @@ export function buildStructure(score: Score | null): string {
     const timeSig = getMeasureTimeSig(measure);
     const repeatInfo = getMeasureRepeatInfo(measure);
     const endBarlineType = getMeasureEndBarlineType(measure);
-    const barline = endBarlineType >= 0 ? barlineTypeName(endBarlineType) : "Normal";
+    const barline = endBarlineType !== -1 ? barlineTypeName(endBarlineType) : "Normal";
 
     const tempoChanges: TempoChangeInfo[] = [];
     const staffAnnotationMap = new Map<number, AnnotationInfo[]>();
     const staffClefChanges = new Map<number, ClefChange[]>();
-    let measureKeySig: number | undefined = undefined;
+    let measureKeySig: Key | undefined = undefined;
 
     for (const seg of iterateMeasureSegments(measure)) {
       // Annotations: TempoText, Dynamic, StaffText, etc.
@@ -216,7 +208,7 @@ export function buildStructure(score: Score | null): string {
     }
 
     // Emit keySig only when it changes
-    let keySigEntry: number | undefined;
+    let keySigEntry: Key | undefined;
     if (measureKeySig !== undefined && measureKeySig !== lastKeySig) {
       keySigEntry = measureKeySig;
       lastKeySig = measureKeySig;

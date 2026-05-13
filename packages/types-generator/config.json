@@ -15,5 +15,12 @@
     "src/engraving/api/v1/style.h",
     "src/engraving/api/v1/apistructs.h"
   ],
-  "enumHeaders": ["src/engraving/dom/chord.h", "src/engraving/dom/accidental.h"]
+  "enumHeaders": [
+    "src/engraving/dom/chord.h",
+    "src/engraving/dom/accidental.h",
+    "src/engraving/types/types.h",
+    "src/engraving/dom/ottava.h",
+    "src/engraving/dom/hairpin.h",
+    "src/engraving/dom/timesig.h"
+  ]
 }

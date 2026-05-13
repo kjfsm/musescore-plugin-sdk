@@ -58,7 +58,9 @@ export function emit(input: EmitInput): EmitOutput {
   const dedupedClasses = dedupeClasses(allClasses);
   const dedupedEnums = dedupeEnums(allEnums);
   const knownClasses = new Set(dedupedClasses.map((c) => c.name));
-  const knownEnumNames = new Set(dedupedEnums.map((e) => e.name));
+  const knownEnumNames = new Set(
+    dedupedEnums.filter((e) => e.members.length > 0).map((e) => e.name),
+  );
   const referencedTypes = new Set<string>();
 
   const inheritedMembers = computeInheritedMembers(dedupedClasses);
@@ -155,15 +157,19 @@ export function emit(input: EmitInput): EmitOutput {
     enumLines.push(`export const ${en.name} = {`);
     let next = 0;
     for (const m of en.members) {
-      let value: number | string;
       if (m.value !== undefined) {
         const n = Number(m.value);
-        value = Number.isFinite(n) ? n : JSON.stringify(m.value);
+        if (!Number.isFinite(n)) {
+          // 他メンバーへの参照や式（例: "BarLineType::NORMAL"）は数値として評価できないため
+          // スキップする。TypeScript の型は純粋な数値リテラルのユニオンになる。
+          continue;
+        }
+        next = n + 1;
+        enumLines.push(`  ${m.name}: ${n},`);
       } else {
-        value = next;
+        enumLines.push(`  ${m.name}: ${next},`);
+        next++;
       }
-      if (typeof value === "number") next = value + 1;
-      enumLines.push(`  ${m.name}: ${value},`);
     }
     enumLines.push("} as const;");
     enumLines.push(`export type ${en.name} = (typeof ${en.name})[keyof typeof ${en.name}];`);

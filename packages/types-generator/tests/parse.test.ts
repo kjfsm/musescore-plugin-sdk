@@ -55,11 +55,13 @@ describe("parseHeader / emit", () => {
     const propNames = measure?.properties.map((p) => p.name).sort() ?? [];
     expect(propNames).toEqual(
       [
+        "accidentalType",
         "actualKey",
         "irregular",
         "repeatCount",
         "timesigActual",
         "timesigNominal",
+        "timesigType",
         "userStretch",
       ].sort(),
     );
@@ -77,21 +79,33 @@ describe("parseHeader / emit", () => {
     expect(repeatCount?.cppType).toBe("int");
     expect(repeatCount?.readOnly).toBe(false);
 
-    // API_PROPERTY_READ_ONLY without explicit type → KNOWN_VARIANT_PROP_TYPES lookup
+    // API_PROPERTY_READ_ONLY without explicit type → KNOWN_VARIANT_PROP_TYPES lookup (Key enum)
     const actualKey = measure?.properties.find((p) => p.name === "actualKey");
-    expect(actualKey?.cppType).toBe("int");
+    expect(actualKey?.cppType).toBe("Key");
     expect(actualKey?.readOnly).toBe(true);
 
     const userStretch = measure?.properties.find((p) => p.name === "userStretch");
     expect(userStretch?.cppType).toBe("qreal");
     expect(userStretch?.readOnly).toBe(false);
 
+    // API_PROPERTY_T(int, ...) → KNOWN_INT_PROP_ENUM_TYPES override
+    const accidentalType = measure?.properties.find((p) => p.name === "accidentalType");
+    expect(accidentalType?.cppType).toBe("AccidentalType");
+    expect(accidentalType?.readOnly).toBe(false);
+
+    // API_PROPERTY_READ_ONLY_T(int, ...) → KNOWN_INT_PROP_ENUM_TYPES override
+    const timesigType = measure?.properties.find((p) => p.name === "timesigType");
+    expect(timesigType?.cppType).toBe("TimeSigType");
+    expect(timesigType?.readOnly).toBe(true);
+
     const out = emit({ perFile: [{ path: "api-property.h", result }] });
     expect(out.pluginApi).toContain("readonly timesigNominal: FractionWrapper | null;");
     expect(out.pluginApi).toContain("irregular: boolean;");
     expect(out.pluginApi).toContain("repeatCount: number;");
-    expect(out.pluginApi).toContain("readonly actualKey: number;");
+    expect(out.pluginApi).toContain("readonly actualKey: Key;");
     expect(out.pluginApi).toContain("userStretch: number;");
+    expect(out.pluginApi).toContain("accidentalType: AccidentalType;");
+    expect(out.pluginApi).toContain("readonly timesigType: TimeSigType;");
   });
 
   it("extracts classes, properties and Q_INVOKABLE methods from a fixture header", async () => {
