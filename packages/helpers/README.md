@@ -2,6 +2,12 @@
 
 MuseScore 4 プラグインで頻出する操作をまとめたランタイムヘルパ集。`@kjfsm/musescore-plugin-sdk-types` の型定義を前提に、Score 走査・選択範囲の取得・要素ジャンプ・`startCmd`/`endCmd` ラッパなどを提供する。
 
+## インストール
+
+```sh
+npm install @kjfsm/musescore-plugin-sdk-helpers @kjfsm/musescore-plugin-sdk-types
+```
+
 ## 使い方
 
 ```ts
@@ -31,13 +37,212 @@ export function run(score: Score | null): void {
 }
 ```
 
-## 提供する関数
+## API リファレンス
 
-| モジュール | 関数 |
+### traversal — Score の走査
+
+```ts
+import {
+  iterateMeasures,
+  iterateSegments,
+  iterateMeasureSegments,
+  iterateStaves,
+  iterateChords,
+  iterateNotes,
+  iterateAnnotations,
+} from "@kjfsm/musescore-plugin-sdk-helpers";
+```
+
+| 関数 | シグネチャ | 説明 |
+| --- | --- | --- |
+| `iterateMeasures` | `(score) → Generator<Measure>` | スコア全体の小節を順に yield する |
+| `iterateSegments` | `(score, segmentTypes?) → Generator<Segment>` | スコア全体のセグメントを yield する。`segmentTypes` はビットマスクでフィルタ可能 |
+| `iterateMeasureSegments` | `(measure, segmentTypes?) → Generator<Segment>` | 1 つの小節内のセグメントだけを yield する |
+| `iterateStaves` | `(score) → Generator<number>` | `0` から `nstaves - 1` までの staffIdx を yield する |
+| `iterateChords` | `(score, options?) → Generator<Chord>` | Chord 要素を yield する。`options.scope` で範囲を制御（後述） |
+| `iterateNotes` | `(score, options?) → Generator<Note>` | Note 要素を yield する。`options.scope` で範囲を制御（後述） |
+| `iterateAnnotations` | `(score) → Generator<EngravingItem>` | 全セグメントのアノテーションを yield する |
+
+#### `IterateScopeOptions`
+
+`iterateChords` / `iterateNotes` の第 2 引数。
+
+| `scope` 値 | 挙動 |
 | --- | --- |
-| traversal | `iterateNotes`, `iterateChords`, `iterateMeasures`, `iterateSegments`, `iterateAnnotations` |
-| predicates | `isChord`, `isNote`, `isRest` |
-| selection | `hasRangeSelection`, `getSelectedElements`, `getSelectionRange` |
-| metaTag | `getMetaTag` |
-| cmd | `withCmd` |
-| navigation | `findMeasureByIndex`, `findSegmentByTick`, `jumpToElement`, `jumpToMeasure` |
+| `"auto"` （デフォルト） | 範囲選択があればその範囲、個別選択があればその要素、なければ全スコア |
+| `"selection"` | 現在の選択のみ。選択がなければ何も yield しない |
+| `"all"` | 選択を無視して全スコアを走査 |
+
+---
+
+### predicates — 要素の型判定
+
+```ts
+import { isChord, isNote, isRest } from "@kjfsm/musescore-plugin-sdk-helpers";
+```
+
+| 関数 | 戻り型 | 説明 |
+| --- | --- | --- |
+| `isChord(el)` | `el is Chord` | `el.name === "Chord"` |
+| `isNote(el)` | `el is Note` | `el.name === "Note"` |
+| `isRest(el)` | `el is ChordRest` | `el.name === "Rest"` |
+
+引数は `ScoreElement | null | undefined` を受け付ける。
+
+---
+
+### element-types — 要素種別の判定と属性の読み取り
+
+```ts
+import {
+  isTempo, isDynamic, isTimeSig, isBarLine,
+  isKeySig, isClef, isStaffText, isSystemText,
+  isPlayTechAnnotation, isRehearsalMark,
+  getMeasureTimeSig, getMeasureEndBarlineType, getMeasureRepeatInfo,
+  getKeySigAt, getClefTypeAt,
+  getTempoBpm, parseDynamicText,
+} from "@kjfsm/musescore-plugin-sdk-helpers";
+```
+
+#### 要素名ガード（`el is EngravingItem`）
+
+| 関数 | `el.name` |
+| --- | --- |
+| `isTempo(el)` | `"Tempo"` または `"TempoText"` |
+| `isDynamic(el)` | `"Dynamic"` |
+| `isTimeSig(el)` | `"TimeSig"` |
+| `isBarLine(el)` | `"BarLine"` |
+| `isKeySig(el)` | `"KeySig"` |
+| `isClef(el)` | `"Clef"` |
+| `isStaffText(el)` | `"StaffText"` |
+| `isSystemText(el)` | `"SystemText"` |
+| `isPlayTechAnnotation(el)` | `"PlayTechAnnotation"` |
+| `isRehearsalMark(el)` | `"RehearsalMark"` |
+
+#### 属性の読み取り
+
+| 関数 | シグネチャ | 説明 |
+| --- | --- | --- |
+| `getMeasureTimeSig` | `(measure) → string` | 小節の拍子記号を `"4/4"` 形式で返す。取得不可なら空文字 |
+| `getMeasureEndBarlineType` | `(measure) → BarLineType \| -1` | 小節末尾の BarLine の種類。存在しなければ `-1` |
+| `getMeasureRepeatInfo` | `(measure) → MeasureRepeatInfo` | `{ repeatStart, repeatEnd, repeatCount }` を返す |
+| `getKeySigAt` | `(segment, staffIdx) → Key \| null` | 指定セグメント・スタッフの KeySig から `actualKey`（五度圏値）を読む |
+| `getClefTypeAt` | `(segment, staffIdx) → ClefType \| null` | 指定セグメント・スタッフの Clef から `concertClefType` を読む |
+| `getTempoBpm` | `(el) → number` | `TempoText.tempo`（拍/秒）を BPM に変換する |
+| `parseDynamicText` | `(raw) → string` | SMuFL シンボル名の連結文字列（例: `"dynamicMezzodynamicPiano"`）を `"mp"` 等の略記に変換する |
+
+---
+
+### selection — 選択範囲の操作
+
+```ts
+import {
+  hasRangeSelection,
+  getSelectedElements,
+  getSelectionRange,
+} from "@kjfsm/musescore-plugin-sdk-helpers";
+import type { SelectionRange } from "@kjfsm/musescore-plugin-sdk-helpers";
+```
+
+| 関数 / 型 | シグネチャ | 説明 |
+| --- | --- | --- |
+| `hasRangeSelection` | `(score) → boolean` | 現在の選択が範囲選択かどうか |
+| `getSelectedElements` | `(score) → EngravingItem[]` | 個別選択されている要素の配列。選択なしなら空配列 |
+| `getSelectionRange` | `(score) → SelectionRange \| null` | 範囲選択の tick・track 範囲。範囲選択でなければ `null` |
+| `SelectionRange` | `{ startTick, endTick, startTrack, endTrack }` | `endTick` はスコア末尾まで選択されている場合 `Number.MAX_SAFE_INTEGER` |
+
+---
+
+### navigation — スコアビューの移動
+
+```ts
+import {
+  findMeasureByIndex,
+  findSegmentByTick,
+  jumpToElement,
+  jumpToMeasure,
+} from "@kjfsm/musescore-plugin-sdk-helpers";
+```
+
+| 関数 | シグネチャ | 説明 |
+| --- | --- | --- |
+| `findMeasureByIndex` | `(score, index) → Measure \| null` | `Measure.no === index` の小節を返す |
+| `findSegmentByTick` | `(score, tick) → Segment \| null` | 指定 tick のセグメントをカーソル経由で返す |
+| `jumpToElement` | `(score, element, staffIdx?) → void` | 要素にビューをスクロールする。`element` が `null` なら何もしない |
+| `jumpToMeasure` | `(score, measureIndex, staffIdx?) → boolean` | 小節を探してスクロール。成功なら `true`、小節が見つからなければ `false` |
+
+---
+
+### annotations — アノテーションのテキスト・スタッフ取得
+
+```ts
+import {
+  getAnnotationText,
+  getAnnotationStaffIdx,
+} from "@kjfsm/musescore-plugin-sdk-helpers";
+```
+
+| 関数 | シグネチャ | 説明 |
+| --- | --- | --- |
+| `getAnnotationText` | `(ann) → string` | HTML タグを除去・トリムしたテキストを返す。`plainText` 優先、なければ `text` にフォールバック |
+| `getAnnotationStaffIdx` | `(ann) → number` | アノテーションの staffIdx を解決する。スコア全体に掛かるアノテーションは `-1` |
+
+---
+
+### tracks — track ↔ staffIdx / voice の変換
+
+```ts
+import {
+  trackToStaffIdx,
+  staffVoiceToTrack,
+} from "@kjfsm/musescore-plugin-sdk-helpers";
+```
+
+| 関数 | シグネチャ | 説明 |
+| --- | --- | --- |
+| `trackToStaffIdx` | `(track) → number` | `Math.floor(track / 4)` |
+| `staffVoiceToTrack` | `(staffIdx, voice) → number` | `staffIdx * 4 + voice` |
+
+---
+
+### note-type — グレースノートの判定
+
+```ts
+import {
+  getNoteTypeName,
+  isGraceNote,
+  isGraceNoteBefore,
+  isGraceNoteAfter,
+} from "@kjfsm/musescore-plugin-sdk-helpers";
+```
+
+| 関数 | シグネチャ | 説明 |
+| --- | --- | --- |
+| `getNoteTypeName` | `(noteType) → string` | `NoteType` の数値を enum 定数名に変換する。未知の値は数値文字列 |
+| `isGraceNote` | `(chord) → boolean` | `chord.noteType !== NoteType.NORMAL` |
+| `isGraceNoteBefore` | `(chord) → boolean` | 拍の前に付くグレースノート（ACCIACCATURA / APPOGGIATURA / GRACE4/16/32） |
+| `isGraceNoteAfter` | `(chord) → boolean` | 拍の後に付くグレースノート（GRACE8/16/32_AFTER） |
+
+---
+
+### cmd — コマンドのラッパ
+
+```ts
+import { withCmd } from "@kjfsm/musescore-plugin-sdk-helpers";
+```
+
+| 関数 | シグネチャ | 説明 |
+| --- | --- | --- |
+| `withCmd` | `(score, actionName, fn) → T` | `score.startCmd(actionName)` → `fn()` → `score.endCmd(false)` をまとめて実行する。例外が投げられた場合は `score.endCmd(true)` を呼んでから再スローする |
+
+---
+
+### metaTag — スコアのメタ情報
+
+```ts
+import { getMetaTag } from "@kjfsm/musescore-plugin-sdk-helpers";
+```
+
+| 関数 | シグネチャ | 説明 |
+| --- | --- | --- |
+| `getMetaTag` | `(score, tag) → string \| undefined` | `score.metaTag(tag)` の空文字列を `undefined` に変換する。`tag` には `"composer"` や `"title"` など |
