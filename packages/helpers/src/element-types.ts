@@ -1,5 +1,8 @@
 import type {
+  BarLineType,
+  ClefType,
   EngravingItem,
+  Key,
   Measure,
   ScoreElement,
   Segment,
@@ -12,15 +15,15 @@ export function getMeasureTimeSig(measure: Measure): string {
 }
 
 /** Iterates measure segments to find the last BarLine element's barlineType. Returns -1 if none found. */
-export function getMeasureEndBarlineType(measure: Measure): number {
-  let last = -1;
+export function getMeasureEndBarlineType(measure: Measure): BarLineType | -1 {
+  let result: BarLineType | -1 = -1;
   for (const seg of measure.segments) {
     const el = seg.elementAt(0);
     if (el && el.name === "BarLine") {
-      last = el.barlineType;
+      result = el.barlineType;
     }
   }
-  return last;
+  return result;
 }
 
 export interface MeasureRepeatInfo {
@@ -42,7 +45,7 @@ export function getMeasureRepeatInfo(measure: Measure): MeasureRepeatInfo {
  * Reads the `actualKey` (concert key, in fifths) from a KeySig element at the given segment
  * for the given staff index. Returns null if no KeySig element is present at that track.
  */
-export function getKeySigAt(segment: Segment, staffIdx: number): number | null {
+export function getKeySigAt(segment: Segment, staffIdx: number): Key | null {
   for (let voice = 0; voice < 4; voice++) {
     const el = segment.elementAt(staffIdx * 4 + voice);
     if (el && el.name === "KeySig") {
@@ -56,7 +59,7 @@ export function getKeySigAt(segment: Segment, staffIdx: number): number | null {
  * Reads the `concertClefType` from a Clef element at the given segment for the given staff index.
  * Returns null if no Clef element is present at that track.
  */
-export function getClefTypeAt(segment: Segment, staffIdx: number): number | null {
+export function getClefTypeAt(segment: Segment, staffIdx: number): ClefType | null {
   for (let voice = 0; voice < 4; voice++) {
     const el = segment.elementAt(staffIdx * 4 + voice);
     if (el && el.name === "Clef") {
