@@ -62,65 +62,65 @@ const KNOWN_VARIANT_PROP_TYPES: Readonly<Record<string, string>> = {
   // ── int (enum 相当) ──
   subType: "int",
   hideWhenEmpty: "int",
-  keysig_mode: "int",
-  lineType: "int",
-  headType: "int",
-  headGroup: "int",
+  keysig_mode: "KeyMode",
+  lineType: "LineType",
+  headType: "NoteHeadType",
+  headGroup: "NoteHeadGroup",
   articulationAnchor: "int",
-  direction: "int",
-  horizontalDirection: "int",
-  stemDirection: "int",
-  slurDirection: "int",
-  mirrorHead: "int",
-  layoutBreakType: "int",
-  veloChangeMethod: "int",
+  direction: "DirectionV",
+  horizontalDirection: "DirectionH",
+  stemDirection: "DirectionV",
+  slurDirection: "DirectionV",
+  mirrorHead: "DirectionH",
+  layoutBreakType: "LayoutBreakType",
+  veloChangeMethod: "ChangeMethod",
   veloChangeSpeed: "int",
-  changeMethod: "int",
-  placement: "int",
-  hPlacement: "int",
-  glissandoStyle: "int",
-  lineStyle: "int",
-  ornamentStyle: "int",
+  changeMethod: "ChangeMethod",
+  placement: "PlacementV",
+  hPlacement: "PlacementH",
+  glissandoStyle: "GlissandoStyle",
+  lineStyle: "LineType",
+  ornamentStyle: "OrnamentStyle",
   ornamentShowCueNote: "int",
-  headScheme: "int",
-  subStyle: "int",
+  headScheme: "NoteHeadScheme",
+  subStyle: "TextStyleType",
   align: "int",
   beginTextAlign: "int",
-  beginTextPlace: "int",
-  beginHookType: "int",
+  beginTextPlace: "TextPlace",
+  beginHookType: "HookType",
   continueTextAlign: "int",
-  continueTextPlace: "int",
+  continueTextPlace: "TextPlace",
   endTextAlign: "int",
-  endTextPlace: "int",
-  endHookType: "int",
-  notelinePlacement: "int",
-  voiceAssignment: "int",
-  playTechType: "int",
-  tempoChangeType: "int",
-  tempoEasingMethod: "int",
-  tiePlacement: "int",
+  endTextPlace: "TextPlace",
+  endHookType: "HookType",
+  notelinePlacement: "NoteLineEndPlacement",
+  voiceAssignment: "VoiceAssignment",
+  playTechType: "PlayingTechniqueType",
+  tempoChangeType: "GradualTempoChangeType",
+  tempoEasingMethod: "ChangeMethod",
+  tiePlacement: "TiePlacement",
   playCountTextSetting: "int",
-  dotPosition: "int",
-  veloType: "int",
-  beamMode: "int",
+  dotPosition: "DirectionV",
+  veloType: "VeloType",
+  beamMode: "BeamMode",
   combineVoice: "int",
   role: "int",
-  orientation: "int",
+  orientation: "Orientation",
   harmonyVoicing: "int",
   harmonyDuration: "int",
   symbol: "int",
-  partialSpannerDirection: "int",
+  partialSpannerDirection: "PartialSpannerDirection",
   centerBetweenStaves: "int",
   showMeasureNumbers: "int",
   fretFingering: "int",
-  barlineType: "int",
+  barlineType: "BarLineType",
   barlineSpanFrom: "int",
   barlineSpanTo: "int",
-  dynamicType: "int",
-  concertClefType: "int",
-  transposingClefType: "int",
-  concertKey: "int",
-  actualKey: "int",
+  dynamicType: "DynamicType",
+  concertClefType: "ClefType",
+  transposingClefType: "ClefType",
+  concertKey: "Key",
+  actualKey: "Key",
   repeatCount: "int",
   velocity: "int",
   userVelocity: "int",
@@ -131,9 +131,9 @@ const KNOWN_VARIANT_PROP_TYPES: Readonly<Record<string, string>> = {
   noOffset: "int",
   bracketSpan: "int",
   bracketColumn: "int",
-  systemBracket: "int",
+  systemBracket: "BracketType",
   numberType: "int",
-  bracketType: "int",
+  bracketType: "BracketType",
   actualNotes: "int",
   normalNotes: "int",
   staffMove: "int",
@@ -170,6 +170,20 @@ const KNOWN_VARIANT_PROP_TYPES: Readonly<Record<string, string>> = {
   // ── QSizeF ({ width, height } として emit される) ──
   size: "QSizeF",
   scale: "QSizeF",
+};
+
+// API_PROPERTY_T(int, name, KEY) や API_PROPERTY_READ_ONLY_T(int, name, KEY) で
+// 明示的に int と宣言されているが意味的には enum であるプロパティのオーバーライドテーブル。
+const KNOWN_INT_PROP_ENUM_TYPES: Readonly<Record<string, string>> = {
+  accidentalBracket: "AccidentalBracket",
+  accidentalType: "AccidentalType",
+  ottavaType: "OttavaType",
+  trillType: "TrillType",
+  vibratoType: "VibratoType",
+  hairpinType: "HairpinType",
+  markerType: "MarkerType",
+  glissType: "GlissandoType",
+  timesigType: "TimeSigType",
 };
 
 export interface MethodParam {
@@ -322,15 +336,17 @@ function extractQProperties(body: string): PropertyDecl[] {
   for (const m of body.matchAll(
     /\bAPI_PROPERTY_READ_ONLY_T\s*\(\s*([\w:*]+)\s*,\s*(\w+)\s*,\s*\w+\s*\)/g,
   )) {
-    const cppType = (m[1] ?? "").trim();
+    const rawType = (m[1] ?? "").trim();
     const name = (m[2] ?? "").trim();
+    const cppType = rawType === "int" ? (KNOWN_INT_PROP_ENUM_TYPES[name] ?? rawType) : rawType;
     if (name && cppType) out.push({ name, cppType, readOnly: true });
   }
 
   // API_PROPERTY_T(type, name, KEY)
   for (const m of body.matchAll(/\bAPI_PROPERTY_T\s*\(\s*([\w:*]+)\s*,\s*(\w+)\s*,\s*\w+\s*\)/g)) {
-    const cppType = (m[1] ?? "").trim();
+    const rawType = (m[1] ?? "").trim();
     const name = (m[2] ?? "").trim();
+    const cppType = rawType === "int" ? (KNOWN_INT_PROP_ENUM_TYPES[name] ?? rawType) : rawType;
     if (name && cppType) out.push({ name, cppType, readOnly: false });
   }
 

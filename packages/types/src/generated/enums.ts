@@ -200,3 +200,1114 @@ export const AccidentalBracket = {
   BRACE: 3,
 } as const;
 export type AccidentalBracket = (typeof AccidentalBracket)[keyof typeof AccidentalBracket];
+
+export const ElementType = {
+  INVALID: 0,
+  BRACKET_ITEM: 1,
+  PART: 2,
+  STAFF: 3,
+  SCORE: 4,
+  TEXT: 5,
+  LAYOUT_BREAK: 6,
+  MEASURE_NUMBER: 7,
+  MMREST_RANGE: 8,
+  INSTRUMENT_NAME: 9,
+  BAR_LINE: 10,
+  STAFF_LINES: 11,
+  SYSTEM_DIVIDER: 12,
+  SLUR_SEGMENT: 13,
+  TIE_SEGMENT: 14,
+  LAISSEZ_VIB_SEGMENT: 15,
+  PARTIAL_TIE_SEGMENT: 16,
+  STEM_SLASH: 17,
+  ARPEGGIO: 18,
+  ACCIDENTAL: 19,
+  LEDGER_LINE: 20,
+  STEM: 21,
+  HOOK: 22,
+  NOTE: 23,
+  CLEF: 24,
+  KEYSIG: 25,
+  AMBITUS: 26,
+  TIMESIG: 27,
+  REST: 28,
+  MMREST: 29,
+  DEAD_SLAPPED: 30,
+  SYMBOL: 31,
+  BREATH: 32,
+  MEASURE_REPEAT: 33,
+  TIE: 34,
+  LAISSEZ_VIB: 35,
+  PARTIAL_TIE: 36,
+  ARTICULATION: 37,
+  ORNAMENT: 38,
+  FERMATA: 39,
+  CHORDLINE: 40,
+  DYNAMIC: 41,
+  EXPRESSION: 42,
+  BEAM: 43,
+  LYRICS: 44,
+  FIGURED_BASS: 45,
+  FIGURED_BASS_ITEM: 46,
+  MARKER: 47,
+  JUMP: 48,
+  FINGERING: 49,
+  TUPLET: 50,
+  TEMPO_TEXT: 51,
+  STAFF_TEXT: 52,
+  SYSTEM_TEXT: 53,
+  SOUND_FLAG: 54,
+  PLAY_COUNT_TEXT: 55,
+  PLAYTECH_ANNOTATION: 56,
+  CAPO: 57,
+  STRING_TUNINGS: 58,
+  TRIPLET_FEEL: 59,
+  REHEARSAL_MARK: 60,
+  INSTRUMENT_CHANGE: 61,
+  STAFFTYPE_CHANGE: 62,
+  FRET_DIAGRAM: 63,
+  HARMONY: 64,
+  HARP_DIAGRAM: 65,
+  BEND: 66,
+  TREMOLOBAR: 67,
+  VOLTA: 68,
+  HAIRPIN_SEGMENT: 69,
+  OTTAVA_SEGMENT: 70,
+  TRILL_SEGMENT: 71,
+  LET_RING_SEGMENT: 72,
+  GRADUAL_TEMPO_CHANGE_SEGMENT: 73,
+  VIBRATO_SEGMENT: 74,
+  PALM_MUTE_SEGMENT: 75,
+  WHAMMY_BAR_SEGMENT: 76,
+  RASGUEADO_SEGMENT: 77,
+  HARMONIC_MARK_SEGMENT: 78,
+  PICK_SCRAPE_SEGMENT: 79,
+  TEXTLINE_SEGMENT: 80,
+  VOLTA_SEGMENT: 81,
+  PEDAL_SEGMENT: 82,
+  LYRICSLINE_SEGMENT: 83,
+  PARTIAL_LYRICSLINE_SEGMENT: 84,
+  GLISSANDO_SEGMENT: 85,
+  NOTELINE_SEGMENT: 86,
+  STAFF_VISIBILITY_INDICATOR: 87,
+  SYSTEM_LOCK_INDICATOR: 88,
+  SPACER: 89,
+  STAFF_STATE: 90,
+  NOTEHEAD: 91,
+  NOTEDOT: 92,
+  IMAGE: 93,
+  MEASURE: 94,
+  SELECTION: 95,
+  LASSO: 96,
+  SHADOW_NOTE: 97,
+  TAB_DURATION_SYMBOL: 98,
+  FSYMBOL: 99,
+  PAGE: 100,
+  HAIRPIN: 101,
+  OTTAVA: 102,
+  PEDAL: 103,
+  TRILL: 104,
+  LET_RING: 105,
+  GRADUAL_TEMPO_CHANGE: 106,
+  VIBRATO: 107,
+  PALM_MUTE: 108,
+  WHAMMY_BAR: 109,
+  RASGUEADO: 110,
+  HARMONIC_MARK: 111,
+  PICK_SCRAPE: 112,
+  TEXTLINE: 113,
+  TEXTLINE_BASE: 114,
+  NOTELINE: 115,
+  LYRICSLINE: 116,
+  PARTIAL_LYRICSLINE: 117,
+  GLISSANDO: 118,
+  BRACKET: 119,
+  SEGMENT: 120,
+  SYSTEM: 121,
+  CHORD: 122,
+  SLUR: 123,
+  HBOX: 124,
+  VBOX: 125,
+  TBOX: 126,
+  FBOX: 127,
+  ACTION_ICON: 128,
+  BAGPIPE_EMBELLISHMENT: 129,
+  STICKING: 130,
+  GRACE_NOTES_GROUP: 131,
+  GUITAR_BEND: 132,
+  GUITAR_BEND_SEGMENT: 133,
+  GUITAR_BEND_HOLD: 134,
+  GUITAR_BEND_HOLD_SEGMENT: 135,
+  GUITAR_BEND_TEXT: 136,
+  TREMOLO_TWOCHORD: 137,
+  TREMOLO_SINGLECHORD: 138,
+  TIME_TICK_ANCHOR: 139,
+  PARENTHESIS: 140,
+  HAMMER_ON_PULL_OFF: 141,
+  HAMMER_ON_PULL_OFF_SEGMENT: 142,
+  HAMMER_ON_PULL_OFF_TEXT: 143,
+  TAPPING: 144,
+  TAPPING_HALF_SLUR: 145,
+  TAPPING_HALF_SLUR_SEGMENT: 146,
+  TAPPING_TEXT: 147,
+  ROOT_ITEM: 148,
+  DUMMY: 149,
+  MAXTYPE: 150,
+} as const;
+export type ElementType = (typeof ElementType)[keyof typeof ElementType];
+
+export const OrnamentStyle = {
+  DEFAULT: 0,
+  BAROQUE: 1,
+} as const;
+export type OrnamentStyle = (typeof OrnamentStyle)[keyof typeof OrnamentStyle];
+
+export const GlissandoStyle = {
+  CHROMATIC: 0,
+  WHITE_KEYS: 1,
+  BLACK_KEYS: 2,
+  DIATONIC: 3,
+  PORTAMENTO: 4,
+} as const;
+export type GlissandoStyle = (typeof GlissandoStyle)[keyof typeof GlissandoStyle];
+
+export const AlignV = {
+  TOP: 0,
+  VCENTER: 1,
+  BOTTOM: 2,
+  BASELINE: 3,
+} as const;
+export type AlignV = (typeof AlignV)[keyof typeof AlignV];
+
+export const AlignH = {
+  LEFT: 0,
+  RIGHT: 1,
+  HCENTER: 2,
+} as const;
+export type AlignH = (typeof AlignH)[keyof typeof AlignH];
+
+export const PlacementV = {
+  ABOVE: 0,
+  BELOW: 1,
+} as const;
+export type PlacementV = (typeof PlacementV)[keyof typeof PlacementV];
+
+export const PlacementH = {
+  LEFT: 0,
+  CENTER: 1,
+  RIGHT: 2,
+} as const;
+export type PlacementH = (typeof PlacementH)[keyof typeof PlacementH];
+
+export const TextPlace = {
+  AUTO: 0,
+  ABOVE: 1,
+  BELOW: 2,
+  LEFT: 3,
+} as const;
+export type TextPlace = (typeof TextPlace)[keyof typeof TextPlace];
+
+export const DirectionV = {
+  AUTO: 0,
+  UP: 1,
+  DOWN: 2,
+} as const;
+export type DirectionV = (typeof DirectionV)[keyof typeof DirectionV];
+
+export const DirectionH = {
+  AUTO: 0,
+  LEFT: 1,
+  RIGHT: 2,
+} as const;
+export type DirectionH = (typeof DirectionH)[keyof typeof DirectionH];
+
+export const Orientation = {
+  VERTICAL: 0,
+  HORIZONTAL: 1,
+} as const;
+export type Orientation = (typeof Orientation)[keyof typeof Orientation];
+
+export const AutoOnOff = {
+  AUTO: 0,
+  ON: 1,
+  OFF: 2,
+} as const;
+export type AutoOnOff = (typeof AutoOnOff)[keyof typeof AutoOnOff];
+
+export const AutoCustomHide = {
+  AUTO: 0,
+  CUSTOM: 1,
+  HIDE: 2,
+} as const;
+export type AutoCustomHide = (typeof AutoCustomHide)[keyof typeof AutoCustomHide];
+
+export const VoiceAssignment = {
+  ALL_VOICE_IN_INSTRUMENT: 0,
+  ALL_VOICE_IN_STAFF: 1,
+  CURRENT_VOICE_ONLY: 2,
+} as const;
+export type VoiceAssignment = (typeof VoiceAssignment)[keyof typeof VoiceAssignment];
+
+export const BeamMode = {
+  INVALID: -1,
+  AUTO: 0,
+  NONE: 1,
+  BEGIN: 2,
+  BEGIN16: 3,
+  BEGIN32: 4,
+  MID: 5,
+  END: 6,
+} as const;
+export type BeamMode = (typeof BeamMode)[keyof typeof BeamMode];
+
+export const DurationType = {
+  V_LONG: 0,
+  V_BREVE: 1,
+  V_WHOLE: 2,
+  V_HALF: 3,
+  V_QUARTER: 4,
+  V_EIGHTH: 5,
+  V_16TH: 6,
+  V_32ND: 7,
+  V_64TH: 8,
+  V_128TH: 9,
+  V_256TH: 10,
+  V_512TH: 11,
+  V_1024TH: 12,
+  V_ZERO: 13,
+  V_MEASURE: 14,
+  V_INVALID: 15,
+} as const;
+export type DurationType = (typeof DurationType)[keyof typeof DurationType];
+
+export const LayoutBreakType = {
+  PAGE: 0,
+  LINE: 1,
+  SECTION: 2,
+  NOBREAK: 3,
+} as const;
+export type LayoutBreakType = (typeof LayoutBreakType)[keyof typeof LayoutBreakType];
+
+export const VeloType = {
+  OFFSET_VAL: 0,
+  USER_VAL: 1,
+} as const;
+export type VeloType = (typeof VeloType)[keyof typeof VeloType];
+
+export const BarLineType = {
+  NORMAL: 1,
+  DOUBLE: 2,
+  START_REPEAT: 4,
+  END_REPEAT: 8,
+  BROKEN: 16,
+  END: 32,
+  END_START_REPEAT: 64,
+  DOTTED: 128,
+  REVERSE_END: 256,
+  HEAVY: 512,
+  DOUBLE_HEAVY: 1024,
+} as const;
+export type BarLineType = (typeof BarLineType)[keyof typeof BarLineType];
+
+export const MeasureNumberPlacement = {
+  ABOVE_SYSTEM: 0,
+  BELOW_SYSTEM: 1,
+  ON_SYSTEM_OBJECT_STAVES: 2,
+  ON_ALL_STAVES: 3,
+} as const;
+export type MeasureNumberPlacement = (typeof MeasureNumberPlacement)[keyof typeof MeasureNumberPlacement];
+
+export const NoteHeadType = {
+  HEAD_AUTO: -1,
+  HEAD_WHOLE: 0,
+  HEAD_HALF: 1,
+  HEAD_QUARTER: 2,
+  HEAD_BREVIS: 3,
+  HEAD_TYPES: 4,
+} as const;
+export type NoteHeadType = (typeof NoteHeadType)[keyof typeof NoteHeadType];
+
+export const NoteHeadScheme = {
+  HEAD_AUTO: -1,
+  HEAD_NORMAL: 0,
+  HEAD_PITCHNAME: 1,
+  HEAD_PITCHNAME_GERMAN: 2,
+  HEAD_SOLFEGE: 3,
+  HEAD_SOLFEGE_FIXED: 4,
+  HEAD_SHAPE_NOTE_4: 5,
+  HEAD_SHAPE_NOTE_7_AIKIN: 6,
+  HEAD_SHAPE_NOTE_7_FUNK: 7,
+  HEAD_SHAPE_NOTE_7_WALKER: 8,
+  HEAD_SCHEMES: 9,
+} as const;
+export type NoteHeadScheme = (typeof NoteHeadScheme)[keyof typeof NoteHeadScheme];
+
+export const NoteHeadGroup = {
+  HEAD_NORMAL: 0,
+  HEAD_CROSS: 1,
+  HEAD_PLUS: 2,
+  HEAD_XCIRCLE: 3,
+  HEAD_WITHX: 4,
+  HEAD_TRIANGLE_UP: 5,
+  HEAD_TRIANGLE_DOWN: 6,
+  HEAD_SLASHED1: 7,
+  HEAD_SLASHED2: 8,
+  HEAD_DIAMOND: 9,
+  HEAD_DIAMOND_OLD: 10,
+  HEAD_CIRCLED: 11,
+  HEAD_CIRCLED_LARGE: 12,
+  HEAD_LARGE_ARROW: 13,
+  HEAD_BREVIS_ALT: 14,
+  HEAD_SLASH: 15,
+  HEAD_LARGE_DIAMOND: 16,
+  HEAD_SOL: 17,
+  HEAD_LA: 18,
+  HEAD_FA: 19,
+  HEAD_MI: 20,
+  HEAD_DO: 21,
+  HEAD_RE: 22,
+  HEAD_TI: 23,
+  HEAD_HEAVY_CROSS: 24,
+  HEAD_HEAVY_CROSS_HAT: 25,
+  HEAD_DO_WALKER: 26,
+  HEAD_RE_WALKER: 27,
+  HEAD_TI_WALKER: 28,
+  HEAD_DO_FUNK: 29,
+  HEAD_RE_FUNK: 30,
+  HEAD_TI_FUNK: 31,
+  HEAD_DO_NAME: 32,
+  HEAD_DI_NAME: 33,
+  HEAD_RA_NAME: 34,
+  HEAD_RE_NAME: 35,
+  HEAD_RI_NAME: 36,
+  HEAD_ME_NAME: 37,
+  HEAD_MI_NAME: 38,
+  HEAD_FA_NAME: 39,
+  HEAD_FI_NAME: 40,
+  HEAD_SE_NAME: 41,
+  HEAD_SOL_NAME: 42,
+  HEAD_LE_NAME: 43,
+  HEAD_LA_NAME: 44,
+  HEAD_LI_NAME: 45,
+  HEAD_TE_NAME: 46,
+  HEAD_TI_NAME: 47,
+  HEAD_SI_NAME: 48,
+  HEAD_A_SHARP: 49,
+  HEAD_A: 50,
+  HEAD_A_FLAT: 51,
+  HEAD_B_SHARP: 52,
+  HEAD_B: 53,
+  HEAD_B_FLAT: 54,
+  HEAD_C_SHARP: 55,
+  HEAD_C: 56,
+  HEAD_C_FLAT: 57,
+  HEAD_D_SHARP: 58,
+  HEAD_D: 59,
+  HEAD_D_FLAT: 60,
+  HEAD_E_SHARP: 61,
+  HEAD_E: 62,
+  HEAD_E_FLAT: 63,
+  HEAD_F_SHARP: 64,
+  HEAD_F: 65,
+  HEAD_F_FLAT: 66,
+  HEAD_G_SHARP: 67,
+  HEAD_G: 68,
+  HEAD_G_FLAT: 69,
+  HEAD_H: 70,
+  HEAD_H_SHARP: 71,
+  HEAD_SWISS_RUDIMENTS_FLAM: 72,
+  HEAD_SWISS_RUDIMENTS_DOUBLE: 73,
+  HEAD_CUSTOM: 74,
+  HEAD_GROUPS: 75,
+  HEAD_INVALID: -1,
+} as const;
+export type NoteHeadGroup = (typeof NoteHeadGroup)[keyof typeof NoteHeadGroup];
+
+export const ClefType = {
+  INVALID: -1,
+  G: 0,
+  G15_MB: 1,
+  G8_VB: 2,
+  G8_VA: 3,
+  G15_MA: 4,
+  G8_VB_O: 5,
+  G8_VB_P: 6,
+  G_1: 7,
+  C1: 8,
+  C2: 9,
+  C3: 10,
+  C4: 11,
+  C5: 12,
+  C_19C: 13,
+  C1_F18C: 14,
+  C3_F18C: 15,
+  C4_F18C: 16,
+  C1_F20C: 17,
+  C3_F20C: 18,
+  C4_F20C: 19,
+  F: 20,
+  F15_MB: 21,
+  F8_VB: 22,
+  F_8VA: 23,
+  F_15MA: 24,
+  F_B: 25,
+  F_C: 26,
+  F_F18C: 27,
+  F_19C: 28,
+  PERC: 29,
+  PERC2: 30,
+  TAB: 31,
+  TAB4: 32,
+  TAB_SERIF: 33,
+  TAB4_SERIF: 34,
+  C4_8VB: 35,
+  G8_VB_C: 36,
+  MAX: 37,
+} as const;
+export type ClefType = (typeof ClefType)[keyof typeof ClefType];
+
+export const ClefToBarlinePosition = {
+  AUTO: 0,
+  BEFORE: 1,
+  AFTER: 2,
+} as const;
+export type ClefToBarlinePosition = (typeof ClefToBarlinePosition)[keyof typeof ClefToBarlinePosition];
+
+export const DynamicType = {
+  OTHER: 0,
+  PPPPPP: 1,
+  PPPPP: 2,
+  PPPP: 3,
+  PPP: 4,
+  PP: 5,
+  P: 6,
+  MP: 7,
+  MF: 8,
+  F: 9,
+  FF: 10,
+  FFF: 11,
+  FFFF: 12,
+  FFFFF: 13,
+  FFFFFF: 14,
+  FP: 15,
+  PF: 16,
+  SF: 17,
+  SFZ: 18,
+  SFF: 19,
+  SFFZ: 20,
+  SFFF: 21,
+  SFFFZ: 22,
+  SFP: 23,
+  SFPP: 24,
+  RFZ: 25,
+  RF: 26,
+  FZ: 27,
+  M: 28,
+  R: 29,
+  S: 30,
+  Z: 31,
+  N: 32,
+  LAST: 33,
+} as const;
+export type DynamicType = (typeof DynamicType)[keyof typeof DynamicType];
+
+export const DynamicSpeed = {
+  SLOW: 0,
+  NORMAL: 1,
+  FAST: 2,
+} as const;
+export type DynamicSpeed = (typeof DynamicSpeed)[keyof typeof DynamicSpeed];
+
+export const LineType = {
+  SOLID: 0,
+  DASHED: 1,
+  DOTTED: 2,
+} as const;
+export type LineType = (typeof LineType)[keyof typeof LineType];
+
+export const HookType = {
+  NONE: 0,
+  HOOK_90: 1,
+  HOOK_45: 2,
+  HOOK_90T: 3,
+} as const;
+export type HookType = (typeof HookType)[keyof typeof HookType];
+
+export const KeyMode = {
+  UNKNOWN: -1,
+  NONE: 0,
+  MAJOR: 1,
+  MINOR: 2,
+  DORIAN: 3,
+  PHRYGIAN: 4,
+  LYDIAN: 5,
+  MIXOLYDIAN: 6,
+  AEOLIAN: 7,
+  IONIAN: 8,
+  LOCRIAN: 9,
+} as const;
+export type KeyMode = (typeof KeyMode)[keyof typeof KeyMode];
+
+export const ArpeggioType = {
+  NORMAL: 0,
+  UP: 1,
+  DOWN: 2,
+  BRACKET: 3,
+  UP_STRAIGHT: 4,
+  DOWN_STRAIGHT: 5,
+} as const;
+export type ArpeggioType = (typeof ArpeggioType)[keyof typeof ArpeggioType];
+
+export const IntervalStep = {
+  UNISON: 0,
+  SECOND: 1,
+  THIRD: 2,
+  FOURTH: 3,
+  FIFTH: 4,
+  SIXTH: 5,
+  SEVENTH: 6,
+  OCTAVE: 7,
+} as const;
+export type IntervalStep = (typeof IntervalStep)[keyof typeof IntervalStep];
+
+export const IntervalType = {
+  AUTO: 0,
+  AUGMENTED: 1,
+  MAJOR: 2,
+  PERFECT: 3,
+  MINOR: 4,
+  DIMINISHED: 5,
+} as const;
+export type IntervalType = (typeof IntervalType)[keyof typeof IntervalType];
+
+export const InstrumentLabelVisibility = {
+  LONG: 0,
+  SHORT: 1,
+  HIDE: 2,
+} as const;
+export type InstrumentLabelVisibility = (typeof InstrumentLabelVisibility)[keyof typeof InstrumentLabelVisibility];
+
+export const OrnamentShowAccidental = {
+  DEFAULT: 0,
+  ANY_ALTERATION: 1,
+  ALWAYS: 2,
+} as const;
+export type OrnamentShowAccidental = (typeof OrnamentShowAccidental)[keyof typeof OrnamentShowAccidental];
+
+export const PartialSpannerDirection = {
+  NONE: -1,
+  INCOMING: 0,
+  OUTGOING: 1,
+  BOTH: 2,
+} as const;
+export type PartialSpannerDirection = (typeof PartialSpannerDirection)[keyof typeof PartialSpannerDirection];
+
+export const ChordStylePreset = {
+  STANDARD: 0,
+  JAZZ: 1,
+  LEGACY: 2,
+  CUSTOM: 3,
+} as const;
+export type ChordStylePreset = (typeof ChordStylePreset)[keyof typeof ChordStylePreset];
+
+export const ParenthesesMode = {
+  NONE: 0,
+  LEFT: 1,
+  RIGHT: 2,
+  BOTH: 3,
+} as const;
+export type ParenthesesMode = (typeof ParenthesesMode)[keyof typeof ParenthesesMode];
+
+export const RepeatPlayCountPreset = {
+  X_N: 0,
+  N_X: 1,
+  PLAY_N_TIMES: 2,
+  N_REPEATS: 3,
+} as const;
+export type RepeatPlayCountPreset = (typeof RepeatPlayCountPreset)[keyof typeof RepeatPlayCountPreset];
+
+export const TextStyleType = {
+  DEFAULT: 0,
+  TITLE: 1,
+  SUBTITLE: 2,
+  COMPOSER: 3,
+  LYRICIST: 4,
+  TRANSLATOR: 5,
+  FRAME: 6,
+  INSTRUMENT_EXCERPT: 7,
+  INSTRUMENT_LONG: 8,
+  INSTRUMENT_SHORT: 9,
+  INSTRUMENT_CHANGE: 10,
+  HEADER: 11,
+  FOOTER: 12,
+  COPYRIGHT: 13,
+  PAGE_NUMBER: 14,
+  MEASURE_NUMBER: 15,
+  MEASURE_NUMBER_ALTERNATE: 16,
+  MMREST_RANGE: 17,
+  TEMPO: 18,
+  TEMPO_CHANGE: 19,
+  METRONOME: 20,
+  REPEAT_PLAY_COUNT: 21,
+  REPEAT_LEFT: 22,
+  REPEAT_RIGHT: 23,
+  REHEARSAL_MARK: 24,
+  SYSTEM: 25,
+  STAFF: 26,
+  EXPRESSION: 27,
+  DYNAMICS: 28,
+  HAIRPIN: 29,
+  LYRICS_ODD: 30,
+  LYRICS_EVEN: 31,
+  HARMONY_A: 32,
+  HARMONY_B: 33,
+  HARMONY_ROMAN: 34,
+  HARMONY_NASHVILLE: 35,
+  TUPLET: 36,
+  ARTICULATION: 37,
+  STICKING: 38,
+  FINGERING: 39,
+  TAB_FRET_NUMBER: 40,
+  LH_GUITAR_FINGERING: 41,
+  RH_GUITAR_FINGERING: 42,
+  HAMMER_ON_PULL_OFF: 43,
+  STRING_NUMBER: 44,
+  STRING_TUNINGS: 45,
+  FRET_DIAGRAM_FINGERING: 46,
+  FRET_DIAGRAM_FRET_NUMBER: 47,
+  HARP_PEDAL_DIAGRAM: 48,
+  HARP_PEDAL_TEXT_DIAGRAM: 49,
+  TEXTLINE: 50,
+  NOTELINE: 51,
+  VOLTA: 52,
+  OTTAVA: 53,
+  GLISSANDO: 54,
+  PEDAL: 55,
+  BEND: 56,
+  LET_RING: 57,
+  PALM_MUTE: 58,
+  USER1: 59,
+  USER2: 60,
+  USER3: 61,
+  USER4: 62,
+  USER5: 63,
+  USER6: 64,
+  USER7: 65,
+  USER8: 66,
+  USER9: 67,
+  USER10: 68,
+  USER11: 69,
+  USER12: 70,
+  TEXT_TYPES: 71,
+  IGNORED_TYPES: 72,
+} as const;
+export type TextStyleType = (typeof TextStyleType)[keyof typeof TextStyleType];
+
+export const FontStyle = {
+  Undefined: -1,
+  Normal: 0,
+} as const;
+export type FontStyle = (typeof FontStyle)[keyof typeof FontStyle];
+
+export const AnnotationCategory = {
+  Undefined: -1,
+  TempoAnnotation: 0,
+  PlayingAnnotation: 1,
+  Other: 2,
+} as const;
+export type AnnotationCategory = (typeof AnnotationCategory)[keyof typeof AnnotationCategory];
+
+export const PlayingTechniqueType = {
+  Undefined: -1,
+  Natural: 0,
+  Pizzicato: 1,
+  Open: 2,
+  Mute: 3,
+  Tremolo: 4,
+  Detache: 5,
+  Martele: 6,
+  ColLegno: 7,
+  SulPonticello: 8,
+  SulTasto: 9,
+  Vibrato: 10,
+  Legato: 11,
+  Distortion: 12,
+  Overdrive: 13,
+  Harmonics: 14,
+  JazzTone: 15,
+  HandbellsSwing: 16,
+  HandbellsSwingUp: 17,
+  HandbellsSwingDown: 18,
+  HandbellsEcho1: 19,
+  HandbellsEcho2: 20,
+  HandbellsDamp: 21,
+  HandbellsLV: 22,
+  HandbellsR: 23,
+} as const;
+export type PlayingTechniqueType = (typeof PlayingTechniqueType)[keyof typeof PlayingTechniqueType];
+
+export const GradualTempoChangeType = {
+  Undefined: -1,
+  Accelerando: 0,
+  Allargando: 1,
+  Calando: 2,
+  Lentando: 3,
+  Morendo: 4,
+  Precipitando: 5,
+  Rallentando: 6,
+  Ritardando: 7,
+  Smorzando: 8,
+  Sostenuto: 9,
+  Stringendo: 10,
+} as const;
+export type GradualTempoChangeType = (typeof GradualTempoChangeType)[keyof typeof GradualTempoChangeType];
+
+export const ChangeMethod = {
+  NORMAL: 0,
+  EXPONENTIAL: 1,
+  EASE_IN: 2,
+  EASE_OUT: 3,
+  EASE_IN_OUT: 4,
+} as const;
+export type ChangeMethod = (typeof ChangeMethod)[keyof typeof ChangeMethod];
+
+export const ChangeDirection = {
+  INCREASING: 0,
+  DECREASING: 1,
+} as const;
+export type ChangeDirection = (typeof ChangeDirection)[keyof typeof ChangeDirection];
+
+export const AccidentalRole = {
+  AUTO: 0,
+  USER: 1,
+} as const;
+export type AccidentalRole = (typeof AccidentalRole)[keyof typeof AccidentalRole];
+
+export const AccidentalVal = {
+  SHARP3: 3,
+  SHARP2: 2,
+  SHARP: 1,
+  NATURAL: 0,
+  FLAT: -1,
+  FLAT2: -2,
+  FLAT3: -3,
+} as const;
+export type AccidentalVal = (typeof AccidentalVal)[keyof typeof AccidentalVal];
+
+export const KeySigNatural = {
+  NONE: 0,
+  BEFORE: 1,
+  AFTER: 2,
+} as const;
+export type KeySigNatural = (typeof KeySigNatural)[keyof typeof KeySigNatural];
+
+export const CourtesyBarlineMode = {
+  ALWAYS_SINGLE: 0,
+  ALWAYS_DOUBLE: 1,
+  DOUBLE_BEFORE_COURTESY: 2,
+} as const;
+export type CourtesyBarlineMode = (typeof CourtesyBarlineMode)[keyof typeof CourtesyBarlineMode];
+
+export const FermataType = {
+  Undefined: -1,
+  VeryShort: 0,
+  Short: 1,
+  ShortHenze: 2,
+  Normal: 3,
+  Long: 4,
+  LongHenze: 5,
+  VeryLong: 6,
+} as const;
+export type FermataType = (typeof FermataType)[keyof typeof FermataType];
+
+export const ChordLineType = {
+  NOTYPE: 0,
+  FALL: 1,
+  DOIT: 2,
+  PLOP: 3,
+  SCOOP: 4,
+} as const;
+export type ChordLineType = (typeof ChordLineType)[keyof typeof ChordLineType];
+
+export const SlurStyleType = {
+  Undefined: -1,
+  Solid: 0,
+  Dotted: 1,
+  Dashed: 2,
+  WideDashed: 3,
+} as const;
+export type SlurStyleType = (typeof SlurStyleType)[keyof typeof SlurStyleType];
+
+export const TappingHand = {
+  INVALID: -1,
+  LEFT: 0,
+  RIGHT: 1,
+} as const;
+export type TappingHand = (typeof TappingHand)[keyof typeof TappingHand];
+
+export const LHTappingSymbol = {
+  DOT: 0,
+  CIRCLED_T: 1,
+} as const;
+export type LHTappingSymbol = (typeof LHTappingSymbol)[keyof typeof LHTappingSymbol];
+
+export const RHTappingSymbol = {
+  T: 0,
+  PLUS: 1,
+} as const;
+export type RHTappingSymbol = (typeof RHTappingSymbol)[keyof typeof RHTappingSymbol];
+
+export const LHTappingShowItems = {
+  HALF_SLUR: 0,
+  SYMBOL: 1,
+  BOTH: 2,
+} as const;
+export type LHTappingShowItems = (typeof LHTappingShowItems)[keyof typeof LHTappingShowItems];
+
+export const TremoloType = {
+  INVALID_TREMOLO: -1,
+  R8: 0,
+  R16: 1,
+  R32: 2,
+  R64: 3,
+  BUZZ_ROLL: 4,
+  C8: 5,
+  C16: 6,
+  C32: 7,
+  C64: 8,
+} as const;
+export type TremoloType = (typeof TremoloType)[keyof typeof TremoloType];
+
+export const TremoloStyle = {
+  DEFAULT: 0,
+  TRADITIONAL: 1,
+  TRADITIONAL_ALTERNATE: 2,
+} as const;
+export type TremoloStyle = (typeof TremoloStyle)[keyof typeof TremoloStyle];
+
+export const TremoloChordType = {
+  TremoloNone: 0,
+  TremoloSingle: 1,
+  TremoloFirstChord: 2,
+  TremoloSecondChord: 3,
+} as const;
+export type TremoloChordType = (typeof TremoloChordType)[keyof typeof TremoloChordType];
+
+export const BracketType = {
+  NORMAL: 0,
+  BRACE: 1,
+  SQUARE: 2,
+  LINE: 3,
+  NO_BRACKET: -1,
+} as const;
+export type BracketType = (typeof BracketType)[keyof typeof BracketType];
+
+export const GlissandoType = {
+  STRAIGHT: 0,
+  WAVY: 1,
+} as const;
+export type GlissandoType = (typeof GlissandoType)[keyof typeof GlissandoType];
+
+export const JumpType = {
+  DC: 0,
+  DC_AL_FINE: 1,
+  DC_AL_CODA: 2,
+  DS_AL_CODA: 3,
+  DS_AL_FINE: 4,
+  DS: 5,
+  DC_AL_DBLCODA: 6,
+  DS_AL_DBLCODA: 7,
+  DSS: 8,
+  DSS_AL_CODA: 9,
+  DSS_AL_DBLCODA: 10,
+  DSS_AL_FINE: 11,
+  USER: 12,
+} as const;
+export type JumpType = (typeof JumpType)[keyof typeof JumpType];
+
+export const MarkerType = {
+  SEGNO: 0,
+  VARSEGNO: 1,
+  CODA: 2,
+  VARCODA: 3,
+  CODETTA: 4,
+  FINE: 5,
+  TOCODA: 6,
+  TOCODASYM: 7,
+  DA_CODA: 8,
+  DA_DBLCODA: 9,
+  USER: 10,
+} as const;
+export type MarkerType = (typeof MarkerType)[keyof typeof MarkerType];
+
+export const StaffGroup = {
+  STANDARD: 0,
+  PERCUSSION: 1,
+  TAB: 2,
+} as const;
+export type StaffGroup = (typeof StaffGroup)[keyof typeof StaffGroup];
+
+export const TrillType = {
+  TRILL_LINE: 0,
+  UPPRALL_LINE: 1,
+  DOWNPRALL_LINE: 2,
+  PRALLPRALL_LINE: 3,
+} as const;
+export type TrillType = (typeof TrillType)[keyof typeof TrillType];
+
+export const VibratoType = {
+  GUITAR_VIBRATO: 0,
+  GUITAR_VIBRATO_WIDE: 1,
+  VIBRATO_SAWTOOTH: 2,
+  VIBRATO_SAWTOOTH_WIDE: 3,
+} as const;
+export type VibratoType = (typeof VibratoType)[keyof typeof VibratoType];
+
+export const ArticulationTextType = {
+  NO_TEXT: 0,
+  SLAP: 1,
+  POP: 2,
+  TD: 3,
+  BD: 4,
+  RT: 5,
+  PL: 6,
+  SB: 7,
+  VIB: 8,
+} as const;
+export type ArticulationTextType = (typeof ArticulationTextType)[keyof typeof ArticulationTextType];
+
+export const LyricsSyllabic = {
+  SINGLE: 0,
+  BEGIN: 1,
+  END: 2,
+  MIDDLE: 3,
+} as const;
+export type LyricsSyllabic = (typeof LyricsSyllabic)[keyof typeof LyricsSyllabic];
+
+export const LyricsDashSystemStart = {
+  STANDARD: 0,
+  UNDER_HEADER: 1,
+  UNDER_FIRST_NOTE: 2,
+} as const;
+export type LyricsDashSystemStart = (typeof LyricsDashSystemStart)[keyof typeof LyricsDashSystemStart];
+
+export const NoteLineEndPlacement = {
+  LEFT_EDGE: 0,
+  OFFSET_ENDS: 1,
+} as const;
+export type NoteLineEndPlacement = (typeof NoteLineEndPlacement)[keyof typeof NoteLineEndPlacement];
+
+export const SpannerSegmentType = {
+  SINGLE: 0,
+  BEGIN: 1,
+  MIDDLE: 2,
+  END: 3,
+} as const;
+export type SpannerSegmentType = (typeof SpannerSegmentType)[keyof typeof SpannerSegmentType];
+
+export const TiePlacement = {
+  AUTO: 0,
+  INSIDE: 1,
+  OUTSIDE: 2,
+} as const;
+export type TiePlacement = (typeof TiePlacement)[keyof typeof TiePlacement];
+
+export const TieDotsPlacement = {
+  AUTO: 0,
+  BEFORE_DOTS: 1,
+  AFTER_DOTS: 2,
+} as const;
+export type TieDotsPlacement = (typeof TieDotsPlacement)[keyof typeof TieDotsPlacement];
+
+export const TimeSigPlacement = {
+  NORMAL: 0,
+  ABOVE_STAVES: 1,
+  ACROSS_STAVES: 2,
+} as const;
+export type TimeSigPlacement = (typeof TimeSigPlacement)[keyof typeof TimeSigPlacement];
+
+export const TimeSigStyle = {
+  NORMAL: 0,
+  NARROW: 1,
+  LARGE: 2,
+} as const;
+export type TimeSigStyle = (typeof TimeSigStyle)[keyof typeof TimeSigStyle];
+
+export const TimeSigVSMargin = {
+  HANG_INTO_MARGIN: 0,
+  RIGHT_ALIGN_TO_BARLINE: 1,
+  CREATE_SPACE: 2,
+} as const;
+export type TimeSigVSMargin = (typeof TimeSigVSMargin)[keyof typeof TimeSigVSMargin];
+
+export const NoteSpellingType = {
+  STANDARD: 0,
+  GERMAN: 1,
+  GERMAN_PURE: 2,
+  SOLFEGGIO: 3,
+  FRENCH: 4,
+} as const;
+export type NoteSpellingType = (typeof NoteSpellingType)[keyof typeof NoteSpellingType];
+
+export const Key = {
+  C_B: -7,
+  G_B: -6,
+  D_B: -5,
+  A_B: -4,
+  E_B: -3,
+  B_B: -2,
+  F: -1,
+  C: 0,
+  G: 1,
+  D: 2,
+  A: 3,
+  E: 4,
+  B: 5,
+  F_S: 6,
+  C_S: 7,
+  DELTA_ENHARMONIC: 12,
+} as const;
+export type Key = (typeof Key)[keyof typeof Key];
+
+export const UpdateMode = {
+  DoNothing: 0,
+  Update: 1,
+  UpdateAll: 2,
+  Layout: 3,
+} as const;
+export type UpdateMode = (typeof UpdateMode)[keyof typeof UpdateMode];
+
+export const LayoutFlag = {
+  NO_FLAGS: 0,
+  PLAY_EVENTS: 2,
+  REBUILD_MIDI_MAPPING: 4,
+} as const;
+export type LayoutFlag = (typeof LayoutFlag)[keyof typeof LayoutFlag];
+
+export const OttavaType = {
+  OTTAVA_8VA: 0,
+  OTTAVA_8VB: 1,
+  OTTAVA_15MA: 2,
+  OTTAVA_15MB: 3,
+  OTTAVA_22MA: 4,
+  OTTAVA_22MB: 5,
+} as const;
+export type OttavaType = (typeof OttavaType)[keyof typeof OttavaType];
+
+export const HairpinType = {
+  INVALID: -1,
+  CRESC_HAIRPIN: 0,
+  DIM_HAIRPIN: 1,
+  CRESC_LINE: 2,
+  DIM_LINE: 3,
+} as const;
+export type HairpinType = (typeof HairpinType)[keyof typeof HairpinType];
+
+export const TimeSigType = {
+  NORMAL: 0,
+  FOUR_FOUR: 1,
+  ALLA_BREVE: 2,
+  CUT_BACH: 3,
+  CUT_TRIPLE: 4,
+} as const;
+export type TimeSigType = (typeof TimeSigType)[keyof typeof TimeSigType];
