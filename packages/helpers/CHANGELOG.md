@@ -1,5 +1,11 @@
 # @kjfsm/musescore-plugin-sdk-helpers
 
+## 1.0.1
+
+### Patch Changes
+
+- [`c95ba11`](https://github.com/kjfsm/musescore-plugin-sdk/commit/c95ba11142153800ce691662df14d3267409c4b7) Thanks [@kjfsm](https://github.com/kjfsm)! - Update README to document all exported modules: `annotations`, `tracks`, `note-type`, `element-types`, and functions added since the initial release (`iterateMeasureSegments`, `iterateStaves`, `getNoteTypeName`, `isGraceNote*`, element-type guards and accessors, etc.).
+
 ## 1.0.0
 
 ### Major Changes
