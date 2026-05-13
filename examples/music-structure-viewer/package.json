@@ -1,6 +1,6 @@
 {
   "name": "@kjfsm/musescore-plugin-sdk-music-structure-viewer",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "private": true,
   "type": "module",
   "scripts": {
