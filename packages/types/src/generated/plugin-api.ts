@@ -25,7 +25,7 @@ export interface Score extends ScoreElement {
   readonly harmonyCount: number;
   readonly hasHarmonies: boolean;
   readonly hasLyrics: boolean;
-  readonly keysig: number;
+  readonly keysig: Key;
   readonly lastMeasure: Measure | null;
   readonly lastMeasureMM: Measure | null;
   readonly lastSegment: Segment | null;
@@ -660,7 +660,7 @@ export interface Staff extends Omit<ScoreElement, "spatium"> {
 
 export interface SpannerSegment extends EngravingItem {
   readonly spanner: Spanner | null;
-  readonly spannerSegmentType: number;
+  readonly spannerSegmentType: SpannerSegmentType;
   readonly pos2: QPointF;
   userOff2: QPointF;
 }

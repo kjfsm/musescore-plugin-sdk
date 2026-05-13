@@ -172,6 +172,12 @@ const KNOWN_VARIANT_PROP_TYPES: Readonly<Record<string, string>> = {
   scale: "QSizeF",
 };
 
+// Q_PROPERTY(int name READ ...) で int と宣言されているが意味的には enum であるプロパティ。
+const KNOWN_Q_PROP_INT_ENUM_TYPES: Readonly<Record<string, string>> = {
+  keysig: "Key",
+  spannerSegmentType: "SpannerSegmentType",
+};
+
 // API_PROPERTY_T(int, name, KEY) や API_PROPERTY_READ_ONLY_T(int, name, KEY) で
 // 明示的に int と宣言されているが意味的には enum であるプロパティのオーバーライドテーブル。
 const KNOWN_INT_PROP_ENUM_TYPES: Readonly<Record<string, string>> = {
@@ -340,11 +346,12 @@ function extractQProperties(body: string): PropertyDecl[] {
     if (readIdx < 1) continue;
     const name = tokens[readIdx - 1];
     if (!name) continue;
-    const cppType = tokens
+    const rawType = tokens
       .slice(0, readIdx - 1)
       .join(" ")
       .trim();
-    if (!cppType) continue;
+    if (!rawType) continue;
+    const cppType = rawType === "int" ? (KNOWN_Q_PROP_INT_ENUM_TYPES[name] ?? rawType) : rawType;
     const writeIdx = tokens.indexOf("WRITE");
     out.push({ name, cppType, readOnly: writeIdx < 0 });
   }
