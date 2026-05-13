@@ -27,11 +27,17 @@ export {
 } from "./traversal.js";
 export { getNoteTypeName, isGraceNote, isGraceNoteAfter, isGraceNoteBefore } from "./note-type.js";
 export {
-  type TempoElement,
-  type TimeSigElement,
-  getTempoBpm,
+  type MeasureRepeatInfo,
+  getClefTypeAt,
+  getKeySigAt,
+  getMeasureEndBarlineType,
+  getMeasureRepeatInfo,
   getMeasureTimeSig,
+  getTempoBpm,
+  isBarLine,
+  isClef,
   isDynamic,
+  isKeySig,
   isPlayTechAnnotation,
   isRehearsalMark,
   isStaffText,

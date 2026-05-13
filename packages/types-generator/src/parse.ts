@@ -4,6 +4,174 @@ export interface PropertyDecl {
   readOnly: boolean;
 }
 
+// API_PROPERTY(name, KEY) / API_PROPERTY_READ_ONLY(name, KEY) で明示的な型がない場合の
+// QVariant ペイロードの既知の具体型マッピング。
+// elements.h の実際の型を参照して設定する。
+// 複雑な構造体型（PairF, CurveFit, GroupNodes, QPainterPath 等）は省略し QVariant のまま。
+const KNOWN_VARIANT_PROP_TYPES: Readonly<Record<string, string>> = {
+  // ── FractionWrapper ──
+  timesigNominal: "FractionWrapper*",
+  timesigActual: "FractionWrapper*",
+  timesig: "FractionWrapper*",
+  timesigStretch: "FractionWrapper*",
+  lyricTicks: "FractionWrapper*",
+  spannerTick: "FractionWrapper*",
+  spannerTicks: "FractionWrapper*",
+
+  // ── qreal (number) ──
+  tempo: "qreal",
+  boxHeight: "qreal",
+  boxWidth: "qreal",
+  topGap: "qreal",
+  bottomGap: "qreal",
+  paddingToNotationAbove: "qreal",
+  paddingToNotationBelow: "qreal",
+  hairpinHeight: "qreal",
+  hairpinContHeight: "qreal",
+  userLen: "qreal",
+  space: "qreal",
+  lineWidth: "qreal",
+  frameWidth: "qreal",
+  framePadding: "qreal",
+  beginHookHeight: "qreal",
+  gapBetweenTextAndLine: "qreal",
+  endHookHeight: "qreal",
+  minDistance: "qreal",
+  lineDistance: "qreal",
+  staffYoffset: "qreal",
+  harmonyBassScale: "qreal",
+  mmRestNumberPos: "qreal",
+  measureRepeatNumberPos: "qreal",
+  fretFrameColumnGap: "qreal",
+  fretFrameRowGap: "qreal",
+  leadingSpace: "qreal",
+  userStretch: "qreal",
+
+  // ── bool ──
+  hasParentheses: "bool",
+  showCourtesy: "bool",
+  noStem: "bool",
+  barlineSpan: "bool",
+  repeatStart: "bool",
+  repeatEnd: "bool",
+  repeatJump: "bool",
+  irregular: "bool",
+  breakMmr: "bool",
+  staffInvisible: "bool",
+
+  // ── int (enum 相当) ──
+  subType: "int",
+  hideWhenEmpty: "int",
+  keysig_mode: "int",
+  lineType: "int",
+  headType: "int",
+  headGroup: "int",
+  articulationAnchor: "int",
+  direction: "int",
+  horizontalDirection: "int",
+  stemDirection: "int",
+  slurDirection: "int",
+  mirrorHead: "int",
+  layoutBreakType: "int",
+  veloChangeMethod: "int",
+  veloChangeSpeed: "int",
+  changeMethod: "int",
+  placement: "int",
+  hPlacement: "int",
+  glissandoStyle: "int",
+  lineStyle: "int",
+  ornamentStyle: "int",
+  ornamentShowCueNote: "int",
+  headScheme: "int",
+  subStyle: "int",
+  align: "int",
+  beginTextAlign: "int",
+  beginTextPlace: "int",
+  beginHookType: "int",
+  continueTextAlign: "int",
+  continueTextPlace: "int",
+  endTextAlign: "int",
+  endTextPlace: "int",
+  endHookType: "int",
+  notelinePlacement: "int",
+  voiceAssignment: "int",
+  playTechType: "int",
+  tempoChangeType: "int",
+  tempoEasingMethod: "int",
+  tiePlacement: "int",
+  playCountTextSetting: "int",
+  dotPosition: "int",
+  veloType: "int",
+  beamMode: "int",
+  combineVoice: "int",
+  role: "int",
+  orientation: "int",
+  harmonyVoicing: "int",
+  harmonyDuration: "int",
+  symbol: "int",
+  partialSpannerDirection: "int",
+  centerBetweenStaves: "int",
+  showMeasureNumbers: "int",
+  fretFingering: "int",
+  barlineType: "int",
+  barlineSpanFrom: "int",
+  barlineSpanTo: "int",
+  dynamicType: "int",
+  concertClefType: "int",
+  transposingClefType: "int",
+  concertKey: "int",
+  actualKey: "int",
+  repeatCount: "int",
+  velocity: "int",
+  userVelocity: "int",
+  staffBarlineSpan: "int",
+  staffBarlineSpanFrom: "int",
+  staffBarlineSpanTo: "int",
+  measureNumberMode: "int",
+  noOffset: "int",
+  bracketSpan: "int",
+  bracketColumn: "int",
+  systemBracket: "int",
+  numberType: "int",
+  bracketType: "int",
+  actualNotes: "int",
+  normalNotes: "int",
+  staffMove: "int",
+
+  // ── QString (string) ──
+  text: "QString",
+  htmlText: "QString",
+  numeratorString: "QString",
+  denominatorString: "QString",
+  fontFace: "QString",
+  beginText: "QString",
+  beginFontFace: "QString",
+  continueText: "QString",
+  continueFontFace: "QString",
+  endText: "QString",
+  endFontFace: "QString",
+  jumpTo: "QString",
+  playUntil: "QString",
+  continueAt: "QString",
+  label: "QString",
+  glissText: "QString",
+  action: "QString",
+  preset: "QString",
+  scoreFont: "QString",
+  playCountText: "QString",
+
+  // ── QColor (string として emit される) ──
+  lineColor: "QColor",
+
+  // ── QPointF ({ x, y } として emit される) ──
+  posAbove: "QPointF",
+  mmRestNumberOffset: "QPointF",
+
+  // ── QSizeF ({ width, height } として emit される) ──
+  size: "QSizeF",
+  scale: "QSizeF",
+};
+
 export interface MethodParam {
   name: string;
   cppType: string;
@@ -131,6 +299,8 @@ function findMatchingBrace(s: string, openIdx: number): number {
 
 function extractQProperties(body: string): PropertyDecl[] {
   const out: PropertyDecl[] = [];
+
+  // 標準の Q_PROPERTY(type name READ getter [WRITE setter] ...)
   for (const m of body.matchAll(/\bQ_PROPERTY\s*\(([\s\S]*?)\)/g)) {
     const inner = m[1] ?? "";
     const tokens = tokenizePropertyArgs(inner);
@@ -147,6 +317,39 @@ function extractQProperties(body: string): PropertyDecl[] {
     const writeIdx = tokens.indexOf("WRITE");
     out.push({ name, cppType, readOnly: writeIdx < 0 });
   }
+
+  // API_PROPERTY_READ_ONLY_T(type, name, KEY) — _T 版を先にマッチさせる
+  for (const m of body.matchAll(
+    /\bAPI_PROPERTY_READ_ONLY_T\s*\(\s*([\w:*]+)\s*,\s*(\w+)\s*,\s*\w+\s*\)/g,
+  )) {
+    const cppType = (m[1] ?? "").trim();
+    const name = (m[2] ?? "").trim();
+    if (name && cppType) out.push({ name, cppType, readOnly: true });
+  }
+
+  // API_PROPERTY_T(type, name, KEY)
+  for (const m of body.matchAll(/\bAPI_PROPERTY_T\s*\(\s*([\w:*]+)\s*,\s*(\w+)\s*,\s*\w+\s*\)/g)) {
+    const cppType = (m[1] ?? "").trim();
+    const name = (m[2] ?? "").trim();
+    if (name && cppType) out.push({ name, cppType, readOnly: false });
+  }
+
+  // API_PROPERTY_READ_ONLY(name, KEY) — 型なし版は KNOWN_VARIANT_PROP_TYPES で解決
+  for (const m of body.matchAll(/\bAPI_PROPERTY_READ_ONLY\s*\(\s*(\w+)\s*,\s*\w+\s*\)/g)) {
+    const name = (m[1] ?? "").trim();
+    if (!name) continue;
+    const cppType = KNOWN_VARIANT_PROP_TYPES[name] ?? "QVariant";
+    out.push({ name, cppType, readOnly: true });
+  }
+
+  // API_PROPERTY(name, KEY) — 型なし版
+  for (const m of body.matchAll(/\bAPI_PROPERTY\s*\(\s*(\w+)\s*,\s*\w+\s*\)/g)) {
+    const name = (m[1] ?? "").trim();
+    if (!name) continue;
+    const cppType = KNOWN_VARIANT_PROP_TYPES[name] ?? "QVariant";
+    out.push({ name, cppType, readOnly: false });
+  }
+
   return out;
 }
 
