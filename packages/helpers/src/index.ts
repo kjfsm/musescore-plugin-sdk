@@ -48,3 +48,4 @@ export {
   parseDynamicText,
 } from "./element-types.js";
 export { type BarlineKind, classifyBarlineKind } from "./barline.js";
+export { type Hairpin, type HairpinRange, getHairpinRange, isHairpin } from "./hairpin.js";
