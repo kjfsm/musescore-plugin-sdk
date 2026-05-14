@@ -1,5 +1,12 @@
 # @kjfsm/musescore-plugin-sdk-music-structure-viewer
 
+## 0.0.5
+
+### Patch Changes
+
+- Updated dependencies [[`eae7cf7`](https://github.com/kjfsm/musescore-plugin-sdk/commit/eae7cf72432acc1a3ed9aed5be0b455b12b03bef)]:
+  - @kjfsm/musescore-plugin-sdk-helpers@1.0.3
+
 ## 0.0.4
 
 ### Patch Changes
