@@ -1,5 +1,12 @@
 # @kjfsm/musescore-plugin-sdk-color-selected
 
+## 0.0.7
+
+### Patch Changes
+
+- Updated dependencies [[`eae7cf7`](https://github.com/kjfsm/musescore-plugin-sdk/commit/eae7cf72432acc1a3ed9aed5be0b455b12b03bef)]:
+  - @kjfsm/musescore-plugin-sdk-helpers@1.0.3
+
 ## 0.0.6
 
 ### Patch Changes

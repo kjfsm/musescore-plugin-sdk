@@ -1,5 +1,11 @@
 # @kjfsm/musescore-plugin-sdk-helpers
 
+## 1.0.3
+
+### Patch Changes
+
+- [#23](https://github.com/kjfsm/musescore-plugin-sdk/pull/23) [`eae7cf7`](https://github.com/kjfsm/musescore-plugin-sdk/commit/eae7cf72432acc1a3ed9aed5be0b455b12b03bef) Thanks [@kjfsm](https://github.com/kjfsm)! - Add hairpin utilities: `Hairpin` interface, `isHairpin` predicate, and `getHairpinRange` helper.
+
 ## 1.0.2
 
 ### Patch Changes
