@@ -15,8 +15,8 @@ import {
   iterateMeasures,
   parseDynamicText,
 } from "@kjfsm/musescore-plugin-sdk-helpers";
-import { BarLineType, NoteType } from "@kjfsm/musescore-plugin-sdk-types";
 import type { BracketType, Chord, ClefType, Key, Score } from "@kjfsm/musescore-plugin-sdk-types";
+import { BarLineType, NoteType } from "@kjfsm/musescore-plugin-sdk-types";
 
 const PITCH_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"] as const;
 
@@ -156,7 +156,7 @@ export function buildStructure(score: Score | null): string {
 
   const measures: MeasureInfo[] = [];
   let measureIdx = 0;
-  let lastKeySig: Key | undefined = undefined;
+  let lastKeySig: Key | undefined;
 
   for (const measure of iterateMeasures(score)) {
     measureIdx++;
@@ -169,7 +169,7 @@ export function buildStructure(score: Score | null): string {
     const tempoChanges: TempoChangeInfo[] = [];
     const staffAnnotationMap = new Map<number, AnnotationInfo[]>();
     const staffClefChanges = new Map<number, ClefChange[]>();
-    let measureKeySig: Key | undefined = undefined;
+    let measureKeySig: Key | undefined;
 
     for (const seg of iterateMeasureSegments(measure)) {
       // Annotations: TempoText, Dynamic, StaffText, etc.
