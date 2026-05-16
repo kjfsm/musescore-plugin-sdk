@@ -1,5 +1,5 @@
-import { NoteType } from "@kjfsm/musescore-plugin-sdk-types";
 import type { Chord } from "@kjfsm/musescore-plugin-sdk-types";
+import { NoteType } from "@kjfsm/musescore-plugin-sdk-types";
 
 const GRACE_BEFORE_MASK =
   NoteType.ACCIACCATURA |

@@ -4,7 +4,11 @@
   "description": "TypeScript type definitions for the MuseScore 4 Plugin API.",
   "license": "MIT",
   "type": "module",
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {

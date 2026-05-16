@@ -1,33 +1,7 @@
 export { getAnnotationStaffIdx, getAnnotationText } from "./annotations.js";
+export { type BarlineKind, classifyBarlineKind } from "./barline.js";
 export { withCmd } from "./cmd.js";
-export { getMetaTag } from "./metaTag.js";
 export {
-  findMeasureByIndex,
-  findSegmentByTick,
-  jumpToElement,
-  jumpToMeasure,
-} from "./navigation.js";
-export { isChord, isNote, isRest } from "./predicates.js";
-export {
-  type SelectionRange,
-  getSelectedElements,
-  getSelectionRange,
-  hasRangeSelection,
-} from "./selection.js";
-export { VOICES_PER_STAFF, staffVoiceToTrack, trackToStaffIdx } from "./tracks.js";
-export {
-  type IterateScopeOptions,
-  iterateAnnotations,
-  iterateChords,
-  iterateMeasures,
-  iterateMeasureSegments,
-  iterateNotes,
-  iterateSegments,
-  iterateStaves,
-} from "./traversal.js";
-export { getNoteTypeName, isGraceNote, isGraceNoteAfter, isGraceNoteBefore } from "./note-type.js";
-export {
-  type MeasureRepeatInfo,
   getClefTypeAt,
   getKeySigAt,
   getMeasureEndBarlineType,
@@ -45,7 +19,33 @@ export {
   isSystemText,
   isTempo,
   isTimeSig,
+  type MeasureRepeatInfo,
   parseDynamicText,
 } from "./element-types.js";
-export { type BarlineKind, classifyBarlineKind } from "./barline.js";
-export { type Hairpin, type HairpinRange, getHairpinRange, isHairpin } from "./hairpin.js";
+export { getHairpinRange, type Hairpin, type HairpinRange, isHairpin } from "./hairpin.js";
+export { getMetaTag } from "./metaTag.js";
+export {
+  findMeasureByIndex,
+  findSegmentByTick,
+  jumpToElement,
+  jumpToMeasure,
+} from "./navigation.js";
+export { getNoteTypeName, isGraceNote, isGraceNoteAfter, isGraceNoteBefore } from "./note-type.js";
+export { isChord, isNote, isRest } from "./predicates.js";
+export {
+  getSelectedElements,
+  getSelectionRange,
+  hasRangeSelection,
+  type SelectionRange,
+} from "./selection.js";
+export { staffVoiceToTrack, trackToStaffIdx, VOICES_PER_STAFF } from "./tracks.js";
+export {
+  type IterateScopeOptions,
+  iterateAnnotations,
+  iterateChords,
+  iterateMeasureSegments,
+  iterateMeasures,
+  iterateNotes,
+  iterateSegments,
+  iterateStaves,
+} from "./traversal.js";
