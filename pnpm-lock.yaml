@@ -4,11 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-patchedDependencies:
-  '@arethetypeswrong/core@0.18.2':
-    hash: 21e2b2d17fa9337a6a1ef7eb22fa2ad301b3c9d9023f67fdc833ce4a00ea9126
-    path: patches/@arethetypeswrong__core@0.18.2.patch
-
 importers:
 
   .:
@@ -2429,7 +2424,7 @@ snapshots:
 
   '@arethetypeswrong/cli@0.18.2':
     dependencies:
-      '@arethetypeswrong/core': 0.18.2(patch_hash=21e2b2d17fa9337a6a1ef7eb22fa2ad301b3c9d9023f67fdc833ce4a00ea9126)
+      '@arethetypeswrong/core': 0.18.2
       chalk: 4.1.2
       cli-table3: 0.6.5
       commander: 10.0.1
@@ -2437,7 +2432,7 @@ snapshots:
       marked-terminal: 7.3.0(marked@9.1.6)
       semver: 7.8.0
 
-  '@arethetypeswrong/core@0.18.2(patch_hash=21e2b2d17fa9337a6a1ef7eb22fa2ad301b3c9d9023f67fdc833ce4a00ea9126)':
+  '@arethetypeswrong/core@0.18.2':
     dependencies:
       '@andrewbranch/untar.js': 1.0.3
       '@loaderkit/resolve': 1.0.5
