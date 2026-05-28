@@ -1,33 +1,28 @@
 {
-	"$schema": "https://json.schemastore.org/claude-code-settings.json",
-	"permissions": {
-		"allow": [
-			"Bash(pnpm *)",
-			"Bash(turbo *)",
-			"Bash(node *)",
-			"Bash(vitest *)"
-		]
-	},
-	"hooks": {
-		"PreToolUse": [
-			{
-				"matcher": "Write|Edit",
-				"hooks": [
-					{
-						"type": "command",
-						"command": ".claude/hooks/block-protected-paths.sh"
-					}
-				]
-			},
-			{
-				"matcher": "Bash",
-				"hooks": [
-					{
-						"type": "command",
-						"command": ".claude/hooks/block-no-verify.sh"
-					}
-				]
-			}
-		]
-	}
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": ["Bash(pnpm *)", "Bash(turbo *)", "Bash(node *)", "Bash(vitest *)"]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/block-protected-paths.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/block-no-verify.sh"
+          }
+        ]
+      }
+    ]
+  }
 }
