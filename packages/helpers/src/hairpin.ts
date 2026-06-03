@@ -1,4 +1,5 @@
 import type { HairpinType, ScoreElement, Spanner } from "@kjfsm/musescore-plugin-sdk-types";
+import { getSpannerRange, type SpannerRange } from "./spanner.js";
 
 /**
  * A MuseScore hairpin (crescendo/diminuendo). Extends Spanner so that spannerTick and
@@ -12,14 +13,10 @@ export function isHairpin(el: ScoreElement | null | undefined): el is Hairpin {
   return el?.name === "Hairpin";
 }
 
-export interface HairpinRange {
-  startTick: number;
-  endTick: number;
-}
+/** Alias of {@link SpannerRange}. */
+export type HairpinRange = SpannerRange;
 
 /** Returns the tick range [startTick, endTick) of a hairpin. */
-export function getHairpinRange(el: Hairpin): HairpinRange {
-  const start = el.spannerTick?.ticks ?? 0;
-  const dur = el.spannerTicks?.ticks ?? 0;
-  return { startTick: start, endTick: start + dur };
+export function getHairpinRange(el: Hairpin): SpannerRange {
+  return getSpannerRange(el);
 }

@@ -159,6 +159,42 @@ import type { BarlineKind } from "@kjfsm/musescore-plugin-sdk-helpers";
 
 ---
 
+### spanner — スパナ（ヘアピン・スラー）の判定と範囲
+
+```ts
+import {
+  isHairpin,
+  isSlur,
+  getHairpinRange,
+  getSpannerRange,
+} from "@kjfsm/musescore-plugin-sdk-helpers";
+import type { Hairpin, SpannerRange } from "@kjfsm/musescore-plugin-sdk-helpers";
+```
+
+| 関数 / 型 | シグネチャ | 説明 |
+| --- | --- | --- |
+| `isHairpin(el)` | `el is Hairpin` | `el.name === "Hairpin"`（クレッシェンド/ディミヌエンド） |
+| `isSlur(el)` | `el is Spanner` | `el.name === "Slur"` |
+| `getSpannerRange(spanner)` | `(spanner) → SpannerRange` | 任意のスパナの tick 範囲 `{ startTick, endTick }`。`spannerTick`（開始）と `spannerTicks`（長さ）から算出。null は 0 扱い |
+| `getHairpinRange(hairpin)` | `(hairpin) → SpannerRange` | `getSpannerRange` の別名（ヘアピン向け） |
+| `SpannerRange` | `{ startTick, endTick }` | tick 範囲（`HairpinRange` は別名） |
+
+スパナは音符の `spannerForward` / `spannerBack` から得られる。`isHairpin` / `isSlur` で絞り込んでから `getSpannerRange` を呼ぶ。
+
+---
+
+### articulation — アーティキュレーション名の取得
+
+```ts
+import { getArticulationNames } from "@kjfsm/musescore-plugin-sdk-helpers";
+```
+
+| 関数 | シグネチャ | 説明 |
+| --- | --- | --- |
+| `getArticulationNames(chord)` | `(chord) → string[]` | 和音に付いたアーティキュレーション名（`subtypeName()`、例: `"Staccato"` `"Accent"`）の配列。無ければ `[]` |
+
+---
+
 ### selection — 選択範囲の操作
 
 ```ts
