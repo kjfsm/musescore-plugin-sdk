@@ -103,7 +103,7 @@ M0 ──> M1 ──> M2
 
 - **4.7 が apiv1 を破壊的に変えたか** … M1 冒頭で確認し、結果で支援タスクを分岐。
 - ~~各型穴の正確な宣言元~~ … **M0 診断で解決**（下記付録）。`color`/`text`/`duration`/`annotations` は v4.6.0 で既出、`plainText` のみ apiv1 に無く生成不能。
-- **types 1.0 が支える MuseScore バージョン群**（4.6＋4.7 両対応か、4.7 のみか） … M2 で要相談。
+- ~~types 1.0 が支える MuseScore バージョン群~~ … **決定済み**：型の major ⇔ MuseScore の minor（`1.x`=4.7 を 1.0 の起点、`0.1.x`=4.6 はレガシー）。旧系列は `release/4.x` ＋ dist-tag で維持。詳細は `.claude/rules/releasing.md`。
 
 ---
 
@@ -137,3 +137,4 @@ milestone＋issue として起票する**こと自体が最初の一歩になる
 |---|---|
 | 2026-06-03 | 初版ドラフト起票（3 つの戦略判断と M0–M4 を確定） |
 | 2026-06-03 | M0 型穴診断を反映：4/5 は v4.6.0 で既出と判明。insight #1 と M1 を「stale 撤去＋`plainText` 判断」に修正し、付録を追加 |
+| 2026-06-03 | 採番方針を決定（型の major ⇔ MuseScore minor、4.7=`1.0.0` 起点・4.6=`0.1.x`）。`.claude/rules/releasing.md` を追加 |
