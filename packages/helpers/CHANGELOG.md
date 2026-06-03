@@ -1,5 +1,14 @@
 # @kjfsm/musescore-plugin-sdk-helpers
 
+## 2.0.0
+
+### Patch Changes
+
+- [#26](https://github.com/kjfsm/musescore-plugin-sdk/pull/26) [`365117b`](https://github.com/kjfsm/musescore-plugin-sdk/commit/365117b731489ea0cd3fdc5e99c833eaf634fdee) Thanks [@kjfsm](https://github.com/kjfsm)! - 開発依存パッケージを最新バージョンに更新（Biome 2、TypeScript 6、Vitest 4）。
+
+- Updated dependencies [[`6eaa696`](https://github.com/kjfsm/musescore-plugin-sdk/commit/6eaa696a06d26f7084db75bc865d22d9c38f97cf), [`365117b`](https://github.com/kjfsm/musescore-plugin-sdk/commit/365117b731489ea0cd3fdc5e99c833eaf634fdee)]:
+  - @kjfsm/musescore-plugin-sdk-types@1.0.0
+
 ## 1.0.3
 
 ### Patch Changes
