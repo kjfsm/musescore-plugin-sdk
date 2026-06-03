@@ -1,4 +1,5 @@
 export { getAnnotationStaffIdx, getAnnotationText } from "./annotations.js";
+export { getArticulationNames } from "./articulation.js";
 export { type BarlineKind, classifyBarlineKind } from "./barline.js";
 export { withCmd } from "./cmd.js";
 export {
@@ -38,6 +39,7 @@ export {
   hasRangeSelection,
   type SelectionRange,
 } from "./selection.js";
+export { getSpannerRange, isSlur, type SpannerRange } from "./spanner.js";
 export { staffVoiceToTrack, trackToStaffIdx, VOICES_PER_STAFF } from "./tracks.js";
 export {
   type IterateScopeOptions,
