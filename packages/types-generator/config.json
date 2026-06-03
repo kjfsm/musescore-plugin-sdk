@@ -1,7 +1,7 @@
 {
   "$comment": "Pin to the latest MuseScore 4 stable. Update tag and re-run `pnpm generate:types`.",
   "repository": "musescore/MuseScore",
-  "ref": "v4.6.0",
+  "ref": "v4.7.2",
   "headers": [
     "src/engraving/api/v1/scoreelement.h",
     "src/engraving/api/v1/score.h",

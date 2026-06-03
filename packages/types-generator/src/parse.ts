@@ -9,14 +9,14 @@ export interface PropertyDecl {
 // elements.h の実際の型を参照して設定する。
 // 複雑な構造体型（PairF, CurveFit, GroupNodes, QPainterPath 等）は省略し QVariant のまま。
 const KNOWN_VARIANT_PROP_TYPES: Readonly<Record<string, string>> = {
-  // ── FractionWrapper ──
-  timesigNominal: "FractionWrapper*",
-  timesigActual: "FractionWrapper*",
-  timesig: "FractionWrapper*",
-  timesigStretch: "FractionWrapper*",
-  lyricTicks: "FractionWrapper*",
-  spannerTick: "FractionWrapper*",
-  spannerTicks: "FractionWrapper*",
+  // ── Fraction (apiv1 wrapper; renamed from FractionWrapper in MuseScore 4.7) ──
+  timesigNominal: "Fraction*",
+  timesigActual: "Fraction*",
+  timesig: "Fraction*",
+  timesigStretch: "Fraction*",
+  lyricTicks: "Fraction*",
+  spannerTick: "Fraction*",
+  spannerTicks: "Fraction*",
 
   // ── qreal (number) ──
   tempo: "qreal",

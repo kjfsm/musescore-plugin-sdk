@@ -2,10 +2,10 @@
 // 再生成するにはリポジトリのルートで `pnpm generate:types` を実行する。
 
 
-import type { AccidentalBracket, AccidentalRole, AccidentalType, AccidentalVal, AlignH, AlignV, AnnotationCategory, ArpeggioType, ArticulationTextType, AutoCustomHide, AutoOnOff, BarLineType, BeamMode, BracketType, ChangeDirection, ChangeMethod, ChordLineType, ChordStylePreset, ClefToBarlinePosition, ClefType, CourtesyBarlineMode, DirectionH, DirectionV, DurationType, DynamicSpeed, DynamicType, ElementType, FermataType, FontStyle, GlissandoStyle, GlissandoType, GradualTempoChangeType, HairpinType, HookType, InputStateMode, InstrumentLabelVisibility, IntervalStep, IntervalType, JumpType, Key, KeyMode, KeySigNatural, LHTappingShowItems, LHTappingSymbol, LayoutBreakType, LayoutFlag, LineType, LyricsDashSystemStart, LyricsSyllabic, MarkerType, MeasureNumberPlacement, NoteHeadGroup, NoteHeadScheme, NoteHeadType, NoteLineEndPlacement, NoteSpellingType, NoteType, Orientation, OrnamentShowAccidental, OrnamentStyle, OttavaType, Ownership, ParenthesesMode, PartialSpannerDirection, PlacementH, PlacementV, PlayEventType, PlayingTechniqueType, RHTappingSymbol, RepeatPlayCountPreset, RewindMode, SlurStyleType, SpannerSegmentType, StaffGroup, TappingHand, TextPlace, TextStyleType, TieDotsPlacement, TiePlacement, TimeSigPlacement, TimeSigStyle, TimeSigType, TimeSigVSMargin, TremoloChordType, TremoloStyle, TremoloType, TrillType, UpdateMode, VeloType, VibratoType, VoiceAssignment } from "./enums.js";
+import type { AccidentalBracket, AccidentalRole, AccidentalType, AccidentalVal, AlignH, AlignV, ArpeggioType, ArticulationTextType, AutoCustomHide, AutoOnOff, BarLineType, BeamMode, BracketType, ChangeDirection, ChangeMethod, ChordLineType, ChordStylePreset, ClefToBarlinePosition, ClefType, CourtesyBarlineMode, DirectionH, DirectionV, DisplayCapoChordType, DurationType, DynamicSpeed, DynamicType, ElementType, FermataType, FontStyle, GlissandoStyle, GlissandoType, GradualTempoChangeType, HairpinType, HookType, InputStateMode, InstrumentLabelVisibility, IntervalStep, IntervalType, JumpType, Key, KeyMode, KeySigNatural, LHTappingShowItems, LHTappingSymbol, LayoutBreakType, LayoutFlag, LineType, LyricsDashSystemStart, LyricsSyllabic, MarkerType, MeasureNumberPlacement, NoteHeadGroup, NoteHeadScheme, NoteHeadType, NoteLineEndPlacement, NoteSpellingType, NoteType, Orientation, OrnamentShowAccidental, OrnamentStyle, OttavaType, Ownership, ParenthesesMode, PartialSpannerDirection, PlacementH, PlacementV, PlayEventType, PlayingTechniqueType, PreferSharpFlat, RHTappingSymbol, RepeatPlayCountPreset, RewindMode, SlurStyleType, SpannerSegmentType, StaffGroup, TappingHand, TextPlace, TextStyleType, TieDotsPlacement, TiePlacement, TimeSigPlacement, TimeSigStyle, TimeSigType, TimeSigVSMargin, TransposeMode, TremoloChordType, TremoloStyle, TremoloType, TrillType, UpdateMode, VeloType, VibratoType, VoiceAssignment } from "./enums.js";
 
 export interface ScoreElement {
-  readonly type: number;
+  readonly type: unknown;
   readonly name: string;
   readonly spatium: number;
   readonly eid: string;
@@ -17,32 +17,35 @@ export interface QmlListAccess {
 }
 
 export interface Score extends ScoreElement {
+  scoreName: string;
+  readonly title: string;
   readonly composer: string;
+  readonly lyricist: string;
   readonly duration: number;
-  readonly excerpts: Excerpt[];
+  readonly mscoreVersion: string;
+  readonly mscoreRevision: string;
+  readonly style: MStyle | null;
+  readonly keysig: Key;
+  readonly npages: number;
+  readonly pages: Page[];
+  pageNumberOffset: number;
+  readonly parts: Part[];
+  readonly nstaves: number;
+  readonly staves: Staff[];
+  readonly ntracks: number;
+  readonly systems: System[];
+  readonly spanners: Spanner[];
+  readonly hasHarmonies: boolean;
+  readonly harmonyCount: number;
+  readonly hasLyrics: boolean;
+  readonly lyricCount: number;
+  readonly lyrics: Lyrics[];
+  readonly nmeasures: number;
   readonly firstMeasure: Measure | null;
   readonly firstMeasureMM: Measure | null;
-  readonly harmonyCount: number;
-  readonly hasHarmonies: boolean;
-  readonly hasLyrics: boolean;
-  readonly keysig: Key;
   readonly lastMeasure: Measure | null;
   readonly lastMeasureMM: Measure | null;
   readonly lastSegment: Segment | null;
-  readonly lyricCount: number;
-  scoreName: string;
-  readonly nmeasures: number;
-  readonly npages: number;
-  readonly nstaves: number;
-  readonly ntracks: number;
-  readonly parts: Part[];
-  readonly lyricist: string;
-  readonly title: string;
-  readonly mscoreVersion: string;
-  readonly mscoreRevision: string;
-  readonly selection: Selection | null;
-  readonly style: MStyle | null;
-  pageNumberOffset: number;
   layoutMode: number;
   showVerticalFrames: boolean;
   showInvisible: boolean;
@@ -52,27 +55,46 @@ export interface Score extends ScoreElement {
   showSoundFlags: boolean;
   markIrregularMeasures: boolean;
   showInstrumentNames: boolean;
-  readonly staves: Staff[];
-  readonly pages: Page[];
-  readonly systems: System[];
+  readonly selection: Selection | null;
+  readonly excerpts: Excerpt[];
   metaTag(tag: string): string;
   setMetaTag(tag: string, val: string): void;
   appendPart(instrumentId: string): void;
   appendPartByMusicXmlId(instrumentMusicXmlId: string): void;
-  appendMeasures(n: number): void;
-  addText(type: string, text: string): void;
-  newCursor(): Cursor | null;
-  firstSegment(segmentType: number): Segment | null;
-  tick2measure(tick: FractionWrapper | null): Measure | null;
-  findSegmentAtTick(types: number, tick: FractionWrapper | null): Segment | null;
-  extractLyrics(): string;
-  startCmd(qActionName: string): void;
-  endCmd(rollback: boolean): void;
-  createPlayEvents(): void;
-  doLayout(startTick: FractionWrapper | null, endTick: FractionWrapper | null): void;
-  showElementInScore(element: EngravingItem | null, staffIdx: number): void;
   addRemoveSystemLocks(interval: number, lock: boolean): void;
   makeIntoSystem(first: MeasureBase | null, last: MeasureBase | null): void;
+  extractLyrics(): string;
+  appendMeasures(n: number): void;
+  tick2measure(tick: Fraction | null): Measure | null;
+  firstSegment(segmentType: number): Segment | null;
+  findSegmentAtTick(types: number, tick: Fraction | null): Segment | null;
+  addText(type: string, text: string): void;
+  doLayout(startTick: Fraction | null, endTick: Fraction | null): void;
+  replaceInstrument(part: Part | null, instrumentId: string): void;
+  setPartVisible(part: Part | null, visible: boolean): void;
+  setPartSharpFlat(part: Part | null, sharpFlat: number): void;
+  setInstrumentName(part: Part | null, tick: Fraction | null, name: string): void;
+  setInstrumentAbbreviature(part: Part | null, tick: Fraction | null, abbreviature: string): void;
+  setStaffType(staff: Staff | null, staffTypeId: number): void;
+  removeParts(parts: (Part | null)[]): void;
+  removeStaves(staves: (Staff | null)[]): void;
+  moveParts(sourceParts: (Part | null)[], destinationPart: Part | null, insertMode: number): void;
+  moveStaves(sourceStaves: (Staff | null)[], destinationStaff: Staff | null, insertMode: number): void;
+  addSystemObjects(staves: (Staff | null)[]): void;
+  removeSystemObjects(staves: (Staff | null)[]): void;
+  moveSystemObjects(sourceStaff: Staff | null, destinationStaff: Staff | null): void;
+  appendStaff(destinationPart: Part | null): Staff | null;
+  appendLinkedStaff(sourceStaff: Staff | null, destinationPart: Part | null): Staff | null;
+  setVoiceVisible(staff: Staff | null, voiceIndex: number, visible: boolean): boolean;
+  replaceDrumset(part: Part | null, tick: Fraction | null, drumset: Drumset | null): void;
+  insertPart(instrumentId: string, index: number): void;
+  replacePart(part: Part | null, instrumentId: string): void;
+  setScoreOrder(orderId: string): void;
+  newCursor(): Cursor | null;
+  startCmd(qActionName: string): void;
+  endCmd(rollback: boolean): void;
+  showElementInScore(element: EngravingItem | null, staffIdx: number): void;
+  createPlayEvents(): void;
 }
 
 export interface Cursor {
@@ -83,7 +105,7 @@ export interface Cursor {
   filter: number;
   readonly tick: number;
   readonly utick: number;
-  readonly fraction: FractionWrapper | null;
+  readonly fraction: Fraction | null;
   readonly tempo: number;
   readonly keySignature: number;
   score: Score | null;
@@ -94,7 +116,7 @@ export interface Cursor {
   inputStateMode: InputStateMode;
   rewind(mode: RewindMode): void;
   rewindToTick(tick: number): void;
-  rewindToFraction(f: FractionWrapper | null): void;
+  rewindToFraction(f: Fraction | null): void;
   time(includeRepeats: boolean): number;
   next(): boolean;
   nextMeasure(): boolean;
@@ -102,13 +124,16 @@ export interface Cursor {
   add(arg0: EngravingItem | null): void;
   addNote(pitch: number, addToChord: boolean): void;
   addRest(): void;
-  addTuplet(ratio: FractionWrapper | null, duration: FractionWrapper | null): void;
+  addTuplet(ratio: Fraction | null, duration: Fraction | null): void;
   setDuration(z: number, n: number): void;
 }
 
 export interface EngravingItem extends ScoreElement {
   readonly parent: EngravingItem | null;
   readonly staff: Staff | null;
+  readonly staffIdx: number;
+  readonly effectiveStaffIdx: number;
+  readonly vStaffIdx: number;
   offsetX: number;
   offsetY: number;
   readonly posX: number;
@@ -118,24 +143,24 @@ export interface EngravingItem extends ScoreElement {
   readonly canvasPos: QPointF;
   readonly bbox: QRectF;
   readonly subtype: number;
-  readonly staffIdx: number;
-  readonly effectiveStaffIdx: number;
-  readonly vStaffIdx: number;
   readonly up: boolean;
   readonly header: boolean;
   readonly trailer: boolean;
   readonly isMovable: boolean;
   readonly enabled: boolean;
   readonly addToSkyline: boolean;
-  readonly fraction: FractionWrapper | null;
-  readonly beat: FractionWrapper | null;
+  readonly fraction: Fraction | null;
+  readonly beat: Fraction | null;
   readonly selected: boolean;
   readonly generated: boolean;
+  subType: number;
   color: QColor;
   visible: boolean;
   z: number;
   small: boolean;
   hideStavesWhenIndividuallyEmpty: boolean;
+  showCourtesy: boolean;
+  articulationAnchor: number;
   pause: number;
   barlineSpanFrom: number;
   barlineSpanTo: number;
@@ -143,8 +168,6 @@ export interface EngravingItem extends ScoreElement {
   offset: QPointF;
   ghost: boolean;
   play: boolean;
-  growLeft: number;
-  growRight: number;
   boxAutoSize: boolean;
   leftMargin: number;
   rightMargin: number;
@@ -203,7 +226,6 @@ export interface EngravingItem extends ScoreElement {
   timesigType: TimeSigType;
   mmRestNumberVisible: boolean;
   verse: number;
-  syllabic: LyricsSyllabic;
   lineVisible: boolean;
   mag: number;
   useDrumset: number;
@@ -282,11 +304,17 @@ export interface EngravingItem extends ScoreElement {
   tremoloStrokeStyle: TremoloStyle;
   harmonyType: number;
   arpeggioSpan: number;
+  bracketHookPos: number;
+  bracketRightSide: boolean;
   bendType: number;
   bendVertexOffset: QPointF;
   bendShowHoldLine: number;
   bendStartTimeFactor: number;
   bendEndTimeFactor: number;
+  guitarDiveTabPos: number;
+  guitarBendAmount: number;
+  vibratoLineType: number;
+  guitarDiveIsSlack: boolean;
   tremoloBarType: number;
   startWithLongNames: boolean;
   startWithMeasureOne: boolean;
@@ -297,6 +325,7 @@ export interface EngravingItem extends ScoreElement {
   active: boolean;
   fretPosition: number;
   generateText: boolean;
+  transposeMode: number;
   positionLinkedToMaster: boolean;
   appearanceLinkedToMaster: boolean;
   textLinkedToMaster: boolean;
@@ -308,18 +337,6 @@ export interface EngravingItem extends ScoreElement {
   isCourtesy: boolean;
   excludeVerticalAlign: boolean;
   alignWithOtherRests: boolean;
-  subType: number;
-  hideWhenEmpty: number;
-  showCourtesy: boolean;
-  keysig_mode: KeyMode;
-  lineType: LineType;
-  headType: NoteHeadType;
-  headGroup: NoteHeadGroup;
-  articulationAnchor: number;
-  direction: DirectionV;
-  horizontalDirection: DirectionH;
-  stemDirection: DirectionV;
-  slurDirection: DirectionV;
   mirrorHead: DirectionH;
   hasParentheses: boolean;
   barlineType: BarLineType;
@@ -366,12 +383,11 @@ export interface EngravingItem extends ScoreElement {
   intervalAbove: unknown;
   intervalBelow: unknown;
   ornamentShowCueNote: number;
-  timesig: FractionWrapper | null;
-  timesigStretch: FractionWrapper | null;
+  timesig: Fraction | null;
+  timesigStretch: Fraction | null;
   mmRestNumberPos: number;
   mmRestNumberOffset: QPointF;
   measureRepeatNumberPos: number;
-  lyricTicks: FractionWrapper | null;
   volta_ending: unknown;
   role: number;
   orientation: Orientation;
@@ -390,20 +406,31 @@ export interface EngravingItem extends ScoreElement {
   align: number;
   beginText: string;
   beginTextAlign: number;
+  beginTextPosition: unknown;
   beginTextPlace: TextPlace;
   beginHookType: HookType;
   beginHookHeight: number;
+  beginLineArrowHeight: unknown;
+  beginLineArrowWidth: unknown;
+  beginFilledArrowHeight: unknown;
+  beginFilledArrowWidth: unknown;
   beginFontFace: string;
   gapBetweenTextAndLine: number;
   continueText: string;
   continueTextAlign: number;
+  continueTextPosition: unknown;
   continueTextPlace: TextPlace;
   continueFontFace: string;
   endText: string;
   endTextAlign: number;
+  endTextPosition: unknown;
   endTextPlace: TextPlace;
   endHookType: HookType;
   endHookHeight: number;
+  endLineArrowHeight: unknown;
+  endLineArrowWidth: unknown;
+  endFilledArrowHeight: unknown;
+  endFilledArrowWidth: unknown;
   endFontFace: string;
   notelinePlacement: NoteLineEndPlacement;
   voiceAssignment: VoiceAssignment;
@@ -415,6 +442,7 @@ export interface EngravingItem extends ScoreElement {
   transposingClefType: ClefType;
   action: string;
   minDistance: number;
+  bracketHookLength: unknown;
   bendCurve: unknown;
   tremoloBarCurve: unknown;
   path: unknown;
@@ -469,9 +497,9 @@ export interface Note extends EngravingItem {
 }
 
 export interface DurationElement extends EngravingItem {
-  duration: FractionWrapper | null;
-  readonly globalDuration: FractionWrapper | null;
-  readonly actualDuration: FractionWrapper | null;
+  duration: Fraction | null;
+  readonly globalDuration: Fraction | null;
+  readonly actualDuration: Fraction | null;
   readonly tuplet: Tuplet | null;
   readonly topTuplet: Tuplet | null;
   readonly measure: Measure | null;
@@ -491,8 +519,8 @@ export interface Tuplet extends DurationElement {
 }
 
 export interface ChordRest extends DurationElement {
-  readonly lyrics: EngravingItem[];
-  readonly beam: EngravingItem | null;
+  readonly lyrics: Lyrics[];
+  readonly beam: Beam | null;
   readonly isFullMeasureRest: boolean;
   readonly elements: EngravingItem[];
   staffMove: number;
@@ -526,6 +554,17 @@ export interface Chord extends ChordRest {
   remove(wrapped: EngravingItem | null): void;
 }
 
+export interface Beam extends EngravingItem {
+  readonly isCrossStaff: boolean;
+  readonly isFullCrossStaff: boolean;
+  readonly defaultCrossStaffIdx: number;
+  readonly minCRMove: number;
+  readonly maxCRMove: number;
+  readonly elements: ChordRest[];
+  growLeft: number;
+  growRight: number;
+}
+
 export interface Segment extends EngravingItem {
   readonly annotations: EngravingItem[];
   readonly nextInMeasure: Segment | null;
@@ -534,15 +573,15 @@ export interface Segment extends EngravingItem {
   readonly prev: Segment | null;
   readonly segmentType: number;
   readonly tick: number;
-  readonly fraction: FractionWrapper | null;
+  readonly fraction: Fraction | null;
   leadingSpace: number;
   elementAt(track: number): EngravingItem | null;
 }
 
 export interface MeasureBase extends EngravingItem {
   readonly no: number;
-  readonly tick: FractionWrapper | null;
-  readonly ticks: FractionWrapper | null;
+  readonly tick: Fraction | null;
+  readonly ticks: Fraction | null;
   readonly elements: EngravingItem[];
   readonly nextMeasure: Measure | null;
   readonly nextMeasureMM: Measure | null;
@@ -572,8 +611,8 @@ export interface Measure extends Omit<MeasureBase, "visible"> {
   breakMmr: boolean;
   repeatCount: number;
   userStretch: number;
-  timesigNominal: FractionWrapper | null;
-  timesigActual: FractionWrapper | null;
+  timesigNominal: Fraction | null;
+  timesigActual: Fraction | null;
   vspacerUp(staffIdx: number): EngravingItem | null;
   vspacerDown(staffIdx: number): EngravingItem | null;
   measureNumber(staffIdx: number): EngravingItem | null;
@@ -596,9 +635,11 @@ export interface System extends Omit<EngravingItem, "bbox"> {
   bbox(staffIdx: number): QRectF;
   yOffset(staffIdx: number): number;
   show(staffIdx: number): boolean;
+  setHideStaffIfEmpty(staffIdx: number, hide: number): void;
 }
 
 export interface Page extends EngravingItem {
+  readonly pageNumber: number;
   readonly pagenumber: number;
   readonly systems: System[];
 }
@@ -615,10 +656,6 @@ export interface Staff extends Omit<ScoreElement, "spatium"> {
   readonly part: Part | null;
   readonly idx: number;
   readonly show: boolean;
-  readonly cutaway: boolean;
-  readonly hideSystemBarLine: boolean;
-  readonly mergeMatchingRests: number;
-  readonly shouldMergeMatchingRests: boolean;
   readonly primaryStaff: Staff | null;
   readonly brackets: EngravingItem[];
   small: boolean;
@@ -634,27 +671,32 @@ export interface Staff extends Omit<ScoreElement, "spatium"> {
   staffBarlineSpanTo: number;
   staffInvisible: boolean;
   staffUserdist: number;
+  visible: boolean;
+  cutaway: boolean;
+  hideSystemBarLine: boolean;
+  reflectTranspositionInLinkedTab: boolean;
   showMeasureNumbers: number;
-  clefType(tick: FractionWrapper | null): number;
-  timeStretch(tick: FractionWrapper | null): FractionWrapper | null;
-  timeSig(tick: FractionWrapper | null): EngravingItem | null;
-  key(tick: FractionWrapper | null): number;
-  transpose(tick: FractionWrapper | null): IntervalWrapper | null;
-  swing(tick: FractionWrapper | null): Record<string, unknown>;
-  capo(tick: FractionWrapper | null): Record<string, unknown>;
-  stemless(tick: FractionWrapper | null): boolean;
-  staffHeight(tick: FractionWrapper | null): number;
-  isPitchedStaff(tick: FractionWrapper | null): boolean;
-  isTabStaff(tick: FractionWrapper | null): boolean;
-  isDrumStaff(tick: FractionWrapper | null): boolean;
-  lines(tick: FractionWrapper | null): number;
-  lineDistance(tick: FractionWrapper | null): number;
-  isLinesInvisible(tick: FractionWrapper | null): boolean;
-  middleLine(tick: FractionWrapper | null): number;
-  bottomLine(tick: FractionWrapper | null): number;
-  staffMag(tick: FractionWrapper | null): number;
-  spatium(tick: FractionWrapper | null): number;
-  pitchOffset(tick: FractionWrapper | null): number;
+  mergeMatchingRests: unknown;
+  clefType(tick: Fraction | null): number;
+  timeStretch(tick: Fraction | null): Fraction | null;
+  timeSig(tick: Fraction | null): EngravingItem | null;
+  key(tick: Fraction | null): number;
+  transpose(tick: Fraction | null): IntervalWrapper | null;
+  swing(tick: Fraction | null): Record<string, unknown>;
+  capo(tick: Fraction | null): Record<string, unknown>;
+  stemless(tick: Fraction | null): boolean;
+  staffHeight(tick: Fraction | null): number;
+  isPitchedStaff(tick: Fraction | null): boolean;
+  isTabStaff(tick: Fraction | null): boolean;
+  isDrumStaff(tick: Fraction | null): boolean;
+  lines(tick: Fraction | null): number;
+  lineDistance(tick: Fraction | null): number;
+  isLinesInvisible(tick: Fraction | null): boolean;
+  middleLine(tick: Fraction | null): number;
+  bottomLine(tick: Fraction | null): number;
+  staffMag(tick: Fraction | null): number;
+  spatium(tick: Fraction | null): number;
+  pitchOffset(tick: Fraction | null): number;
   isVoiceVisible(voice: number): boolean;
 }
 
@@ -663,26 +705,35 @@ export interface SpannerSegment extends EngravingItem {
   readonly spannerSegmentType: SpannerSegmentType;
   readonly pos2: QPointF;
   userOff2: QPointF;
+  slurUoff1: QPointF;
+  slurUoff2: QPointF;
+  slurUoff3: QPointF;
+  slurUoff4: QPointF;
 }
 
 export interface Spanner extends EngravingItem {
   readonly startElement: EngravingItem | null;
   readonly endElement: EngravingItem | null;
   readonly spannerSegments: SpannerSegment[];
+  readonly ornament: Ornament | null;
   spannerTrack2: number;
   anchor: number;
-  slurUoff1: QPointF;
-  slurUoff2: QPointF;
-  slurUoff3: QPointF;
-  slurUoff4: QPointF;
-  spannerTick: FractionWrapper | null;
-  spannerTicks: FractionWrapper | null;
+  spannerTick: Fraction | null;
+  spannerTicks: Fraction | null;
 }
 
 export interface Tie extends Spanner {
   readonly startNote: Note | null;
   readonly endNote: Note | null;
   readonly isInside: boolean;
+}
+
+export interface Lyrics extends EngravingItem {
+  readonly plainText: string;
+  readonly isMelisma: boolean;
+  readonly separator: EngravingItem | null;
+  syllabic: LyricsSyllabic;
+  lyricTicks: Fraction | null;
 }
 
 export interface InstrumentListProperty {
@@ -709,15 +760,15 @@ export interface Part extends ScoreElement {
   readonly staves: Staff[];
   readonly masterPart: Part | null;
   instrumentAtTick(tick: number): Instrument | null;
-  instrumentAtTick(tick: FractionWrapper | null): Instrument | null;
-  longNameAtTick(tick: FractionWrapper | null): string;
-  shortNameAtTick(tick: FractionWrapper | null): string;
-  instrumentNameAtTick(tick: FractionWrapper | null): string;
-  instrumentIdAtTick(tick: FractionWrapper | null): string;
-  currentHarpDiagramAtTick(tick: FractionWrapper | null): EngravingItem | null;
-  nextHarpDiagramFromTick(tick: FractionWrapper | null): EngravingItem | null;
-  prevHarpDiagramFromTick(tick: FractionWrapper | null): EngravingItem | null;
-  tickOfCurrentHarpDiagram(tick: FractionWrapper | null): FractionWrapper | null;
+  instrumentAtTick(tick: Fraction | null): Instrument | null;
+  longNameAtTick(tick: Fraction | null): string;
+  shortNameAtTick(tick: Fraction | null): string;
+  instrumentNameAtTick(tick: Fraction | null): string;
+  instrumentIdAtTick(tick: Fraction | null): string;
+  currentHarpDiagramAtTick(tick: Fraction | null): EngravingItem | null;
+  nextHarpDiagramFromTick(tick: Fraction | null): EngravingItem | null;
+  prevHarpDiagramFromTick(tick: Fraction | null): EngravingItem | null;
+  tickOfCurrentHarpDiagram(tick: Fraction | null): Fraction | null;
 }
 
 export interface Channel {
@@ -753,6 +804,12 @@ export interface Drumset {
   defaultPitchForLine(line: number): number;
   nextPitch(pitch: number): number;
   prevPitch(pitch: number): number;
+  setName(pitch: number, name: string): void;
+  setNoteHead(pitch: number, noteHead: number): void;
+  setLine(pitch: number, line: number): void;
+  setVoice(pitch: number, voice: number): void;
+  setStemDirection(pitch: number, stemDirection: number): void;
+  setShortcut(pitch: number, shortcut: string): void;
   is(other: Drumset | null): boolean;
 }
 
@@ -767,6 +824,7 @@ export interface Instrument {
   readonly stringData: StringData | null;
   readonly drumset: Drumset | null;
   readonly channels: Channel[];
+  cloneDrumset(): Drumset | null;
   is(other: Instrument | null): boolean;
 }
 
@@ -805,27 +863,28 @@ export interface QmlPlayEventsListAccess {
 export interface MStyle {
   value(key: string): unknown;
   setValue(key: string, value: unknown): void;
+  resetValue(key: string): void;
 }
 
-export interface FractionWrapper {
+export interface Fraction {
   readonly numerator: number;
   readonly denominator: number;
   readonly ticks: number;
   readonly str: string;
   readonly real: number;
-  readonly reduced: FractionWrapper | null;
-  readonly inverse: FractionWrapper | null;
-  readonly absValue: FractionWrapper | null;
-  plus(other: FractionWrapper | null): FractionWrapper | null;
-  minus(other: FractionWrapper | null): FractionWrapper | null;
-  times(other: FractionWrapper | null): FractionWrapper | null;
-  times(v: number): FractionWrapper | null;
-  dividedBy(other: FractionWrapper | null): FractionWrapper | null;
-  dividedBy(v: number): FractionWrapper | null;
-  greaterThan(other: FractionWrapper | null): boolean;
-  lessThan(other: FractionWrapper | null): boolean;
-  equals(other: FractionWrapper | null): boolean;
-  identical(other: FractionWrapper | null): boolean;
+  readonly reduced: Fraction | null;
+  readonly inverse: Fraction | null;
+  readonly absValue: Fraction | null;
+  plus(other: Fraction | null): Fraction | null;
+  minus(other: Fraction | null): Fraction | null;
+  times(other: Fraction | null): Fraction | null;
+  times(v: number): Fraction | null;
+  dividedBy(other: Fraction | null): Fraction | null;
+  dividedBy(v: number): Fraction | null;
+  greaterThan(other: Fraction | null): boolean;
+  lessThan(other: Fraction | null): boolean;
+  equals(other: Fraction | null): boolean;
+  identical(other: Fraction | null): boolean;
 }
 
 export interface OrnamentIntervalWrapper {
@@ -847,4 +906,4 @@ export type QPointF = { x: number; y: number };
 export type QRectF = { x: number; y: number; width: number; height: number };
 export type QSizeF = { width: number; height: number };
 
-export type PluginApiClassName = "Channel" | "ChannelListProperty" | "Chord" | "ChordRest" | "Cursor" | "Drumset" | "DurationElement" | "EngravingItem" | "Excerpt" | "FractionWrapper" | "Instrument" | "InstrumentListProperty" | "IntervalWrapper" | "MStyle" | "Measure" | "MeasureBase" | "Note" | "Ornament" | "OrnamentIntervalWrapper" | "Page" | "Part" | "PlayEvent" | "QmlExcerptsListAccess" | "QmlListAccess" | "QmlPlayEventsListAccess" | "Score" | "ScoreElement" | "Segment" | "Selection" | "Spanner" | "SpannerSegment" | "Staff" | "StringData" | "System" | "Tie" | "Tuplet";
+export type PluginApiClassName = "Beam" | "Channel" | "ChannelListProperty" | "Chord" | "ChordRest" | "Cursor" | "Drumset" | "DurationElement" | "EngravingItem" | "Excerpt" | "Fraction" | "Instrument" | "InstrumentListProperty" | "IntervalWrapper" | "Lyrics" | "MStyle" | "Measure" | "MeasureBase" | "Note" | "Ornament" | "OrnamentIntervalWrapper" | "Page" | "Part" | "PlayEvent" | "QmlExcerptsListAccess" | "QmlListAccess" | "QmlPlayEventsListAccess" | "Score" | "ScoreElement" | "Segment" | "Selection" | "Spanner" | "SpannerSegment" | "Staff" | "StringData" | "System" | "Tie" | "Tuplet";
