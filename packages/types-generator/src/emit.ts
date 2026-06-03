@@ -130,7 +130,11 @@ export function emit(input: EmitInput): EmitOutput {
       auxiliary.push(`export type ${ref} = ${QT_TYPE_ALIASES[ref]};`);
       continue;
     }
-    // 未知の Qt の enum 相当 — number としてモデル化する（apiv1 は enum を int として返す）。
+    // 既知のクラス・enum・Qt 型のいずれでもない参照型。apiv1 は enum を int として返すため
+    // number としてモデル化するが、クラスの欠落・改名を黙って隠しうるので警告する。
+    warnings.push(
+      `参照型 "${ref}" が既知のクラス・enum・Qt 型に該当しないため number としてモデル化しました（クラスの欠落・改名の可能性）`,
+    );
     auxiliary.push(`export type ${ref} = number;`);
   }
   if (auxiliary.length > 0) {

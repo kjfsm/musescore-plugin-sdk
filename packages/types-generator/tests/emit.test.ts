@@ -1,0 +1,97 @@
+import { describe, expect, it } from "vitest";
+import { emit } from "../src/emit.js";
+import type { ClassDecl, ParseResult } from "../src/parse.js";
+
+function cls(partial: Partial<ClassDecl> & { name: string }): ClassDecl {
+  return {
+    baseClass: null,
+    properties: [],
+    methods: [],
+    enums: [],
+    ...partial,
+  };
+}
+
+function file(...classes: ClassDecl[]): { path: string; result: ParseResult } {
+  return { path: "test.h", result: { classes, enums: [] } };
+}
+
+describe("emit", () => {
+  it("warns when a property references an undefined class instead of silently degrading to number", () => {
+    // 回帰ガード: MuseScore 4.7 で apiv1 の `FractionWrapper` が `Fraction` に改名された際、
+    // 既知型テーブルが旧名を参照したまま未定義参照となり、`= number` に黙って退化して
+    // ヘルパが壊れた。この経路では必ず警告が出ることを保証する。
+    const out = emit({
+      perFile: [
+        file(
+          cls({
+            name: "Widget",
+            properties: [{ name: "frac", cppType: "Fraction*", readOnly: false }],
+          }),
+        ),
+      ],
+    });
+
+    expect(out.pluginApi).toContain("frac: Fraction | null;");
+    expect(out.pluginApi).toContain("export type Fraction = number;");
+    expect(out.warnings.some((w) => w.includes("Fraction"))).toBe(true);
+  });
+
+  it("does not fall back to number when the referenced class is defined", () => {
+    const out = emit({
+      perFile: [
+        file(
+          cls({
+            name: "Widget",
+            properties: [{ name: "frac", cppType: "Fraction*", readOnly: false }],
+          }),
+          cls({
+            name: "Fraction",
+            properties: [{ name: "ticks", cppType: "int", readOnly: true }],
+          }),
+        ),
+      ],
+    });
+
+    expect(out.pluginApi).toContain("frac: Fraction | null;");
+    expect(out.pluginApi).toContain("export interface Fraction {");
+    expect(out.pluginApi).not.toContain("export type Fraction = number;");
+    expect(out.warnings).toHaveLength(0);
+  });
+
+  it("merges properties when the same class appears in multiple files", () => {
+    const out = emit({
+      perFile: [
+        file(
+          cls({ name: "Note", properties: [{ name: "pitch", cppType: "int", readOnly: false }] }),
+        ),
+        file(cls({ name: "Note", properties: [{ name: "tpc", cppType: "int", readOnly: true }] })),
+      ],
+    });
+
+    expect(out.pluginApi).toContain("pitch: number;");
+    expect(out.pluginApi).toContain("readonly tpc: number;");
+    // クラスは 1 つに統合される（重複定義されない）。
+    expect(out.pluginApi.match(/export interface Note\b/g)?.length).toBe(1);
+  });
+
+  it("emits an extends clause when the base class is known", () => {
+    const out = emit({
+      perFile: [
+        file(
+          cls({
+            name: "EngravingItem",
+            properties: [{ name: "color", cppType: "QColor", readOnly: false }],
+          }),
+          cls({
+            name: "Note",
+            baseClass: "EngravingItem",
+            properties: [{ name: "pitch", cppType: "int", readOnly: false }],
+          }),
+        ),
+      ],
+    });
+
+    expect(out.pluginApi).toContain("export interface Note extends EngravingItem {");
+  });
+});
