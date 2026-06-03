@@ -12,6 +12,27 @@ MuseScore のプラグインは `.qml` ファイル（QML + 埋め込み JavaScr
 | `@kjfsm/musescore-plugin-sdk-helpers` | Score 走査・選択範囲・ナビゲーションなどのランタイムヘルパ | ✅ |
 | `@kjfsm/musescore-plugin-sdk-types-generator` | 内部用：`musescore/MuseScore` の C++ ヘッダから `@kjfsm/musescore-plugin-sdk-types` を再生成 | ❌ |
 
+## 対応 MuseScore バージョン
+
+型パッケージの**メジャーバージョンが MuseScore のマイナーバージョンに対応**します（番号自体に MuseScore 版は埋め込みません）。
+
+| `@kjfsm/musescore-plugin-sdk-types` | MuseScore |
+|---|---|
+| `1.x` | 4.7 |
+| `0.1.x` | 4.6 |
+
+対象の MuseScore に合わせてバージョンを指定してインストールしてください。
+
+```sh
+# MuseScore 4.7 向け（最新系列）
+pnpm add @kjfsm/musescore-plugin-sdk-types
+
+# MuseScore 4.6 向け
+pnpm add "@kjfsm/musescore-plugin-sdk-types@^0.1.0"
+```
+
+各リリースが対応する正確な MuseScore コミットは、生成物 `_meta.ts` の `generatedFrom.tag` で確認できます。採番・リリース運用の詳細は `.claude/rules/releasing.md` を参照してください。
+
 ## リポジトリ構成
 
 ```
@@ -100,7 +121,7 @@ GitHub Actions のデフォルトトークン (`GITHUB_TOKEN`) で作成した�
 
 ## MuseScore の新しいリリースに追従する
 
-`packages/types-generator/config.json` を編集し、`ref` を対象タグ（例: `v4.7.0`）に更新したうえで、以下を実行します。
+`packages/types-generator/config.json` を編集し、`ref` を対象タグ（例: `v4.8.0`）に更新したうえで、以下を実行します。
 
 ```sh
 pnpm generate:types
@@ -108,3 +129,5 @@ pnpm typecheck
 ```
 
 再生成された `packages/types/src/generated/` の差分を、`config.json` の更新と一緒にコミットしてください。
+
+新しい MuseScore の **minor** に上げるときは、型パッケージの **major** を上げる changeset（`pnpm changeset` で `major` を選択）を追加します。採番方針の詳細は `.claude/rules/releasing.md` を参照してください。

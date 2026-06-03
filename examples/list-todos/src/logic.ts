@@ -1,16 +1,11 @@
-import { iterateAnnotations, jumpToElement } from "@kjfsm/musescore-plugin-sdk-helpers";
+import {
+  getAnnotationText,
+  iterateAnnotations,
+  jumpToElement,
+} from "@kjfsm/musescore-plugin-sdk-helpers";
 import type { EngravingItem, Score } from "@kjfsm/musescore-plugin-sdk-types";
 
-// `text` / `plainText` are exposed at runtime on text-typed engraving items
-// (StaffText, TempoText, ...) but aren't on the generated TS surface.
-type TextLike = { text?: string; plainText?: string };
-
 const TODO_PATTERN = /\b(TODO|FIXME)\b/i;
-
-function getText(el: EngravingItem): string | undefined {
-  const t = el as EngravingItem & TextLike;
-  return t.plainText ?? t.text;
-}
 
 export interface TodoHit {
   element: EngravingItem;
@@ -20,8 +15,8 @@ export interface TodoHit {
 export function findTodos(score: Score): TodoHit[] {
   const hits: TodoHit[] = [];
   for (const annotation of iterateAnnotations(score)) {
-    const text = getText(annotation);
-    if (text && TODO_PATTERN.test(text)) {
+    const text = getAnnotationText(annotation);
+    if (TODO_PATTERN.test(text)) {
       hits.push({ element: annotation, text });
     }
   }

@@ -94,6 +94,7 @@ MuseScore のバージョンを上げる手順: `packages/types-generator/config
 
 `changesets` ベースの publish を `.github/workflows/release.yml` で行う:
 
+- **採番・ブランチ・back-port 運用は `.claude/rules/releasing.md` を参照**（型の major ⇔ MuseScore の minor。`1.x` = 4.7、`0.1.x` = 4.6。旧系列の公開は dist-tag で `latest` を巻き戻さない）。
 - 公開対象パッケージ（`packages/types`）に変更を加えたら、`pnpm changeset` で changeset を追加する。サンプルワークスペースは `private: true` のため公開されない。
 - `main` にマージされると、`changesets/action` が "Version Packages" PR を作成・更新し、provenance 付き（`NPM_CONFIG_PROVENANCE=true`、`permissions.id-token: write`）で npm に公開する。
 - リリースワークフローではデフォルトの `GITHUB_TOKEN` ではなく `RELEASE_PAT` を使用する。これにより、ワークフローが作る PR が `release-dry-run.yml` をトリガーし、`changeset-release/*` ブランチで `pnpm publish --dry-run` を走らせて、本番 publish 前にバージョン衝突・npm 認証・provenance の問題を検出できる。
