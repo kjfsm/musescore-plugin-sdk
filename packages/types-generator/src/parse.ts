@@ -334,6 +334,12 @@ function findMatchingBrace(s: string, openIdx: number): number {
   return -1;
 }
 
+// API_PROPERTY_ENUM(enums::EnumType, name, KEY) で参照される apiv1 のエイリアス名が、
+// 生成される enum 名と異なる場合の補正（例: enums::Direction は engraving の DirectionV）。
+const API_PROPERTY_ENUM_ALIASES: Readonly<Record<string, string>> = {
+  Direction: "DirectionV",
+};
+
 function extractQProperties(body: string): PropertyDecl[] {
   const out: PropertyDecl[] = [];
 
@@ -387,6 +393,18 @@ function extractQProperties(body: string): PropertyDecl[] {
     const name = (m[1] ?? "").trim();
     if (!name) continue;
     const cppType = KNOWN_VARIANT_PROP_TYPES[name] ?? "QVariant";
+    out.push({ name, cppType, readOnly: false });
+  }
+
+  // API_PROPERTY_ENUM(enums::EnumType, name, KEY) — 4.7+ で導入された enum プロパティマクロ。
+  // 型はマクロ第 1 引数から取得する（enums:: を剥がし、必要なら別名を補正する）。
+  for (const m of body.matchAll(
+    /\bAPI_PROPERTY_ENUM\s*\(\s*([\w:]+)\s*,\s*(\w+)\s*,\s*\w+\s*\)/g,
+  )) {
+    const rawEnum = (m[1] ?? "").replace(/^.*::/, "").trim();
+    const name = (m[2] ?? "").trim();
+    if (!name || !rawEnum) continue;
+    const cppType = API_PROPERTY_ENUM_ALIASES[rawEnum] ?? rawEnum;
     out.push({ name, cppType, readOnly: false });
   }
 

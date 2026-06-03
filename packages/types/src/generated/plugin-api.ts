@@ -458,6 +458,15 @@ export interface EngravingItem extends ScoreElement {
   scoreFont: string;
   playCountTextSetting: number;
   playCountText: string;
+  hideWhenEmpty: AutoOnOff;
+  keysig_mode: KeyMode;
+  lineType: SlurStyleType;
+  headType: NoteHeadType;
+  headGroup: NoteHeadGroup;
+  direction: DirectionV;
+  horizontalDirection: DirectionH;
+  stemDirection: DirectionV;
+  slurDirection: DirectionV;
   clone(): EngravingItem | null;
   subtypeName(): string;
   _name(): string;

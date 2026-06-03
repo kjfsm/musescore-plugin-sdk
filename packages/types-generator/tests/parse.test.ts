@@ -132,4 +132,34 @@ describe("parseHeader / emit", () => {
     expect(out.pluginApi).toContain("mute(muted: boolean): void;");
     expect(out.pluginApi).toContain("nextNote(): Note | null;");
   });
+
+  it("parses API_PROPERTY_ENUM macros (4.7+) and resolves enum types", () => {
+    const source = `
+namespace mu::engraving::apiv1 {
+class Note : public EngravingItem {
+  Q_OBJECT
+  API_PROPERTY_ENUM(enums::NoteHeadGroup, headGroup, HEAD_GROUP)
+  API_PROPERTY_ENUM(enums::Direction, stemDirection, STEM_DIRECTION)
+  API_PROPERTY_ENUM(enums::DirectionH, horizontalDirection, HORIZONTAL_DIRECTION)
+};
+}
+`;
+    const result = parseHeader(source);
+    const note = result.classes.find((c) => c.name === "Note");
+    expect(note).toBeDefined();
+
+    const headGroup = note?.properties.find((p) => p.name === "headGroup");
+    expect(headGroup?.cppType).toBe("NoteHeadGroup");
+    expect(headGroup?.readOnly).toBe(false);
+
+    // enums::Direction は engraving の DirectionV に補正される
+    expect(note?.properties.find((p) => p.name === "stemDirection")?.cppType).toBe("DirectionV");
+    expect(note?.properties.find((p) => p.name === "horizontalDirection")?.cppType).toBe(
+      "DirectionH",
+    );
+
+    const out = emit({ perFile: [{ path: "note.h", result }] });
+    expect(out.pluginApi).toContain("headGroup: NoteHeadGroup;");
+    expect(out.pluginApi).toContain("stemDirection: DirectionV;");
+  });
 });
