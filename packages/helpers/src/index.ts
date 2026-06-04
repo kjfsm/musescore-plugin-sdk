@@ -32,7 +32,7 @@ export {
   jumpToMeasure,
 } from "./navigation.js";
 export { getNoteTypeName, isGraceNote, isGraceNoteAfter, isGraceNoteBefore } from "./note-type.js";
-export { getNotePitches } from "./pitch.js";
+export { getNotePitches, getNoteSpellings, type NoteSpelling } from "./pitch.js";
 export { isChord, isNote, isRest } from "./predicates.js";
 export {
   getSelectedElements,
