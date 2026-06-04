@@ -12,10 +12,10 @@ describe("classifyBarlineKind", () => {
     expect(classifyBarlineKind(BarLineType.DOUBLE)).toBe("double");
   });
 
-  it("classifies repeat barlines", () => {
-    expect(classifyBarlineKind(BarLineType.START_REPEAT)).toBe("repeat");
-    expect(classifyBarlineKind(BarLineType.END_REPEAT)).toBe("repeat");
-    expect(classifyBarlineKind(BarLineType.END_START_REPEAT)).toBe("repeat");
+  it("distinguishes repeat barlines by start / end / both", () => {
+    expect(classifyBarlineKind(BarLineType.START_REPEAT)).toBe("repeat_start");
+    expect(classifyBarlineKind(BarLineType.END_REPEAT)).toBe("repeat_end");
+    expect(classifyBarlineKind(BarLineType.END_START_REPEAT)).toBe("repeat_both");
   });
 
   it("classifies other barlines", () => {

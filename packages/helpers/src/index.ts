@@ -32,6 +32,7 @@ export {
   jumpToMeasure,
 } from "./navigation.js";
 export { getNoteTypeName, isGraceNote, isGraceNoteAfter, isGraceNoteBefore } from "./note-type.js";
+export { getNotePitches } from "./pitch.js";
 export { isChord, isNote, isRest } from "./predicates.js";
 export {
   getSelectedElements,
@@ -40,6 +41,7 @@ export {
   type SelectionRange,
 } from "./selection.js";
 export { getSpannerRange, isSlur, type SpannerRange } from "./spanner.js";
+export { getTiePitches, isTie, type TiePitches } from "./tie.js";
 export { staffVoiceToTrack, trackToStaffIdx, VOICES_PER_STAFF } from "./tracks.js";
 export {
   type IterateScopeOptions,

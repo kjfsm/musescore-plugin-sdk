@@ -1,6 +1,12 @@
 import { BarLineType } from "@kjfsm/musescore-plugin-sdk-types";
 
-export type BarlineKind = "final" | "double" | "repeat" | "other";
+export type BarlineKind =
+  | "final"
+  | "double"
+  | "repeat_start"
+  | "repeat_end"
+  | "repeat_both"
+  | "other";
 
 function assertNever(x: never): never {
   throw new Error(`Unhandled BarLineType: ${x}`);
@@ -8,6 +14,8 @@ function assertNever(x: never): never {
 
 /**
  * Classifies a BarLineType value into a semantic category.
+ * Repeat barlines are distinguished into start / end / both (END_START_REPEAT)
+ * so callers can match opening and closing repeats.
  * The exhaustive switch ensures TypeScript errors if BarLineType gains new values.
  */
 export function classifyBarlineKind(type: BarLineType): BarlineKind {
@@ -18,9 +26,11 @@ export function classifyBarlineKind(type: BarLineType): BarlineKind {
     case BarLineType.DOUBLE:
       return "double";
     case BarLineType.START_REPEAT:
+      return "repeat_start";
     case BarLineType.END_REPEAT:
+      return "repeat_end";
     case BarLineType.END_START_REPEAT:
-      return "repeat";
+      return "repeat_both";
     case BarLineType.NORMAL:
     case BarLineType.BROKEN:
     case BarLineType.DOTTED:
