@@ -1,5 +1,12 @@
 # @musescore-sdk-examples/hello-world
 
+## 0.0.10
+
+### Patch Changes
+
+- Updated dependencies [[`17e49c5`](https://github.com/kjfsm/musescore-plugin-sdk/commit/17e49c50ecc8e03a4dff995f172120633c8c41cd)]:
+  - @kjfsm/musescore-plugin-sdk-helpers@2.2.0
+
 ## 0.0.9
 
 ### Patch Changes
