@@ -1,11 +1,14 @@
-import type { Score } from "@kjfsm/musescore-plugin-sdk-types";
+import type { ElementEnum, Score } from "@kjfsm/musescore-plugin-sdk-types";
 import { describe, expect, it, vi } from "vitest";
 import { run } from "./logic.js";
+
+// 実機では MuseScore が渡す `Element`。テストでは使うメンバだけのモックで代用する。
+const Element = { NOTE: 28 } as unknown as ElementEnum;
 
 describe("hello-world plugin", () => {
   it("logs 'no score is open' when score is null", () => {
     const log = vi.spyOn(console, "log").mockImplementation(() => {});
-    run(null);
+    run(null, Element);
     expect(log).toHaveBeenCalledWith("hello from typescript");
     expect(log).toHaveBeenCalledWith("no score is open");
     log.mockRestore();
@@ -19,7 +22,7 @@ describe("hello-world plugin", () => {
       selection: null,
       metaTag: () => "",
     } as unknown as Score;
-    run(score);
+    run(score, Element);
     expect(log).toHaveBeenCalledWith("hello from typescript");
     expect(log).toHaveBeenCalledWith("title: (untitled)");
     expect(log).toHaveBeenCalledWith("no range selection");

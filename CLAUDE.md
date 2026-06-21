@@ -80,6 +80,7 @@ MuseScore のバージョンを上げる手順: `packages/types-generator/config
 - `build.ts`（esbuild）は `src/logic.ts` を IIFE 形式でひとつのファイルにバンドルし、`globalName: "__musescorePlugin"` に代入する。続けて、各エクスポート名をトップレベルに再公開するフッタ（`var run = __musescorePlugin.run;`）を追加する。これが、QML の `import "logic.js" as Logic` から `Logic.run` を見えるようにするためのブリッジになっている。**QML から呼び出したい TS のエクスポートはすべて、`build.ts` の `exportNames` 配列に追加する必要がある** — esbuild の IIFE 形式だけでは QML から見えない。
 - `target: "es2017"`、`platform: "neutral"`。QML の JS エンジンはおおよそこの水準なので、Node やブラウザの API を必要とする機能は避ける。
 - `curScore` や `Qt.quit()` のようなグローバルは `@kjfsm/musescore-plugin-sdk-types/globals` で宣言されている（`packages/types/src/globals.ts` を参照）。
+- **enum 値は焼き込まず、実行時の MuseScore enum を引数で渡す。** `Element` / `NoteType` / `BarLineType` などは `MuseScore { }` ブロックのプロパティ（実行中の版が値を解決する enum）。`enums.ts` の定数を値として import して `el.type === ElementType.NOTE` と書くと、MuseScore のバージョン差で enum が並び替わったとき（例: 4.7.2→4.7.3 で `ElementType` が再採番）に**静かに誤判定**する。代わりに QML から `Logic.run(curScore, Element)` のように実行時 enum を渡し、TS 側は `RuntimeEnum<T>`（`ElementEnum` / `NoteTypeEnum` 等）で受けて `el.type === Element.NOTE` と比較する。キーは生成 enum で型チェックされ、値は実行時に解決される。要素側に名前がある型（`ElementType`）は helpers の述語（`isNote` 等）のように `el.name` 文字列でも判定できる。
 
 ビルド済みプラグインのインストール手順: `pnpm --filter ./examples/hello-world build` を実行 → `dist/` を `~/Documents/MuseScore4/Plugins/<name>/` にコピー → MuseScore 4 のプラグインマネージャで有効化。
 

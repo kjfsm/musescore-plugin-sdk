@@ -12,6 +12,8 @@ MuseScore {
   requiresScore: false
 
   onRun: {
-    Logic.run(curScore)
+    // `Element` は MuseScore オブジェクトのプロパティで、実行中の版が値を解決する enum。
+    // ビルド時に値を焼き込まず、ここで実行時の enum を引数として渡す。
+    Logic.run(curScore, Element)
   }
 }

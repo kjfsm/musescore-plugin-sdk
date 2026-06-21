@@ -17,7 +17,9 @@ MuseScore {
   property string structureJson: ""
 
   onRun: {
-    structureJson = Logic.buildStructure(curScore)
+    // `NoteType` / `BarLineType` は MuseScore オブジェクトのプロパティ（実行時に値を解決する enum）。
+    // 値を焼き込まず、実行時の enum を引数で渡す。
+    structureJson = Logic.buildStructure(curScore, NoteType, BarLineType)
   }
 
   Item {

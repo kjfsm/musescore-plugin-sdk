@@ -1,6 +1,10 @@
-import type { Score } from "@kjfsm/musescore-plugin-sdk-types";
+import type { BarLineTypeEnum, NoteTypeEnum, Score } from "@kjfsm/musescore-plugin-sdk-types";
 import { describe, expect, it } from "vitest";
 import { buildStructure, midiToName } from "./logic.js";
+
+// 実機では MuseScore が渡す enum。テストでは使うメンバだけのモックで代用する。
+const noteType = { NORMAL: 0 } as unknown as NoteTypeEnum;
+const barLineType = { NORMAL: 0 } as unknown as BarLineTypeEnum;
 
 describe("midiToName", () => {
   it("converts standard pitches", () => {
@@ -15,7 +19,7 @@ describe("midiToName", () => {
 
 describe("buildStructure", () => {
   it("returns error JSON when score is null", () => {
-    const result = buildStructure(null);
+    const result = buildStructure(null, noteType, barLineType);
     const parsed = JSON.parse(result) as { error: string };
     expect(parsed.error).toBeDefined();
   });
@@ -37,7 +41,7 @@ describe("buildStructure", () => {
       metaTag: (_tag: string) => "",
     } as unknown as Score;
 
-    const result = buildStructure(score);
+    const result = buildStructure(score, noteType, barLineType);
     const parsed = JSON.parse(result) as {
       score: { title: string; subtitle: string; nstaves: number };
       parts: unknown[];
@@ -68,7 +72,7 @@ describe("buildStructure", () => {
       metaTag: (tag: string) => (tag === "workTitle" ? "Meta Title" : ""),
     } as unknown as Score;
 
-    const result = buildStructure(score);
+    const result = buildStructure(score, noteType, barLineType);
     const parsed = JSON.parse(result) as { score: { title: string } };
     expect(parsed.score.title).toBe("Meta Title");
   });
@@ -98,7 +102,7 @@ describe("buildStructure", () => {
       metaTag: (_tag: string) => "",
     } as unknown as Score;
 
-    const result = buildStructure(score);
+    const result = buildStructure(score, noteType, barLineType);
     const parsed = JSON.parse(result) as {
       parts: Array<{ name: string; shortName: string; instrumentId: string; nstaves: number }>;
     };
