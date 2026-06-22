@@ -408,6 +408,18 @@ function extractQProperties(body: string): PropertyDecl[] {
     out.push({ name, cppType, readOnly: false });
   }
 
+  // DECLARE_API_ENUM(QmlName, cppName, ns::EnumType) / DECLARE_API_ENUM2(QmlName, cppName, E1, E2)
+  // — PluginAPI(MuseScore) ホストが公開する「実行時 enum オブジェクト」プロパティ。
+  // 通常の enum プロパティ（値）と違い、enum 本体（メンバ集合）を指すため、emit 側で
+  // RuntimeEnum<typeof Enum> として出力できるよう `@enumobj:` センチネルで型を運ぶ。
+  for (const m of body.matchAll(/\bDECLARE_API_ENUM2?\s*\(\s*(\w+)\s*,\s*\w+\s*,\s*([\w:]+)/g)) {
+    const name = (m[1] ?? "").trim();
+    const rawEnum = (m[2] ?? "").replace(/^.*::/, "").trim();
+    if (!name || !rawEnum) continue;
+    const enumName = API_PROPERTY_ENUM_ALIASES[rawEnum] ?? rawEnum;
+    out.push({ name, cppType: `@enumobj:${enumName}`, readOnly: true });
+  }
+
   return out;
 }
 

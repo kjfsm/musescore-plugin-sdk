@@ -94,4 +94,43 @@ describe("emit", () => {
 
     expect(out.pluginApi).toContain("export interface Note extends EngravingItem {");
   });
+
+  it("renames PluginAPI to MuseScore and emits DECLARE_API_ENUM props as RuntimeEnum objects", () => {
+    const out = emit({
+      perFile: [
+        {
+          path: "qmlpluginapi.h",
+          result: {
+            classes: [
+              cls({
+                name: "PluginAPI",
+                properties: [
+                  // DECLARE_API_ENUM 由来（既知 enum）
+                  { name: "Element", cppType: "@enumobj:ElementType", readOnly: true },
+                  // 未生成 enum はスキップされ警告される
+                  { name: "Nope", cppType: "@enumobj:NopeType", readOnly: true },
+                  { name: "curScore", cppType: "Score*", readOnly: true },
+                ],
+              }),
+              cls({ name: "Score" }),
+            ],
+            enums: [{ name: "ElementType", members: [{ name: "NOTE", value: "0" }] }],
+          },
+        },
+      ],
+    });
+
+    expect(out.pluginApi).toContain("export interface MuseScore {");
+    expect(out.pluginApi).not.toContain("export interface PluginAPI");
+    expect(out.pluginApi).toContain("type RuntimeEnum<T> = { readonly [K in keyof T]: number };");
+    expect(out.pluginApi).toContain(
+      'readonly Element: RuntimeEnum<typeof import("./enums.js").ElementType>;',
+    );
+    // 未生成 enum のプロパティは出力されず警告される。
+    expect(out.pluginApi).not.toContain("Nope");
+    expect(out.warnings.some((w) => w.includes("NopeType"))).toBe(true);
+    // PluginApiClassName のユニオンもリネーム後の名前を含む。
+    expect(out.pluginApi).toContain('"MuseScore"');
+    expect(out.pluginApi).not.toContain('"PluginAPI"');
+  });
 });

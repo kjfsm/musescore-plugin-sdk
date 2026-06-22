@@ -1,13 +1,13 @@
 import type {
   BarLineType,
   ClefType,
+  ElementTypeName,
   EngravingItem,
   Key,
   Measure,
   ScoreElement,
   Segment,
 } from "@kjfsm/musescore-plugin-sdk-types";
-import { ElementType as ET } from "@kjfsm/musescore-plugin-sdk-types";
 import { VOICES_PER_STAFF } from "./tracks.js";
 
 /** Returns the written time signature for the measure, e.g. "4/4". Empty string if unavailable. */
@@ -106,36 +106,24 @@ export function parseDynamicText(raw: string): string {
 
 // --- Element-type predicates ---
 
-// ElementType values that have named predicates.
-// Adding a value here forces a corresponding entry in ELEMENT_TYPE_NAMES (Record enforces completeness).
-type PredicateElementType =
-  | typeof ET.DYNAMIC
-  | typeof ET.EXPRESSION
-  | typeof ET.TEMPO_TEXT
-  | typeof ET.STAFF_TEXT
-  | typeof ET.SYSTEM_TEXT
-  | typeof ET.REHEARSAL_MARK
-  | typeof ET.PLAYTECH_ANNOTATION
-  | typeof ET.BAR_LINE
-  | typeof ET.KEYSIG
-  | typeof ET.TIMESIG
-  | typeof ET.CLEF;
-
-// Single source of truth: ElementType value → element name(s).
-// satisfies Record<...> ensures every PredicateElementType has an entry.
+// Single source of truth: ElementType member name → runtime element name(s).
+//
+// 実行時の判定は `el.name`（MuseScore が返す要素タイプ名の文字列）で行うため、焼き込んだ
+// enum の【値】には依存しない。キーは `ElementTypeName`（生成 enum のメンバ名）で型付けされ、
+// `satisfies` によりタイポ・未知のメンバ名がコンパイル時に弾かれる。
 const ELEMENT_TYPE_NAMES = {
-  [ET.DYNAMIC]: "Dynamic",
-  [ET.EXPRESSION]: "Expression",
-  [ET.TEMPO_TEXT]: ["Tempo", "TempoText"] as const,
-  [ET.STAFF_TEXT]: "StaffText",
-  [ET.SYSTEM_TEXT]: "SystemText",
-  [ET.REHEARSAL_MARK]: "RehearsalMark",
-  [ET.PLAYTECH_ANNOTATION]: "PlayTechAnnotation",
-  [ET.BAR_LINE]: "BarLine",
-  [ET.KEYSIG]: "KeySig",
-  [ET.TIMESIG]: "TimeSig",
-  [ET.CLEF]: "Clef",
-} satisfies Record<PredicateElementType, string | readonly string[]>;
+  DYNAMIC: "Dynamic",
+  EXPRESSION: "Expression",
+  TEMPO_TEXT: ["Tempo", "TempoText"] as const,
+  STAFF_TEXT: "StaffText",
+  SYSTEM_TEXT: "SystemText",
+  REHEARSAL_MARK: "RehearsalMark",
+  PLAYTECH_ANNOTATION: "PlayTechAnnotation",
+  BAR_LINE: "BarLine",
+  KEYSIG: "KeySig",
+  TIMESIG: "TimeSig",
+  CLEF: "Clef",
+} satisfies Partial<Record<ElementTypeName, string | readonly string[]>>;
 
 // Generates a type-guard predicate from a name or name list.
 function makeIs(names: string | readonly string[]) {
@@ -144,17 +132,17 @@ function makeIs(names: string | readonly string[]) {
     (Array.isArray(names) ? (names as readonly string[]).includes(el.name) : el.name === names);
 }
 
-export const isDynamic = makeIs(ELEMENT_TYPE_NAMES[ET.DYNAMIC]);
-export const isExpression = makeIs(ELEMENT_TYPE_NAMES[ET.EXPRESSION]);
-export const isTempo = makeIs(ELEMENT_TYPE_NAMES[ET.TEMPO_TEXT]);
-export const isStaffText = makeIs(ELEMENT_TYPE_NAMES[ET.STAFF_TEXT]);
-export const isSystemText = makeIs(ELEMENT_TYPE_NAMES[ET.SYSTEM_TEXT]);
-export const isRehearsalMark = makeIs(ELEMENT_TYPE_NAMES[ET.REHEARSAL_MARK]);
-export const isPlayTechAnnotation = makeIs(ELEMENT_TYPE_NAMES[ET.PLAYTECH_ANNOTATION]);
-export const isBarLine = makeIs(ELEMENT_TYPE_NAMES[ET.BAR_LINE]);
-export const isKeySig = makeIs(ELEMENT_TYPE_NAMES[ET.KEYSIG]);
-export const isTimeSig = makeIs(ELEMENT_TYPE_NAMES[ET.TIMESIG]);
-export const isClef = makeIs(ELEMENT_TYPE_NAMES[ET.CLEF]);
+export const isDynamic = makeIs(ELEMENT_TYPE_NAMES.DYNAMIC);
+export const isExpression = makeIs(ELEMENT_TYPE_NAMES.EXPRESSION);
+export const isTempo = makeIs(ELEMENT_TYPE_NAMES.TEMPO_TEXT);
+export const isStaffText = makeIs(ELEMENT_TYPE_NAMES.STAFF_TEXT);
+export const isSystemText = makeIs(ELEMENT_TYPE_NAMES.SYSTEM_TEXT);
+export const isRehearsalMark = makeIs(ELEMENT_TYPE_NAMES.REHEARSAL_MARK);
+export const isPlayTechAnnotation = makeIs(ELEMENT_TYPE_NAMES.PLAYTECH_ANNOTATION);
+export const isBarLine = makeIs(ELEMENT_TYPE_NAMES.BAR_LINE);
+export const isKeySig = makeIs(ELEMENT_TYPE_NAMES.KEYSIG);
+export const isTimeSig = makeIs(ELEMENT_TYPE_NAMES.TIMESIG);
+export const isClef = makeIs(ELEMENT_TYPE_NAMES.CLEF);
 
 /** Converts TempoText.tempo (beats per second) to BPM. */
 export function getTempoBpm(el: EngravingItem): number {

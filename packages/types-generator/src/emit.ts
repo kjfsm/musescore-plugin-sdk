@@ -34,6 +34,13 @@ const QT_TYPE_ALIASES: Record<string, string> = {
 
 const BUILTIN_TS_TYPES = new Set(["number", "boolean", "string", "void", "unknown", "null"]);
 
+// C++ クラス名 → 生成インターフェイス名のリネーム。
+// PluginAPI は QML には "MuseScore" 型として登録されるため、ホスト型もその名前で出す。
+const CLASS_NAME_REMAP: Record<string, string> = { PluginAPI: "MuseScore" };
+
+// DECLARE_API_ENUM 由来のプロパティ（実行時 enum オブジェクト）を運ぶセンチネル接頭辞。
+const ENUM_OBJECT_PREFIX = "@enumobj:";
+
 export function emit(input: EmitInput): EmitOutput {
   const allClasses: ClassDecl[] = [];
   const allEnums: EnumDecl[] = [];
@@ -75,6 +82,20 @@ export function emit(input: EmitInput): EmitOutput {
     pluginApiLines.push("");
   }
 
+  // DECLARE_API_ENUM 由来のホストプロパティを持つクラスがあれば、実行時 enum オブジェクトを
+  // 表す RuntimeEnum ヘルパを出力する（値はビルド時に焼き込まず number、キーは生成 enum 由来）。
+  const usesEnumObject = dedupedClasses.some((c) =>
+    c.properties.some(
+      (p) =>
+        p.cppType.startsWith(ENUM_OBJECT_PREFIX) &&
+        knownEnumNames.has(p.cppType.slice(ENUM_OBJECT_PREFIX.length)),
+    ),
+  );
+  if (usesEnumObject) {
+    pluginApiLines.push("type RuntimeEnum<T> = { readonly [K in keyof T]: number };");
+    pluginApiLines.push("");
+  }
+
   for (const cls of dedupedClasses) {
     const ownMethodNames = new Set(cls.methods.map((m) => m.name));
     const inheritedProps = inheritedMembers.get(cls.name)?.properties ?? new Set<string>();
@@ -90,9 +111,22 @@ export function emit(input: EmitInput): EmitOutput {
       }
     }
 
-    pluginApiLines.push(`export interface ${cls.name}${extendsClause} {`);
+    const ifaceName = CLASS_NAME_REMAP[cls.name] ?? cls.name;
+    pluginApiLines.push(`export interface ${ifaceName}${extendsClause} {`);
 
     for (const prop of cls.properties) {
+      // DECLARE_API_ENUM 由来: 実行時 enum オブジェクト。RuntimeEnum<typeof Enum> として出す。
+      if (prop.cppType.startsWith(ENUM_OBJECT_PREFIX)) {
+        const enumName = prop.cppType.slice(ENUM_OBJECT_PREFIX.length);
+        if (!knownEnumNames.has(enumName)) {
+          warnings.push(`${ifaceName}.${prop.name}: enum ${enumName} 未生成のためスキップしました`);
+          continue;
+        }
+        pluginApiLines.push(
+          `  readonly ${prop.name}: RuntimeEnum<typeof import("./enums.js").${enumName}>;`,
+        );
+        continue;
+      }
       const m = mapType(prop.cppType, knownClasses);
       collectReferenced(m.ts, referencedTypes);
       warnings.push(...m.warnings.map((w) => `${cls.name}.${prop.name}: ${w}`));
@@ -146,6 +180,7 @@ export function emit(input: EmitInput): EmitOutput {
   pluginApiLines.push(
     `export type PluginApiClassName = ${
       [...knownClasses]
+        .map((n) => CLASS_NAME_REMAP[n] ?? n)
         .sort()
         .map((n) => `"${n}"`)
         .join(" | ") || "never"

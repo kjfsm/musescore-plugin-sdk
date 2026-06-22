@@ -35,8 +35,8 @@
 ```
   ┌─────────────────────────────────────────────┐
   │  musescore-plugin-sdk  (土台 / npm 公開)       │
-  │   types(0.1.x, pre-1.0) ─ helpers(1.0.x)      │
-  │   types-generator → MuseScore v4.6.0 を固定    │
+  │   types(1.x) ─ helpers(2.x)                    │
+  │   types-generator → MuseScore v4.7.3 を固定    │
   └───────────────▲─────────────────────────────┘
                   │ 依存 (helpers ^1.0.x / types ^0.1.x)
   ┌───────────────┴─────────────────────────────┐
@@ -53,10 +53,10 @@
 
 | | 強み | 弱み・リスク |
 |---|---|---|
-| **SDK** | helpers 12 モジュールが充実＆単体テスト完備 / 生成型の決定性＋ドリフト CI / provenance 付き npm 公開 | types が **pre-1.0**・MuseScore **v4.6.0 固定**（最新は 4.7.2）/ ジェネレータは正規表現で `emit.ts`/`fetch.ts` 無テスト / 生成型に無い実行時プロパティは `plainText` のみ（apiv1 に無く生成不能・M0 診断で確定。`color`/`text`/`duration`/`annotations` は v4.6.0 で既出） |
+| **SDK** | helpers 12 モジュールが充実＆単体テスト完備 / 生成型の決定性＋ドリフト CI / provenance 付き npm 公開 / ホスト型 `MuseScore` 生成＋`definePlugin` で実行時 enum を型安全に扱える | types `1.x`・MuseScore **v4.7.3 固定**（最新に追従）/ ジェネレータは正規表現で `fetch.ts` 無テスト（`emit`/`parse`/`map-types` はテストあり）/ 生成型に無い実行時プロパティは `plainText` のみ（apiv1 に無く生成不能・M0 診断で確定。`color`/`text`/`duration`/`annotations` は既出） |
 | **linter** | LintIR による疎結合設計 / index＋derived で高速 / 15 checker 全てに単体テスト / 設定 UI 自動生成 | **README が実態と乖離**（11 記載 vs 実 15 / 構成図が旧 `src/*.js` のまま）/ `snapshot.ts`（実機境界）に結合テストが無い / `meta.hairpins` を取得済みなのに未活用 |
 
-> 上流バージョン: MuseScore は現在 **4.7.2**（2026-05）まで配布中。SDK は v4.6.0 を pin している。
+> 上流バージョン: MuseScore は現在 **4.7.3**（2026-06）まで配布中。SDK は **v4.7.3** を pin している（types `1.x` = 4.7 系列）。M1 の「MuseScore 4.7 対応」は完了。さらにホスト型 `MuseScore` の生成と、実行時 enum を型安全に渡す `definePlugin` 方式を導入した。
 
 ---
 
@@ -138,3 +138,4 @@ milestone＋issue として起票する**こと自体が最初の一歩になる
 | 2026-06-03 | 初版ドラフト起票（3 つの戦略判断と M0–M4 を確定） |
 | 2026-06-03 | M0 型穴診断を反映：4/5 は v4.6.0 で既出と判明。insight #1 と M1 を「stale 撤去＋`plainText` 判断」に修正し、付録を追加 |
 | 2026-06-03 | 採番方針を決定（型の major ⇔ MuseScore minor、4.7=`1.0.0` 起点・4.6=`0.1.x`）。`.claude/rules/releasing.md` を追加 |
+| 2026-06-22 | MuseScore v4.7.3 へ追従。ホスト型 `MuseScore` を `qmlpluginapi.h` から生成し、`definePlugin` でホスト 1 個渡し＋実行時 enum＋バージョン照合に移行（M1 の 4.7 対応・型穴フィードバックの一部を前進） |

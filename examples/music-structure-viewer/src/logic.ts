@@ -10,13 +10,20 @@ import {
   isChord,
   isDynamic,
   isRest,
-  isTempo,
   iterateMeasureSegments,
   iterateMeasures,
   parseDynamicText,
 } from "@kjfsm/musescore-plugin-sdk-helpers";
-import type { BracketType, Chord, ClefType, Key, Score } from "@kjfsm/musescore-plugin-sdk-types";
-import { BarLineType, NoteType } from "@kjfsm/musescore-plugin-sdk-types";
+import type {
+  BarLineType,
+  BarLineTypeEnum,
+  BracketType,
+  Chord,
+  ClefType,
+  Key,
+  NoteTypeEnum,
+  Score,
+} from "@kjfsm/musescore-plugin-sdk-types";
 
 const PITCH_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"] as const;
 
@@ -25,11 +32,11 @@ export function midiToName(pitch: number): string {
   return `${PITCH_NAMES[pitch % 12] ?? "?"}${octave}`;
 }
 
-export function barlineTypeName(type: BarLineType): string {
-  for (const [key, val] of Object.entries(BarLineType)) {
-    if (val === type) return key;
+export function barlineTypeName(value: BarLineType, barLineType: BarLineTypeEnum): string {
+  for (const [key, val] of Object.entries(barLineType)) {
+    if (val === value) return key;
   }
-  return `Unknown(${type})`;
+  return `Unknown(${value})`;
 }
 
 export interface StructureElement {
@@ -114,7 +121,11 @@ function fractionStr(frac: { str: string } | null | undefined): string {
   return frac?.str ?? "?";
 }
 
-export function buildStructure(score: Score | null): string {
+export function buildStructure(
+  score: Score | null,
+  noteType: NoteTypeEnum,
+  barLineType: BarLineTypeEnum,
+): string {
   if (!score) {
     return JSON.stringify({ error: "no score is open" }, null, 2);
   }
@@ -164,7 +175,8 @@ export function buildStructure(score: Score | null): string {
     const timeSig = getMeasureTimeSig(measure);
     const repeatInfo = getMeasureRepeatInfo(measure);
     const endBarlineType = getMeasureEndBarlineType(measure);
-    const barline = endBarlineType != null ? barlineTypeName(endBarlineType) : "Normal";
+    const barline =
+      endBarlineType != null ? barlineTypeName(endBarlineType, barLineType) : "Normal";
 
     const tempoChanges: TempoChangeInfo[] = [];
     const staffAnnotationMap = new Map<number, AnnotationInfo[]>();
@@ -234,8 +246,8 @@ export function buildStructure(score: Score | null): string {
               type: "Chord",
               dur: fractionStr(chord.duration),
               notes: chord.notes.map((n) => midiToName(n.pitch)),
-              ...(chord.noteType !== NoteType.NORMAL && {
-                noteType: getNoteTypeName(chord.noteType),
+              ...(chord.noteType !== noteType.NORMAL && {
+                noteType: getNoteTypeName(chord.noteType, noteType),
               }),
             };
           } else if (isRest(el)) {
@@ -285,7 +297,11 @@ export function buildStructure(score: Score | null): string {
   return JSON.stringify(structure, null, 2);
 }
 
-export function run(score: Score | null): void {
-  const json = buildStructure(score);
+export function run(
+  score: Score | null,
+  noteType: NoteTypeEnum,
+  barLineType: BarLineTypeEnum,
+): void {
+  const json = buildStructure(score, noteType, barLineType);
   console.log(json);
 }

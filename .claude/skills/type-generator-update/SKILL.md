@@ -46,6 +46,9 @@ pnpm build
 - **C++ 型のマッピング失敗**: `map-types.ts` に未知の Qt 型が出ると `unknown` にフォールバックされる。`packages/types-generator/src/map-types.ts` のマッピングテーブルに追加する。
 - **クラス名の衝突**: 複数ヘッダに同名クラスが出た場合は `emit.ts` がマージを試みるが、プロパティ衝突があると `Omit<...>` で解消する。
 - **手書きファイルとの齟齬**: `src/globals.ts` / `src/manifest.ts` が generated の型に依存している場合は合わせて修正する。
+- **ホスト型 `MuseScore` / 実行時 enum**: `config.json` の headers には `qmlpluginapi.h` が含まれ、`PluginAPI` がホスト型 `MuseScore` として生成される。`DECLARE_API_ENUM(QmlName, _, ::Enum)` は `readonly QmlName: RuntimeEnum<typeof Enum>` として出力される（対応する enum が生成されていないものはスキップされ、generate 時に警告が出る）。新バージョンで enum が追加され `host.<NewEnum>` を使いたい場合は、その enum を含むヘッダが `enumHeaders` にあるか確認する。
+
+> `host.<Enum>` プロパティが「未生成のためスキップ」警告で出ない場合、その enum 定義ヘッダ（多くは `engraving/dom/*.h` や `engraving/types/types.h`）を `config.json` の `enumHeaders` に追加して再生成する。
 
 ## ステップ 4: コミットとPR
 

@@ -33,6 +33,15 @@ export {
 } from "./navigation.js";
 export { getNoteTypeName, isGraceNote, isGraceNoteAfter, isGraceNoteBefore } from "./note-type.js";
 export { getNotePitches, getNoteSpellings, type NoteSpelling } from "./pitch.js";
+export {
+  assertHostVersion,
+  checkHostVersion,
+  type DefinePluginOptions,
+  definePlugin,
+  type HostVersionCheck,
+  strictEnum,
+  type VersionMismatchMode,
+} from "./plugin.js";
 export { isChord, isNote, isRest } from "./predicates.js";
 export {
   getSelectedElements,
