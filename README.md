@@ -79,13 +79,31 @@ pnpm format       # biome format --write
 
 ```
 my-plugin/
-├── plugin.qml          # 手書き。MuseScore { ... onRun: { Logic.run(curScore) } } を宣言
-├── src/logic.ts        # `import type { Score } from "@kjfsm/musescore-plugin-sdk-types"` を使う TypeScript
+├── plugin.qml          # 手書き。MuseScore { id: mscore; ... onRun: { Logic.run(mscore) } } を宣言
+├── src/logic.ts        # definePlugin({ run(host) {...} }) を export する TypeScript
 ├── musescore.config.ts # PluginManifest（参考情報。実体は QML が真）
 └── build.ts            # esbuild スクリプト：src/logic.ts → dist/logic.js をバンドルし、plugin.qml をコピー
 ```
 
-QML 側はビルド済みの JS を `import "logic.js" as Logic` で読み込み、`onRun` から `Logic.run(curScore)` を呼び出します。
+QML 側はビルド済みの JS を `import "logic.js" as Logic` で読み込み、`onRun` から `MuseScore { }` オブジェクト自身（ホスト）を `Logic.run(mscore)` で渡します。TS 側は helpers の `definePlugin` で受け、`host.curScore` / `host.Element` / `host.cmd(...)` など API 全体へ型付きでアクセスします。
+
+```ts
+// src/logic.ts
+import { definePlugin, iterateNotes } from "@kjfsm/musescore-plugin-sdk-helpers";
+
+export const run = definePlugin({
+  run(host) {
+    const score = host.curScore;
+    if (!score) return;
+    for (const note of iterateNotes(score)) {
+      // enum 値は焼き込まず、実行中の MuseScore が解決した値で判定する
+      if (note.type === host.Element.NOTE) console.log("note!");
+    }
+  },
+});
+```
+
+ホスト型 `MuseScore`（`curScore`・全 enum・メソッド・`mscoreMajorVersion` 等）は公式ヘッダ `qmlpluginapi.h` から自動生成されます。enum 値をビルド時に焼き込まないため、MuseScore のバージョン差で enum が並び替わっても壊れません。`definePlugin` は起動時に型の生成元バージョンと実行版を照合し、不一致を既定で警告します。
 
 ビルド済みプラグインを MuseScore 4 にインストールする手順:
 

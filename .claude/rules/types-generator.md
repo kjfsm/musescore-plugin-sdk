@@ -23,9 +23,9 @@ CI の `generated-types-drift` ジョブが `pnpm generate:types` を実行し�
 `packages/types-generator/src/` にある以下のファイルが順に実行される。
 
 1. **`fetch.ts`** — `resolveCommitSha` が GitHub API を介して `ref`（例: `v4.6.0`）を 40 文字の SHA に固定。`fetchHeaders` が `config.json` に列挙された各ヘッダをダウンロード。`.cache/<ref>/` にキャッシュされるため再実行はオフラインでも可能。
-2. **`parse.ts`** — 正規表現ベースのパーサ（tree-sitter 依存なし）。`class Foo : public Bar { ... }` ブロックを見つけ、`Q_PROPERTY`・`Q_INVOKABLE` メソッド・enum を抽出。
+2. **`parse.ts`** — 正規表現ベースのパーサ（tree-sitter 依存なし）。`class Foo : public Bar { ... }` ブロックを見つけ、`Q_PROPERTY`・`Q_INVOKABLE` メソッド・enum を抽出。`DECLARE_API_ENUM(QmlName, _, ::Enum)` / `DECLARE_API_ENUM2` も抽出し、`@enumobj:<EnumName>` センチネルで運ぶ（ホスト型の実行時 enum プロパティ用）。
 3. **`map-types.ts`** — C++ 型 → TypeScript マッピング（`qreal/int` → `number`、`QString` → `string`、`QList<T>` → `T[]` 等）。名前空間（`mu::engraving::apiv1::` 等）は剥がす。
-4. **`emit.ts`** — `plugin-api.ts` と `enums.ts` を生成。同じクラスが複数ヘッダにある場合はマージし、継承は `extends`、名前衝突は `Omit<...>` で解消。enum は `as const` + ユニオン型。
+4. **`emit.ts`** — `plugin-api.ts` と `enums.ts` を生成。同じクラスが複数ヘッダにある場合はマージし、継承は `extends`、名前衝突は `Omit<...>` で解消。enum は `as const` + ユニオン型。`config.json` の headers に含まれる `qmlpluginapi.h` の `PluginAPI` はホスト型 `MuseScore` にリネームして生成し、`DECLARE_API_ENUM` 由来のプロパティは `readonly QmlName: RuntimeEnum<typeof Enum>` として出力（生成 enum が無いものはスキップ＋警告）。
 5. **`index.ts`** — パイプライン統括。`{repository, tag, commitSha}` を含む `_meta.ts` を書き出す（タイムスタンプは記録しない — 出力は純粋関数でなければならない）。
 
 ## MuseScore バージョンを上げる手順
