@@ -1,14 +1,22 @@
-import type { ElementEnum, Score } from "@kjfsm/musescore-plugin-sdk-types";
+import type { MuseScore, Score } from "@kjfsm/musescore-plugin-sdk-types";
 import { describe, expect, it, vi } from "vitest";
 import { run } from "./logic.js";
 
-// 実機では MuseScore が渡す `Element`。テストでは使うメンバだけのモックで代用する。
-const Element = { NOTE: 28 } as unknown as ElementEnum;
+// 実機では QML が MuseScore オブジェクトを渡す。テストでは使うメンバだけのモックで代用する。
+function mockHost(score: Score | null): MuseScore {
+  return {
+    curScore: score,
+    Element: { NOTE: 28 },
+    mscoreMajorVersion: 4,
+    mscoreMinorVersion: 7,
+    log: () => {},
+  } as unknown as MuseScore;
+}
 
 describe("hello-world plugin", () => {
   it("logs 'no score is open' when score is null", () => {
     const log = vi.spyOn(console, "log").mockImplementation(() => {});
-    run(null, Element);
+    run(mockHost(null));
     expect(log).toHaveBeenCalledWith("hello from typescript");
     expect(log).toHaveBeenCalledWith("no score is open");
     log.mockRestore();
@@ -22,7 +30,7 @@ describe("hello-world plugin", () => {
       selection: null,
       metaTag: () => "",
     } as unknown as Score;
-    run(score, Element);
+    run(mockHost(score));
     expect(log).toHaveBeenCalledWith("hello from typescript");
     expect(log).toHaveBeenCalledWith("title: (untitled)");
     expect(log).toHaveBeenCalledWith("no range selection");

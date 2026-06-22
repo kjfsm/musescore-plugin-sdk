@@ -4,6 +4,7 @@ import MuseScore 3.0
 import "logic.js" as Logic
 
 MuseScore {
+  id: mscore
   menuPath: "Plugins.Hello World"
   title: "Hello World"
   version: "0.1.0"
@@ -12,8 +13,8 @@ MuseScore {
   requiresScore: false
 
   onRun: {
-    // `Element` は MuseScore オブジェクトのプロパティで、実行中の版が値を解決する enum。
-    // ビルド時に値を焼き込まず、ここで実行時の enum を引数として渡す。
-    Logic.run(curScore, Element)
+    // ホスト（この MuseScore オブジェクト自身）を丸ごと渡す。curScore も全 enum も
+    // メソッドも、実行中の版から型付きで TS 側に渡る。
+    Logic.run(mscore)
   }
 }

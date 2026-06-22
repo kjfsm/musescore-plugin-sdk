@@ -3,6 +3,7 @@
   "repository": "musescore/MuseScore",
   "ref": "v4.7.3",
   "headers": [
+    "src/engraving/api/v1/qmlpluginapi.h",
     "src/engraving/api/v1/scoreelement.h",
     "src/engraving/api/v1/score.h",
     "src/engraving/api/v1/cursor.h",
