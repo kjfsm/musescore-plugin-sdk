@@ -25,6 +25,10 @@
 
 > changeset は番号を直接指定できない。bump 種別から計算され、結果は Version Packages PR に出る（公開前に必ず確認する）。
 
+### 例外: MuseScore バージョンを跨がない破壊的変更
+
+型安全性の強化など、同じ MuseScore 対応のまま公開 API の形（`enums.ts` の出力形など）を破壊的に変える場合も `major` を使う。この場合 major 番号は MuseScore の minor 更新とは対応しなくなる（例: 4.7 対応のまま `1.x → 2.0.0`）ため、`generatedFrom.tag` を必ず確認し、対応表とズレていないか changeset の説明に明記する。
+
 ## ブランチモデル
 
 - `main` … 最新 MuseScore 系列（現在 4.7 = `1.x`）。

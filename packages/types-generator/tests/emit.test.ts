@@ -122,9 +122,11 @@ describe("emit", () => {
 
     expect(out.pluginApi).toContain("export interface MuseScore {");
     expect(out.pluginApi).not.toContain("export interface PluginAPI");
-    expect(out.pluginApi).toContain("type RuntimeEnum<T> = { readonly [K in keyof T]: number };");
     expect(out.pluginApi).toContain(
-      'readonly Element: RuntimeEnum<typeof import("./enums.js").ElementType>;',
+      "type RuntimeEnum<Name extends string, Value> = { readonly [K in Name]: Value };",
+    );
+    expect(out.pluginApi).toContain(
+      'readonly Element: RuntimeEnum<import("./enums.js").ElementTypeName, import("./enums.js").ElementType>;',
     );
     // 未生成 enum のプロパティは出力されず警告される。
     expect(out.pluginApi).not.toContain("Nope");
@@ -132,5 +134,38 @@ describe("emit", () => {
     // PluginApiClassName のユニオンもリネーム後の名前を含む。
     expect(out.pluginApi).toContain('"MuseScore"');
     expect(out.pluginApi).not.toContain('"PluginAPI"');
+  });
+
+  it("emits enums as type-only branded values, not runtime const objects", () => {
+    const enumOut = emit({
+      perFile: [
+        {
+          path: "barline.h",
+          result: {
+            classes: [],
+            enums: [
+              {
+                name: "BarLineType",
+                members: [
+                  { name: "NORMAL", value: "0" },
+                  { name: "END", value: "1" },
+                ],
+              },
+            ],
+          },
+        },
+      ],
+    });
+
+    // 値を持つ `export const` は出力しない — 誤って値として使うとコンパイルエラーになる。
+    expect(enumOut.enums).not.toContain("export const BarLineType");
+    expect(enumOut.enums).not.toContain(": 0,");
+    expect(enumOut.enums).not.toContain(": 1,");
+    // メンバ名はユニオン型として、値はブランド化された number 型として出力する。
+    expect(enumOut.enums).toContain('export type BarLineTypeName = "NORMAL" | "END";');
+    expect(enumOut.enums).toContain('export type BarLineType = EnumValue<"BarLineType">;');
+    expect(enumOut.enums).toContain(
+      "type EnumValue<Tag extends string> = number & { readonly __enum: Tag };",
+    );
   });
 });

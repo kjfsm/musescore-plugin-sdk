@@ -1,4 +1,8 @@
-import { BarLineType } from "@kjfsm/musescore-plugin-sdk-types";
+import type {
+  BarLineType,
+  BarLineTypeEnum,
+  BarLineTypeName,
+} from "@kjfsm/musescore-plugin-sdk-types";
 
 export type BarlineKind =
   | "final"
@@ -8,36 +12,33 @@ export type BarlineKind =
   | "repeat_both"
   | "other";
 
-function assertNever(x: never): never {
-  throw new Error(`Unhandled BarLineType: ${x}`);
-}
+// Single source of truth: BarLineType member name → semantic category.
+// Repeat barlines are distinguished into start / end / both (END_START_REPEAT) so callers
+// can match opening and closing repeats. `Record<BarLineTypeName, ...>` guarantees every
+// member is classified — a member added upstream and missing here is a compile error.
+const BARLINE_KIND: Record<BarLineTypeName, BarlineKind> = {
+  END: "final",
+  REVERSE_END: "final",
+  DOUBLE: "double",
+  START_REPEAT: "repeat_start",
+  END_REPEAT: "repeat_end",
+  END_START_REPEAT: "repeat_both",
+  NORMAL: "other",
+  BROKEN: "other",
+  DOTTED: "other",
+  HEAVY: "other",
+  DOUBLE_HEAVY: "other",
+};
 
 /**
  * Classifies a BarLineType value into a semantic category.
- * Repeat barlines are distinguished into start / end / both (END_START_REPEAT)
- * so callers can match opening and closing repeats.
- * The exhaustive switch ensures TypeScript errors if BarLineType gains new values.
+ * `type` is the raw runtime value (e.g. `el.barlineType`); `barLineType` is the host's
+ * runtime enum object (e.g. `host.BarLineType`) used to resolve member values without
+ * baking in a specific MuseScore version's int assignment.
  */
-export function classifyBarlineKind(type: BarLineType): BarlineKind {
-  switch (type) {
-    case BarLineType.END:
-    case BarLineType.REVERSE_END:
-      return "final";
-    case BarLineType.DOUBLE:
-      return "double";
-    case BarLineType.START_REPEAT:
-      return "repeat_start";
-    case BarLineType.END_REPEAT:
-      return "repeat_end";
-    case BarLineType.END_START_REPEAT:
-      return "repeat_both";
-    case BarLineType.NORMAL:
-    case BarLineType.BROKEN:
-    case BarLineType.DOTTED:
-    case BarLineType.HEAVY:
-    case BarLineType.DOUBLE_HEAVY:
-      return "other";
-    default:
-      return assertNever(type);
+export function classifyBarlineKind(type: BarLineType, barLineType: BarLineTypeEnum): BarlineKind {
+  for (const name of Object.keys(BARLINE_KIND) as BarLineTypeName[]) {
+    if (barLineType[name] === type) return BARLINE_KIND[name];
   }
+  return "other";
 }

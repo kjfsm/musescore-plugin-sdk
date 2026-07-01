@@ -92,7 +92,9 @@ export function emit(input: EmitInput): EmitOutput {
     ),
   );
   if (usesEnumObject) {
-    pluginApiLines.push("type RuntimeEnum<T> = { readonly [K in keyof T]: number };");
+    pluginApiLines.push(
+      "type RuntimeEnum<Name extends string, Value> = { readonly [K in Name]: Value };",
+    );
     pluginApiLines.push("");
   }
 
@@ -123,7 +125,7 @@ export function emit(input: EmitInput): EmitOutput {
           continue;
         }
         pluginApiLines.push(
-          `  readonly ${prop.name}: RuntimeEnum<typeof import("./enums.js").${enumName}>;`,
+          `  readonly ${prop.name}: RuntimeEnum<import("./enums.js").${enumName}Name, import("./enums.js").${enumName}>;`,
         );
         continue;
       }
@@ -191,27 +193,32 @@ export function emit(input: EmitInput): EmitOutput {
   const enumLines: string[] = [];
   enumLines.push(HEADER);
   enumLines.push("");
+  enumLines.push(
+    "// apiv1 の enum は int で表現されるが、MuseScore のバージョン間で並び替わりうる（例:",
+  );
+  enumLines.push(
+    "// 4.7.2→4.7.3 の ElementType 再採番）。特定の int リテラルに固定せず、実行時にホストの",
+  );
+  enumLines.push(
+    "// 該当プロパティ（例: `host.Element.NOTE`）から解決する前提で「型」だけを表す。",
+  );
+  enumLines.push("// Tag で enum 種別をブランドし、異なる enum 同士の値比較を型エラーにする。");
+  enumLines.push("type EnumValue<Tag extends string> = number & { readonly __enum: Tag };");
+  enumLines.push("");
   for (const en of dedupedEnums) {
     if (en.members.length === 0) continue;
-    enumLines.push(`export const ${en.name} = {`);
-    let next = 0;
+    const names: string[] = [];
     for (const m of en.members) {
-      if (m.value !== undefined) {
-        const n = Number(m.value);
-        if (!Number.isFinite(n)) {
-          // 他メンバーへの参照や式（例: "BarLineType::NORMAL"）は数値として評価できないため
-          // スキップする。TypeScript の型は純粋な数値リテラルのユニオンになる。
-          continue;
-        }
-        next = n + 1;
-        enumLines.push(`  ${m.name}: ${n},`);
-      } else {
-        enumLines.push(`  ${m.name}: ${next},`);
-        next++;
+      if (m.value !== undefined && !Number.isFinite(Number(m.value))) {
+        // 他メンバーへの参照や式（例: "BarLineType::NORMAL"）は数値として評価できないため
+        // スキップする。
+        continue;
       }
+      names.push(m.name);
     }
-    enumLines.push("} as const;");
-    enumLines.push(`export type ${en.name} = (typeof ${en.name})[keyof typeof ${en.name}];`);
+    if (names.length === 0) continue;
+    enumLines.push(`export type ${en.name}Name = ${names.map((n) => `"${n}"`).join(" | ")};`);
+    enumLines.push(`export type ${en.name} = EnumValue<"${en.name}">;`);
     enumLines.push("");
   }
 
