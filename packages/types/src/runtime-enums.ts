@@ -1,17 +1,24 @@
-// `typeof import(...)` で生成 enum の「型」だけを参照する。値 import をしないため
-// JS 出力には何も漏れず、`verbatimModuleSyntax` の有無にも依存しない。
-type GeneratedEnums = typeof import("./generated/enums.js");
+import type {
+  BarLineType,
+  BarLineTypeName,
+  ElementType,
+  ElementTypeName,
+  NoteType,
+  NoteTypeName,
+} from "./generated/enums.js";
 
 /**
  * MuseScore (`MuseScore { }` ブロック) から実行時に渡される enum オブジェクトの型。
  *
  * QML の `Element` / `NoteType` などは「実行中の MuseScore が提供する」enum で、
- * `Element.NOTE` はその版の int 値に実行時解決される。値をビルド時に焼き込まないため、
+ * `Element.NOTE` はその版の int 値に実行時解決される。生成 enum は型のみ（`const` を持たない
+ * ブランド化された number 型）で出力されるため、値をビルド時に焼き込むこと自体ができない。
  * MuseScore のバージョン差で enum 値が並び替わっても壊れない（公式プラグインと同じ流儀）。
  *
- * - キー（メンバ名）は生成済み enum から型付けされる → `Element.NOITE` のようなタイポや
+ * - キー（メンバ名）は生成済み `<Enum>Name` から型付けされる → `Element.NOITE` のようなタイポや
  *   上流のリネームをコンパイル時に検出できる。
- * - 値は `number`（実行時に解決されるため、特定の int リテラルに固定しない）。
+ * - 値は生成済みブランド型（`ElementType` 等）。ブランドが異なる enum 同士の比較
+ *   （例: `el.type === host.NoteType.NORMAL`）は型エラーになる。
  *
  * @example
  * ```ts
@@ -27,22 +34,15 @@ type GeneratedEnums = typeof import("./generated/enums.js");
  * 述語（`isNote` 等）のように `el.name` 文字列で判定でき、この enum オブジェクトを渡す必要はない。
  * `NoteType` / `BarLineType` のように int でしか取得できない enum で本型が必要になる。
  */
-export type RuntimeEnum<T> = { readonly [K in keyof T]: number };
+export type RuntimeEnum<Name extends string, Value> = { readonly [K in Name]: Value };
+
+export type { BarLineTypeName, ElementTypeName, NoteTypeName };
 
 /** 実行時の `Element` enum オブジェクト（`ElementType` のメンバ名でキー付け）。 */
-export type ElementEnum = RuntimeEnum<GeneratedEnums["ElementType"]>;
+export type ElementEnum = RuntimeEnum<ElementTypeName, ElementType>;
 
 /** 実行時の `NoteType` enum オブジェクト。 */
-export type NoteTypeEnum = RuntimeEnum<GeneratedEnums["NoteType"]>;
+export type NoteTypeEnum = RuntimeEnum<NoteTypeName, NoteType>;
 
 /** 実行時の `BarLineType` enum オブジェクト。 */
-export type BarLineTypeEnum = RuntimeEnum<GeneratedEnums["BarLineType"]>;
-
-/** `ElementType` のメンバ名のユニオン（"NOTE" | "CHORD" | ...）。`keyof ElementEnum` と等価。 */
-export type ElementTypeName = keyof ElementEnum;
-
-/** `NoteType` のメンバ名のユニオン（"NORMAL" | "ACCIACCATURA" | ...）。`keyof NoteTypeEnum` と等価。 */
-export type NoteTypeName = keyof NoteTypeEnum;
-
-/** `BarLineType` のメンバ名のユニオン（"NORMAL" | "DOUBLE" | ...）。`keyof BarLineTypeEnum` と等価。 */
-export type BarLineTypeName = keyof BarLineTypeEnum;
+export type BarLineTypeEnum = RuntimeEnum<BarLineTypeName, BarLineType>;

@@ -188,19 +188,21 @@ import type { BarlineKind } from "@kjfsm/musescore-plugin-sdk-helpers";
 
 | 関数 / 型 | シグネチャ | 説明 |
 | --- | --- | --- |
-| `classifyBarlineKind` | `(type: BarLineType) → BarlineKind` | `BarLineType` を意味的なカテゴリに分類する |
-| `BarlineKind` | `"final" \| "double" \| "repeat" \| "other"` | 分類結果の型 |
+| `classifyBarlineKind` | `(type: BarLineType, barLineType: BarLineTypeEnum) → BarlineKind` | `BarLineType` を意味的なカテゴリに分類する。`barLineType` は `host.BarLineType` のようなホストの実行時 enum オブジェクト |
+| `BarlineKind` | `"final" \| "double" \| "repeat_start" \| "repeat_end" \| "repeat_both" \| "other"` | 分類結果の型 |
 
-`BarLineType` の各値に対する分類:
+`BarLineType` の各メンバ名に対する分類:
 
-| `BarLineType` | `BarlineKind` |
+| `BarLineType` のメンバ名 | `BarlineKind` |
 | --- | --- |
 | `END`, `REVERSE_END` | `"final"` |
 | `DOUBLE` | `"double"` |
-| `START_REPEAT`, `END_REPEAT`, `END_START_REPEAT` | `"repeat"` |
+| `START_REPEAT` | `"repeat_start"` |
+| `END_REPEAT` | `"repeat_end"` |
+| `END_START_REPEAT` | `"repeat_both"` |
 | `NORMAL`, `BROKEN`, `DOTTED`, `HEAVY`, `DOUBLE_HEAVY` | `"other"` |
 
-`BarLineType` に新しい値が追加された場合、TypeScript がコンパイルエラーを出す exhaustive switch で実装されている。
+生成 enum（`BarLineType`）は値を持たない型のみなので、値の焼き込みはコンパイルエラーになる。分類は `Record<BarLineTypeName, BarlineKind>` で網羅されており、`BarLineType` に新しいメンバが追加され再生成された場合は未割当キーとしてコンパイルエラーになる。
 
 ---
 

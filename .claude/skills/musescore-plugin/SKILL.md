@@ -15,8 +15,8 @@ MuseScore 4 のプラグインは `.qml` ファイル（QML + 埋め込み JavaS
 - `globalName: "__musescorePlugin"` にエクスポートをまとめたうえで、フッタで各エクスポートをトップレベル変数に再バインドする。これが QML 側の `import "logic.js" as Logic` から `Logic.run` のように見えるための **唯一のブリッジ**。
 - `plugin.qml` は手書きで、`MuseScore { ... }` ブロックを宣言する。これが MuseScore に対する真のエントリポイント。
 - **ホスト（`MuseScore { }` オブジェクト）を丸ごと渡す。** QML 側で `id: mscore` を付け、`onRun: { Logic.run(mscore) }` のようにホスト自身を渡す。TS 側は helpers の `definePlugin({ run(host) {...} })` で受け、`host.curScore` / `host.Element` / `host.cmd(...)` など API 全体に型付きでアクセスする。ホスト型 `MuseScore` は `qmlpluginapi.h` から自動生成される。
-- 型は `@kjfsm/musescore-plugin-sdk-types` から取得する。`Score` などの API 型に加え、ホスト型 `MuseScore`、実行時 enum 型（`RuntimeEnum<T>` / `ElementEnum` 等）がある。`curScore` / `Qt.quit()` のグローバルも `@kjfsm/musescore-plugin-sdk-types/globals` にあるが、推奨はホスト経由（`host.curScore` / `host.quit()`）。
-- **enum 値は焼き込まず実行時に解決する。** `host.Element.NOTE` のように書くと、実行中の MuseScore が値を解決するため、バージョン差で enum が並び替わっても壊れない。`enums.ts` の定数を値として import して `el.type === ElementType.NOTE` と書くのは避ける（静かに誤判定しうる）。
+- 型は `@kjfsm/musescore-plugin-sdk-types` から取得する。`Score` などの API 型に加え、ホスト型 `MuseScore`、実行時 enum 型（`RuntimeEnum<Name, Value>` / `ElementEnum` 等）がある。`curScore` / `Qt.quit()` のグローバルも `@kjfsm/musescore-plugin-sdk-types/globals` にあるが、推奨はホスト経由（`host.curScore` / `host.quit()`）。
+- **enum は値を持たない型のみ、値は実行時ホストから取る。** `enums.ts` の生成 enum（例: `ElementType`）は値を持たないため、`ElementType.NOTE` のように値として使おうとするとコンパイルエラーになる。`host.Element.NOTE` のように書くと実行中の MuseScore が値を解決するため、バージョン差で enum が並び替わっても壊れない。
 
 ## 新しいプラグインを作るときの手順
 
@@ -176,7 +176,7 @@ await copyFile(resolve(here, "plugin.qml"), resolve(distDir, "plugin.qml"));
 - **トップレベル `await` / Node API / DOM API**: 使えない。`platform: "neutral"`、`target: "es2017"` の制約に従う。Promise 自体は使える。
 - **`host.curScore` の null チェック**: 何も開いていない状態でメニューから起動されると `null`。常に early return すること（`requiresScore: true` を付けても、防御的に書くのが安全）。
 - **ホストを渡し忘れる**: QML の `MuseScore { }` に `id: mscore` を付け、`onRun: { Logic.run(mscore) }` で渡す。`id` を付け忘れるとホスト参照が取れない。
-- **enum 値の焼き込み**: `host.Element.NOTE` のように実行時 enum で判定する。`ElementType.NOTE` を値 import して比較すると、MuseScore のバージョン差で静かに誤判定しうる。
+- **enum 値の焼き込み**: `host.Element.NOTE` のように実行時 enum で判定する。生成 enum（`ElementType` 等）は値を持たないため、`ElementType.NOTE` を値として使おうとするとそもそもコンパイルが通らない。
 - **`plugin.qml` と `musescore.config.ts` の不一致**: 実行時に効くのは QML 側のみ。`musescore.config.ts` はツーリング用。両者を必ず同期させる。
 - **`.qml` のフォーマット**: Biome の対象外（`biome.json` で除外済み）。空白に頼らない。
 
@@ -198,18 +198,18 @@ import type { MuseScore, Score, Cursor, Note } from "@kjfsm/musescore-plugin-sdk
 
 MuseScore 本体のバージョンを上げるときは `config.json` の `ref`（例: `v4.6.0`）を変えて再生成する。
 
-enum は `as const` オブジェクト + ユニオン型として出力されており、apiv1 の API では実体は数値。ただし**値はバージョンで並び替わる**ため、定数を焼き込まずホストの実行時 enum を使う:
+enum は**値を持たない型のみ**として出力されており（`export const` は無い）、apiv1 の API では実体は数値だが**値はバージョンで並び替わる**ため、生成 enum を値として使うこと自体がコンパイルエラーになる。必ずホストの実行時 enum を使う:
 
 ```ts
 // ✅ ホストの実行時 enum（値は実行中の MuseScore が解決する）
 if (note.type === host.Element.NOTE) { /* ... */ }
 
-// ❌ 生成定数の焼き込み（バージョン差で静かに誤判定）
+// ❌ コンパイルエラー: ElementType は値を持たない型のみ
 import { ElementType } from "@kjfsm/musescore-plugin-sdk-types";
-if (note.type === ElementType.NOTE) { /* ... */ }
+if (note.type === ElementType.NOTE) { /* ... */ } // Error: 'ElementType' only refers to a type
 ```
 
-`host.Element` 等の型は `RuntimeEnum<typeof ElementType>`（キーは生成 enum で型チェック、値は `number`）。要素側に名前がある型は helpers の述語（`isNote` 等、`el.name` 文字列判定）でも区別できる。
+`host.Element` 等の型は `RuntimeEnum<ElementTypeName, ElementType>`（キーは生成 enum の `<Enum>Name` で型チェック、値はブランド化された `ElementType`）。ブランドが異なる enum 同士の比較（例: `note.type === host.NoteType.NORMAL`）も型エラーになる。要素側に名前がある型は helpers の述語（`isNote` 等、`el.name` 文字列判定）でも区別できる。
 
 ## テスト
 

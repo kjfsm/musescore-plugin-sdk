@@ -22,14 +22,16 @@ export function run(host: MuseScore): void {
 
 ## 実行時 enum とホスト型
 
-apiv1 の `element.type` は実行時に C++ enum の生の整数を返す。`enums.ts` の定数を**値として**焼き込んで比較すると、MuseScore のバージョン差で enum が並び替わったとき（例: 4.7.2→4.7.3 で `ElementType` が再採番）に静かに誤判定する。
+apiv1 の `element.type` は実行時に C++ enum の生の整数を返す。この値は MuseScore のバージョン差で並び替わりうる（例: 4.7.2→4.7.3 で `ElementType` が再採番）。そのため生成 enum（`enums.ts`）は**値を持たない型のみ**として出力される — `ElementType.NOTE` のように値として使おうとすると、そもそもコンパイルが通らない。
 
-そのため、enum 値は焼き込まず**実行時のホスト enum**（`host.Element` など）を使う。型側はキーだけを生成 enum から取り、値は `number` として実行時に解決する:
+比較には**実行時のホスト enum**（`host.Element` など）を使う。型側はキー（メンバ名）だけを生成 enum の `<Enum>Name` から取り、値はブランド化された生成 enum の型（実行時に解決される）になる:
 
-- `MuseScore` — ホスト型（`qmlpluginapi.h` から自動生成。enum プロパティは `RuntimeEnum<...>` 型）。
-- `RuntimeEnum<T>` / `ElementEnum` / `NoteTypeEnum` / `BarLineTypeEnum` — 実行時 enum オブジェクトの型。
+- `MuseScore` — ホスト型（`qmlpluginapi.h` から自動生成。enum プロパティは `RuntimeEnum<Name, Value>` 型）。
+- `RuntimeEnum<Name, Value>` / `ElementEnum` / `NoteTypeEnum` / `BarLineTypeEnum` — 実行時 enum オブジェクトの型。
 - `ElementTypeName` / `NoteTypeName` / `BarLineTypeName` — enum メンバ名のユニオン。
 - `generatedFrom` — 型を生成した MuseScore バージョン（`{ repository, tag, commitSha }`）。バージョン照合に使える。
+
+生成 enum の値はブランド化されている（例: `ElementType` と `NoteType` は互いに代入不可）ため、`el.type === host.NoteType.NORMAL` のような enum の取り違えも型エラーで検出できる。
 
 エントリ定義・バージョン照合のヘルパ（`definePlugin` / `assertHostVersion` 等）は `@kjfsm/musescore-plugin-sdk-helpers` にある。
 

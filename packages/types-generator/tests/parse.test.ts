@@ -35,13 +35,16 @@ describe("parseHeader / emit", () => {
     ]);
 
     const out = emit({ perFile: [], enumOnlyFiles: [{ path: "enum-base.h", result }] });
-    expect(out.enums).toContain("export const NoteType = {");
-    expect(out.enums).toContain("  NORMAL: 0,");
-    expect(out.enums).toContain("  ACCIACCATURA: 1,");
-    expect(out.enums).toContain("  INVALID: 255,");
-    expect(out.enums).toContain("export const PlayEventType = {");
-    expect(out.enums).toContain("  Auto: 0,");
-    expect(out.enums).toContain("  User: 1,");
+    // 値は焼き込まず、メンバ名のユニオン + ブランド化された number 型のみを出力する。
+    expect(out.enums).not.toContain("export const NoteType");
+    expect(out.enums).toContain('export type NoteType = EnumValue<"NoteType">;');
+    expect(out.enums).toContain("NORMAL");
+    expect(out.enums).toContain("ACCIACCATURA");
+    expect(out.enums).toContain("INVALID");
+    expect(out.enums).not.toContain("export const PlayEventType");
+    expect(out.enums).toContain('export type PlayEventType = EnumValue<"PlayEventType">;');
+    expect(out.enums).toContain('"Auto"');
+    expect(out.enums).toContain('"User"');
   });
 
   it("parses API_PROPERTY macros and resolves known QVariant types", async () => {
