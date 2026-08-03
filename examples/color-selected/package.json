@@ -1,6 +1,6 @@
 {
   "name": "@kjfsm/musescore-plugin-sdk-color-selected",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "private": true,
   "type": "module",
   "scripts": {

@@ -1,6 +1,6 @@
 {
   "name": "@kjfsm/musescore-plugin-sdk-types",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "TypeScript type definitions for the MuseScore 4 Plugin API.",
   "license": "MIT",
   "type": "module",
