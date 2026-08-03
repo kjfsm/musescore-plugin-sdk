@@ -5,6 +5,8 @@ export type { PluginManifest } from "./manifest.js";
 export type {
   BarLineTypeEnum,
   BarLineTypeName,
+  BracketTypeEnum,
+  BracketTypeName,
   ElementEnum,
   ElementTypeName,
   NoteTypeEnum,

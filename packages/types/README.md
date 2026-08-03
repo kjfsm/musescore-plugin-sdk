@@ -27,8 +27,8 @@ apiv1 の `element.type` は実行時に C++ enum の生の整数を返す。こ
 比較には**実行時のホスト enum**（`host.Element` など）を使う。型側はキー（メンバ名）だけを生成 enum の `<Enum>Name` から取り、値はブランド化された生成 enum の型（実行時に解決される）になる:
 
 - `MuseScore` — ホスト型（`qmlpluginapi.h` から自動生成。enum プロパティは `RuntimeEnum<Name, Value>` 型）。
-- `RuntimeEnum<Name, Value>` / `ElementEnum` / `NoteTypeEnum` / `BarLineTypeEnum` — 実行時 enum オブジェクトの型。
-- `ElementTypeName` / `NoteTypeName` / `BarLineTypeName` — enum メンバ名のユニオン。
+- `RuntimeEnum<Name, Value>` / `ElementEnum` / `NoteTypeEnum` / `BarLineTypeEnum` / `BracketTypeEnum` — 実行時 enum オブジェクトの型。
+- `ElementTypeName` / `NoteTypeName` / `BarLineTypeName` / `BracketTypeName` — enum メンバ名のユニオン。
 - `generatedFrom` — 型を生成した MuseScore バージョン（`{ repository, tag, commitSha }`）。バージョン照合に使える。
 
 生成 enum の値はブランド化されている（例: `ElementType` と `NoteType` は互いに代入不可）ため、`el.type === host.NoteType.NORMAL` のような enum の取り違えも型エラーで検出できる。

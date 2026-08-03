@@ -1,6 +1,8 @@
 import type {
   BarLineType,
   BarLineTypeName,
+  BracketType,
+  BracketTypeName,
   ElementType,
   ElementTypeName,
   NoteType,
@@ -36,7 +38,7 @@ import type {
  */
 export type RuntimeEnum<Name extends string, Value> = { readonly [K in Name]: Value };
 
-export type { BarLineTypeName, ElementTypeName, NoteTypeName };
+export type { BarLineTypeName, BracketTypeName, ElementTypeName, NoteTypeName };
 
 /** 実行時の `Element` enum オブジェクト（`ElementType` のメンバ名でキー付け）。 */
 export type ElementEnum = RuntimeEnum<ElementTypeName, ElementType>;
@@ -46,3 +48,11 @@ export type NoteTypeEnum = RuntimeEnum<NoteTypeName, NoteType>;
 
 /** 実行時の `BarLineType` enum オブジェクト。 */
 export type BarLineTypeEnum = RuntimeEnum<BarLineTypeName, BarLineType>;
+
+/**
+ * 実行時の `BracketType` enum オブジェクト。
+ *
+ * システムブラケット（`Staff.brackets` の各要素が持つ `systemBracket`）は int でしか
+ * 取得できず、要素側に名前アクセサが無いため、判定にはこの enum オブジェクトが要る。
+ */
+export type BracketTypeEnum = RuntimeEnum<BracketTypeName, BracketType>;
