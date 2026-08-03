@@ -1,5 +1,15 @@
 # @musescore-sdk/types
 
+## 2.1.0
+
+### Minor Changes
+
+- [#44](https://github.com/kjfsm/musescore-plugin-sdk/pull/44) [`66c7b9a`](https://github.com/kjfsm/musescore-plugin-sdk/commit/66c7b9a89d5982e271bf028d312265e4369c1a85) Thanks [@kjfsm](https://github.com/kjfsm)! - 実行時 enum オブジェクトの型 `BracketTypeEnum` を追加
+
+  システムブラケット（`Staff.brackets` の各要素が持つ `systemBracket`）は int でしか取得できず、`ElementType` のような名前アクセサも無いため、判定には実行時 enum オブジェクトを QML から受け渡す必要がある。しかし `ElementEnum` / `NoteTypeEnum` / `BarLineTypeEnum` しか用意されておらず、利用側で `RuntimeEnum<BracketTypeName, BracketType>` を合成するしかなかった。
+
+  あわせて `BracketTypeName` も re-export し、`BarLineTypeName` などと同じくパッケージのルートから型名で参照できるようにした。
+
 ## 2.0.0
 
 ### Major Changes

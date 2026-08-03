@@ -1,6 +1,6 @@
 {
   "name": "@kjfsm/musescore-plugin-sdk-helpers",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "description": "Lightweight runtime helpers for MuseScore 4 plugins written with @kjfsm/musescore-plugin-sdk-types.",
   "license": "MIT",
   "type": "module",
